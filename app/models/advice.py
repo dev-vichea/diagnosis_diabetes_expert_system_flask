@@ -13,10 +13,11 @@ class Advice(db.Model):
 
     title = db.Column(db.String(160), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    recommendations_json = db.Column(db.JSON)
 
     severity = db.Column(db.String(20), default="INFO", nullable=False)  # INFO, WARNING, ALERT
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     __table_args__ = (
         Index("ix_advices_code_risk", "diagnosis_code", "risk_level"),

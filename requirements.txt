@@ -1,1 +1,11 @@
+alembic>=1.13
 cryptography>=41
+Flask>=3.0
+Flask-JWT-Extended>=4.6
+Flask-Migrate>=4.0
+Flask-SQLAlchemy>=3.1
+PyMySQL>=1.1
+python-dotenv>=1.0
+requests>=2.31
+SQLAlchemy>=2.0
+Werkzeug>=3.0

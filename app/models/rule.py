@@ -8,14 +8,20 @@ class Rule(db.Model):
     __tablename__ = "tbl_rules"
 
     id = db.Column(db.Integer, primary_key=True)
+    rule_code = db.Column(db.String(80), unique=True)
+    title = db.Column(db.String(160))
     name = db.Column(db.String(160), nullable=False)
 
+    diagnosis = db.Column(db.String(120))
     diagnosis_code = db.Column(db.String(80), nullable=False)  # TYPE1, TYPE2, DIABETES_RISK...
     risk_level = db.Column(db.String(30), nullable=False)      # LOW, MODERATE, HIGH
 
     priority = db.Column(db.Integer, default=0, nullable=False)
+    confidence = db.Column(db.Integer)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    explanation_text = db.Column(db.Text)
 
     conditions = relationship("RuleCondition", back_populates="rule", cascade="all, delete-orphan")
 
@@ -30,6 +36,9 @@ class RuleCondition(db.Model):
     rule_id = db.Column(db.Integer, db.ForeignKey("tbl_rules.id", ondelete="CASCADE"), nullable=False)
     symptom_id = db.Column(db.Integer, db.ForeignKey("tbl_symptoms.id", ondelete="CASCADE"), nullable=False)
     expected_value = db.Column(db.Boolean, nullable=False)  # True=YES, False=NO
+    operator = db.Column(db.String(8), default="==", nullable=False)
+    value = db.Column(db.String(120))
+    logic_group = db.Column(db.String(40))
 
     rule = relationship("Rule", back_populates="conditions")
     symptom = relationship("Symptom", back_populates="rule_conditions")

@@ -8,6 +8,7 @@ from .rule import Rule, RuleCondition
 from .advice import Advice
 
 from .assessment import Assessment, AssessmentAnswer, AssessmentResult
+from .assessment_metric import AssessmentMetric
 from .audit_log import AuditLog
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "Assessment",
     "AssessmentAnswer",
     "AssessmentResult",
+    "AssessmentMetric",
     "AuditLog",
 ]

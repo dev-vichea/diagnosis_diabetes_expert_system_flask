@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0d1430">
+  <title>Login - Diabetes Expert System</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
+<body>
+  <main class="shell">
+    <section class="left">
+      <div class="topbar">
+        <a class="brand" href="{{ url_for('web.home') }}">
+          <span class="logo">
+            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Diabetes Expert" />
+          </span>
+          <span class="brand-name">Diabetes Expert</span>
+        </a>
+        <a class="ghost" href="{{ url_for('web.register_page') }}">Register</a>
+      </div>
+
+      <h1>Sign in</h1>
+
+      <div class="status" data-status role="alert" aria-live="polite">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+      </div>
+
+      <form class="form" id="login-form" method="post" action="{{ url_for('web.login_submit') }}" autocomplete="on">
+        <input type="hidden" name="next" value="{{ next or request.args.get('next', '') }}">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" class="input" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" class="input" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          <button class="toggle-eye" type="button" data-toggle="password" aria-label="Toggle password visibility">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+              <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+            </svg>
+          </button>
+        </div>
+
+        <button class="cta" type="submit" data-submit>
+          <span>Sign in</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+        </button>
+
+        <div class="row">
+          <span class="muted">No account?</span>
+          <a class="link" href="{{ url_for('web.register_page') }}">Create one</a>
+        </div>
+
+        <div class="hint">
+          <b>RBAC:</b> ADMIN, KB_DOCTOR, and USER dashboards after login.
+        </div>
+      </form>
+
+      <div class="footer">
+        <div>© 2026 Diabetes Expert System</div>
+        <div class="footer-links">
+          <a href="#">Terms and Conditions</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="right" data-slide="0">
+      <div class="hero">
+        <h2 class="headline" id="headline">
+          <span class="accent">Risk scoring.</span>
+          <span class="line2">Care plans.</span>
+          <span class="line3">Automation.</span>
+        </h2>
+
+        <p class="kicker" id="kicker">
+          Monitor assessments, track risk patterns, and share updates with your care team in one place.
+        </p>
+
+        <div class="stage" aria-hidden="true">
+          <div class="card small cardA">
+            <h4>Assessments today</h4>
+            <div class="big">40</div>
+            <div class="bars">
+              <div class="bar">
+                <div>Normal</div>
+                <div class="track"><div class="fill long"></div></div>
+                <div class="count">&nbsp;</div>
+              </div>
+              <div class="bar">
+                <div>Prediabetes</div>
+                <div class="track"><div class="fill mid"></div></div>
+                <div class="count">17</div>
+              </div>
+              <div class="bar">
+                <div>High risk</div>
+                <div class="track"><div class="fill short"></div></div>
+                <div class="count">8</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card tiny cardB">
+            <div class="card-row">
+              <h4>Sessions</h4>
+              <div class="pill">Weekly</div>
+            </div>
+            <div class="big">72</div>
+
+            <div class="mini-graph">
+              <div class="col">
+                <div class="seg navy mid"></div>
+                <div class="seg mint short"></div>
+              </div>
+              <div class="col">
+                <div class="seg navy tall"></div>
+                <div class="seg mint mid"></div>
+              </div>
+              <div class="col">
+                <div class="seg navy short"></div>
+                <div class="seg mint short"></div>
+              </div>
+              <div class="col">
+                <div class="seg navy tall"></div>
+                <div class="seg mint tall"></div>
+              </div>
+            </div>
+
+            <div class="axis">
+              <span>Mon</span><span>Wed</span><span>Fri</span>
+            </div>
+          </div>
+
+          <div class="card small cardC">
+            <h4>Outcome mix</h4>
+            <div class="donutWrap">
+              <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Donut chart">
+                <circle cx="110" cy="110" r="72" stroke="rgba(20,26,58,.12)" stroke-width="18" fill="none"/>
+                <circle cx="110" cy="110" r="72"
+                        stroke="rgba(65,199,164,.95)" stroke-width="18" fill="none"
+                        stroke-linecap="round"
+                        stroke-dasharray="170 282"
+                        transform="rotate(-90 110 110)"/>
+                <circle cx="110" cy="110" r="72"
+                        stroke="rgba(20,26,58,.85)" stroke-width="18" fill="none"
+                        stroke-linecap="round"
+                        stroke-dasharray="112 340"
+                        transform="rotate(130 110 110)"/>
+              </svg>
+
+              <div class="legend">
+                <span><span class="dot navy"></span>Stable: <b class="navy-text">40</b></span>
+                <span><span class="dot mint"></span>Monitoring: <b class="mint-text">32</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dots" role="tablist" aria-label="Slides">
+        <button class="dotBtn" role="tab" aria-current="true" aria-label="Slide 1" data-slide="0"></button>
+        <button class="dotBtn" role="tab" aria-current="false" aria-label="Slide 2" data-slide="1"></button>
+        <button class="dotBtn" role="tab" aria-current="false" aria-label="Slide 3" data-slide="2"></button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.querySelectorAll('[data-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-toggle');
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.type = (input.type === 'password') ? 'text' : 'password';
+      });
+    });
+
+    const right = document.querySelector('.right');
+    const dots = Array.from(document.querySelectorAll('.dotBtn'));
+
+    const slides = [
+      {
+        headline: ['Risk scoring.', 'Care plans.', 'Automation.'],
+        kicker: 'Monitor assessments, track risk patterns, and share updates with your care team in one place.'
+      },
+      {
+        headline: ['Diagnosis.', 'History.', 'Clarity.'],
+        kicker: 'Review patient history, view trends, and keep follow-ups aligned with each visit.'
+      },
+      {
+        headline: ['Reports.', 'Exports.', 'Done.'],
+        kicker: 'Generate clean summaries and share insights with your clinical team in seconds.'
+      }
+    ];
+
+    const headlineEl = document.getElementById('headline');
+    const kickerEl = document.getElementById('kicker');
+
+    function setSlide(i){
+      right.dataset.slide = String(i);
+      dots.forEach((d, idx) => d.setAttribute('aria-current', idx === i ? 'true' : 'false'));
+      const s = slides[i];
+      headlineEl.innerHTML = `
+        <span class="accent">${s.headline[0]}</span>
+        <span class="line2">${s.headline[1]}</span>
+        <span class="line3">${s.headline[2]}</span>
+      `;
+      kickerEl.textContent = s.kicker;
+    }
+
+    dots.forEach(d => d.addEventListener('click', () => setSlide(Number(d.dataset.slide))));
+
+    let idx = 0;
+    setInterval(() => {
+      idx = (idx + 1) % slides.length;
+      setSlide(idx);
+    }, 7000);
+
+    const stage = document.querySelector('.stage');
+    const cards = Array.from(document.querySelectorAll('.card'));
+    let raf = null;
+
+    function onMove(e){
+      if (!stage) return;
+      const r = stage.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        cards.forEach((c, k) => {
+          const depth = (k + 1) * 6;
+          c.style.setProperty('--dx', `${x * depth}px`);
+          c.style.setProperty('--dy', `${y * depth}px`);
+        });
+      });
+    }
+
+    window.addEventListener('mousemove', onMove, { passive:true });
+    window.addEventListener('mouseleave', () => cards.forEach(c => {
+      c.style.setProperty('--dx', '0px');
+      c.style.setProperty('--dy', '0px');
+    }));
+
+    const form = document.getElementById("login-form");
+    const statusEl = document.querySelector("[data-status]");
+    const submitBtn = document.querySelector("[data-submit]");
+
+    const setStatus = (message, kind) => {
+      statusEl.innerHTML = "";
+      if (!message) {
+        return;
+      }
+      const node = document.createElement("div");
+      node.className = `alert ${kind || "danger"}`;
+      node.textContent = message;
+      statusEl.appendChild(node);
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setStatus("");
+      submitBtn.disabled = true;
+      submitBtn.dataset.loading = "true";
+
+      const payload = {
+        email: form.email.value.trim(),
+        password: form.password.value,
+        next: (document.querySelector('input[name="next"]') || {}).value || "",
+      };
+
+      try {
+        const response = await fetch("{{ url_for('web.login_submit') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Requested-With": "fetch",
+          },
+          credentials: "same-origin",
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || data.ok === false) {
+          setStatus(data.message || "Login failed. Please try again.");
+          return;
+        }
+
+        const redirectTarget = data.redirect
+          || (response.redirected ? response.url : "")
+          || "{{ url_for('web.dashboard') }}";
+        window.location.href = redirectTarget;
+      } catch (error) {
+        setStatus("Unable to reach the API. Please try again.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.dataset.loading = "false";
+      }
+    });
+  </script>
+</body>
+</html>

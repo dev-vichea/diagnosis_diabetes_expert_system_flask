@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diabetes Expert System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+</head>
+<body class="p-4">
+  <div class="container" style="max-width: 920px;">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-2">Diabetes Expert System</h1>
+        <p class="text-muted mb-4">Welcome. Please log in to continue.</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-primary" href="{{ url_for('web.login_page') }}">Login</a>
+          <a class="btn btn-outline-primary" href="{{ url_for('web.register_page') }}">Register</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

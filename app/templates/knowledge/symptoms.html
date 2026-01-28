@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptoms Question Bank</title>
+    <meta name="description" content="Manage symptom questions, input types, and rule-ready metadata.">
+    <meta name="keywords" content="symptoms, question bank, knowledge base, rules">
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        .kb-stats-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .kb-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .kb-filter-card {
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .kb-table th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        .kb-table td {
+            vertical-align: middle;
+        }
+
+        .kb-badge {
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+        }
+
+        .kb-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .kb-empty {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .kb-options {
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .kb-modal label {
+            font-weight: 600;
+        }
+
+        .kb-alert {
+            border-radius: 12px;
+        }
+
+        .kb-form-note {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .kb-blueprint-card {
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        }
+
+        .kb-blueprint-card .accordion-button {
+            font-weight: 600;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+
+        .kb-blueprint-card .accordion-button:not(.collapsed) {
+            color: #0f172a;
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .kb-blueprint-card .table th {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        .kb-blueprint-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(14, 116, 144, 0.1);
+            color: #0e7490;
+        }
+    </style>
+</head>
+
+<body data-page="symptoms" class="kb-symptoms-page">
+    <script>
+        window.__symptomsData = {{ symptoms|tojson }};
+    </script>
+
+    <div class="admin-app">
+        <div class="admin-wrapper" id="admin-wrapper">
+            <header class="admin-header">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
+                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+                        </a>
+
+                        <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
+                            <div class="position-relative">
+                                <input type="search" class="form-control" placeholder="Search..." x-model="query" @input="search()" data-search-input>
+                                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+                            </div>
+                        </div>
+
+                        <div class="navbar-nav flex-row">
+                            <div x-data="themeSwitch">
+                                <button class="btn btn-outline-secondary me-2" @click="toggle()">
+                                    <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
+                                    <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-outline-secondary me-2" data-fullscreen-toggle>
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary d-flex align-items-center" data-bs-toggle="dropdown">
+                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e" width="24" height="24" class="rounded-circle me-2">
+                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or session.get('me', {}).get('email') or 'User') }}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            {% include 'shared/_sidebar.html' %}
+
+            <button class="hamburger-menu" data-sidebar-toggle>
+                <i class="bi bi-list"></i>
+            </button>
+
+            <main class="admin-main">
+                <div class="container-fluid p-4 p-lg-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <div>
+                            <h1 class="h3 mb-1">Symptoms Question Bank</h1>
+                            <p class="text-muted mb-0">Manage intake questions, input types, and metadata used in your rules.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary" id="refresh-symptoms">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-primary" id="create-symptom">
+                                <i class="bi bi-plus-lg me-2"></i>New Symptom
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="card kb-stats-card">
+                                <div class="card-body d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-uppercase text-muted small">Total Symptoms</div>
+                                        <h3 class="mb-0" id="stat-total">0</h3>
+                                    </div>
+                                    <div class="kb-stat-icon bg-primary bg-opacity-10 text-primary">
+                                        <i class="bi bi-clipboard2-data"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card kb-stats-card">
+                                <div class="card-body d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-uppercase text-muted small">Active Questions</div>
+                                        <h3 class="mb-0" id="stat-active">0</h3>
+                                    </div>
+                                    <div class="kb-stat-icon bg-success bg-opacity-10 text-success">
+                                        <i class="bi bi-check2-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card kb-stats-card">
+                                <div class="card-body d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-uppercase text-muted small">Derived Signals</div>
+                                        <h3 class="mb-0" id="stat-derived">0</h3>
+                                    </div>
+                                    <div class="kb-stat-icon bg-warning bg-opacity-10 text-warning">
+                                        <i class="bi bi-bezier"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card kb-blueprint-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                                <div>
+                                    <h2 class="h5 mb-1">Symptom & Risk Factor Blueprint</h2>
+                                    <p class="text-muted mb-0">Use these categories as a structured map for building the knowledge base.</p>
+                                </div>
+                                <span class="kb-blueprint-pill"><i class="bi bi-diagram-3"></i> Expert System Structure</span>
+                            </div>
+
+                            <div class="accordion" id="kb-blueprint">
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-demographic">
+                                            1. Demographic Factors
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-demographic" class="accordion-collapse collapse show" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Basic, non-modifiable signals used for risk thresholds (not symptoms).</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom / Factor</th>
+                                                            <th>Type</th>
+                                                            <th>Notes</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>AGE</td><td>Age</td><td>Number</td><td>Used for threshold conditions</td></tr>
+                                                        <tr><td>GENDER</td><td>Gender</td><td>Enum</td><td>Optional (male/female)</td></tr>
+                                                        <tr><td>ETHNICITY</td><td>Ethnicity</td><td>Enum</td><td>Optional, regional</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-anthro">
+                                            2. Anthropometric Factors
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-anthro" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Body measurements. BMI is derived, not asked directly.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom / Factor</th>
+                                                            <th>Type</th>
+                                                            <th>Derived</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>WEIGHT</td><td>Weight (kg)</td><td>Number</td><td>User input</td></tr>
+                                                        <tr><td>HEIGHT</td><td>Height (cm)</td><td>Number</td><td>User input</td></tr>
+                                                        <tr><td>BMI</td><td>Body Mass Index</td><td>Number</td><td>Calculated</td></tr>
+                                                        <tr><td>WAIST</td><td>Waist circumference</td><td>Number</td><td>Optional</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-history">
+                                            3. Family & Medical History
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-history" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Strong predictors, used in high-weight rules.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom / Factor</th>
+                                                            <th>Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>FH_DIABETES</td><td>Family history of diabetes</td><td>Boolean</td></tr>
+                                                        <tr><td>FH_HTN</td><td>Family history of hypertension</td><td>Boolean</td></tr>
+                                                        <tr><td>GDM_HISTORY</td><td>Gestational diabetes history</td><td>Boolean</td></tr>
+                                                        <tr><td>PRE_DIABETES</td><td>Previously diagnosed pre-diabetes</td><td>Boolean</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-lifestyle">
+                                            4. Lifestyle Factors
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-lifestyle" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Modifiable risks.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom / Factor</th>
+                                                            <th>Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>PHYSICAL_ACTIVITY</td><td>Physical activity level</td><td>Enum (Low/Moderate/High)</td></tr>
+                                                        <tr><td>DIET_QUALITY</td><td>Diet quality</td><td>Enum (Poor/Average/Healthy)</td></tr>
+                                                        <tr><td>SMOKING</td><td>Smoking status</td><td>Boolean</td></tr>
+                                                        <tr><td>ALCOHOL</td><td>Alcohol consumption</td><td>Enum (None/Moderate/High)</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-classic">
+                                            5. Classic Diabetes Symptoms
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-classic" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">High-importance signals that usually trigger high-risk rules.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom</th>
+                                                            <th>Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>POLYDIPSIA</td><td>Frequent thirst</td><td>Boolean</td></tr>
+                                                        <tr><td>POLYURIA</td><td>Frequent urination</td><td>Boolean</td></tr>
+                                                        <tr><td>POLYPHAGIA</td><td>Increased hunger</td><td>Boolean</td></tr>
+                                                        <tr><td>FATIGUE</td><td>Persistent fatigue</td><td>Boolean</td></tr>
+                                                        <tr><td>WEIGHT_LOSS</td><td>Unexplained weight loss</td><td>Boolean</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-secondary">
+                                            6. Secondary / Early Symptoms
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-secondary" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Moderate importance, useful for early detection.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Symptom</th>
+                                                            <th>Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>BLURRY_VISION</td><td>Blurred vision</td><td>Boolean</td></tr>
+                                                        <tr><td>SLOW_HEALING</td><td>Slow wound healing</td><td>Boolean</td></tr>
+                                                        <tr><td>REC_INFECTION</td><td>Frequent infections</td><td>Boolean</td></tr>
+                                                        <tr><td>NUMBNESS</td><td>Tingling or numbness</td><td>Boolean</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0 mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-clinical">
+                                            7. Clinical Measurements (Optional)
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-clinical" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">Optional or advanced clinical inputs.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Factor</th>
+                                                            <th>Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>BP</td><td>Blood pressure</td><td>Enum (Normal/High)</td></tr>
+                                                        <tr><td>FBG</td><td>Fasting blood glucose</td><td>Number</td></tr>
+                                                        <tr><td>RBG</td><td>Random blood glucose</td><td>Number</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blueprint-derived">
+                                            8. Derived Composite Symptoms (Internal Only)
+                                        </button>
+                                    </h2>
+                                    <div id="blueprint-derived" class="accordion-collapse collapse" data-bs-parent="#kb-blueprint">
+                                        <div class="accordion-body pt-0">
+                                            <p class="kb-form-note">These are computed internally and not asked directly.</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Code</th>
+                                                            <th>Derived From</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td>OBESITY</td><td>BMI &gt;= 30</td></tr>
+                                                        <tr><td>OVERWEIGHT</td><td>BMI &gt;= 25</td></tr>
+                                                        <tr><td>CLASSIC_SYMPTOMS</td><td>POLYDIPSIA + POLYURIA</td></tr>
+                                                        <tr><td>METABOLIC_RISK</td><td>OBESITY + INACTIVITY</td></tr>
+                                                        <tr><td>STRONG_FAMILY_HISTORY</td><td>FH_DIABETES + FH_HTN</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="symptom-alert" class="alert kb-alert d-none" role="alert"></div>
+
+                    <div class="card kb-filter-card mb-4">
+                        <div class="card-body">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-5">
+                                    <label class="form-label text-muted">Search</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="symptom-search" placeholder="Search by code, name, or question">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted">Input Type</label>
+                                    <select class="form-select" id="symptom-type-filter">
+                                        <option value="ALL">All Types</option>
+                                        <option value="BOOLEAN">Boolean</option>
+                                        <option value="NUMBER">Number</option>
+                                        <option value="CHOICE">Choice</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted">Status</label>
+                                    <select class="form-select" id="symptom-status-filter">
+                                        <option value="ALL">All</option>
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="INACTIVE">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted">Derived</label>
+                                    <select class="form-select" id="symptom-derived-filter">
+                                        <option value="ALL">All</option>
+                                        <option value="DIRECT">Direct</option>
+                                        <option value="DERIVED">Derived</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h5 class="mb-1">Symptoms List</h5>
+                                <p class="text-muted mb-0">Questions used in diagnosis and rule evaluation.</p>
+                            </div>
+                            <span class="kb-meta" id="symptom-count">0 items</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle kb-table mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Name</th>
+                                        <th>Question</th>
+                                        <th>Type</th>
+                                        <th>Unit</th>
+                                        <th>Derived</th>
+                                        <th>Status</th>
+                                        <th>Updated</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="symptoms-table">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade kb-modal" id="symptom-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="symptom-modal-title">New Symptom</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="symptom-modal-alert" class="alert kb-alert d-none" role="alert"></div>
+                    <form id="symptom-form">
+                        <input type="hidden" id="symptom-id">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-code">Code</label>
+                                <input type="text" class="form-control" id="symptom-code" placeholder="FBS">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-name">Name</label>
+                                <input type="text" class="form-control" id="symptom-name" placeholder="Fasting Blood Sugar">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-input-type">Input Type</label>
+                                <select class="form-select" id="symptom-input-type">
+                                    <option value="BOOLEAN">BOOLEAN</option>
+                                    <option value="NUMBER">NUMBER</option>
+                                    <option value="CHOICE">CHOICE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label" for="symptom-question-text">Question Text</label>
+                            <textarea class="form-control" id="symptom-question-text" rows="2" placeholder="What is your fasting blood sugar?"></textarea>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-unit">Unit (optional)</label>
+                                <input type="text" class="form-control" id="symptom-unit" placeholder="mg/dL">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-category">Category</label>
+                                <input type="text" class="form-control" id="symptom-category" placeholder="Blood Test">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="symptom-priority">Priority</label>
+                                <input type="number" class="form-control" id="symptom-priority" value="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="mt-3" id="options-wrapper">
+                            <label class="form-label" for="symptom-options-json">Options JSON</label>
+                            <textarea class="form-control" id="symptom-options-json" rows="3" placeholder='["Low", "Medium", "High"]'></textarea>
+                            <div class="kb-form-note mt-1">Required when Input Type is CHOICE.</div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-4 mt-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="symptom-is-active" checked>
+                                <label class="form-check-label" for="symptom-is-active">Active</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="symptom-is-derived">
+                                <label class="form-check-label" for="symptom-is-derived">Derived (computed)</label>
+                            </div>
+                        </div>
+
+                        <div class="kb-meta mt-3" id="symptom-meta"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-symptom">Save Symptom</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
+    <script>
+        const symptomState = {
+            items: Array.isArray(window.__symptomsData) ? window.__symptomsData : [],
+            filtered: [],
+        };
+
+        const alertBox = document.getElementById('symptom-alert');
+        const tableBody = document.getElementById('symptoms-table');
+        const countLabel = document.getElementById('symptom-count');
+        const statTotal = document.getElementById('stat-total');
+        const statActive = document.getElementById('stat-active');
+        const statDerived = document.getElementById('stat-derived');
+
+        const searchInput = document.getElementById('symptom-search');
+        const typeFilter = document.getElementById('symptom-type-filter');
+        const statusFilter = document.getElementById('symptom-status-filter');
+        const derivedFilter = document.getElementById('symptom-derived-filter');
+
+        const modalEl = document.getElementById('symptom-modal');
+        const modal = new bootstrap.Modal(modalEl);
+        const modalTitle = document.getElementById('symptom-modal-title');
+        const modalAlert = document.getElementById('symptom-modal-alert');
+
+        const formFields = {
+            id: document.getElementById('symptom-id'),
+            code: document.getElementById('symptom-code'),
+            name: document.getElementById('symptom-name'),
+            questionText: document.getElementById('symptom-question-text'),
+            inputType: document.getElementById('symptom-input-type'),
+            unit: document.getElementById('symptom-unit'),
+            category: document.getElementById('symptom-category'),
+            priority: document.getElementById('symptom-priority'),
+            optionsJson: document.getElementById('symptom-options-json'),
+            isActive: document.getElementById('symptom-is-active'),
+            isDerived: document.getElementById('symptom-is-derived'),
+            meta: document.getElementById('symptom-meta'),
+        };
+
+        const showAlert = (element, message, type = 'danger') => {
+            element.textContent = message;
+            element.className = `alert kb-alert alert-${type}`;
+            element.classList.remove('d-none');
+        };
+
+        const hideAlert = (element) => {
+            element.classList.add('d-none');
+            element.textContent = '';
+        };
+
+        const formatDate = (value) => {
+            if (!value) {
+                return '-';
+            }
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+            return date.toLocaleString();
+        };
+
+        const formatOptions = (options) => {
+            if (!options) {
+                return '';
+            }
+            if (Array.isArray(options)) {
+                return `${options.length} option${options.length === 1 ? '' : 's'}`;
+            }
+            return 'custom options';
+        };
+
+        const updateStats = () => {
+            const total = symptomState.items.length;
+            const active = symptomState.items.filter((item) => item.is_active).length;
+            const derived = symptomState.items.filter((item) => item.is_derived).length;
+            statTotal.textContent = total;
+            statActive.textContent = active;
+            statDerived.textContent = derived;
+        };
+
+        const applyFilters = () => {
+            const query = (searchInput.value || '').toLowerCase();
+            const typeValue = typeFilter.value;
+            const statusValue = statusFilter.value;
+            const derivedValue = derivedFilter.value;
+
+            symptomState.filtered = symptomState.items.filter((item) => {
+                const matchesQuery =
+                    item.code.toLowerCase().includes(query) ||
+                    (item.name || '').toLowerCase().includes(query) ||
+                    (item.question_text || '').toLowerCase().includes(query);
+                const matchesType = typeValue === 'ALL' || item.input_type === typeValue;
+                const matchesStatus =
+                    statusValue === 'ALL' ||
+                    (statusValue === 'ACTIVE' ? item.is_active : !item.is_active);
+                const matchesDerived =
+                    derivedValue === 'ALL' ||
+                    (derivedValue === 'DERIVED' ? item.is_derived : !item.is_derived);
+                return matchesQuery && matchesType && matchesStatus && matchesDerived;
+            });
+
+            renderTable();
+        };
+
+        const renderTable = () => {
+            tableBody.innerHTML = '';
+            if (!symptomState.filtered.length) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="kb-empty">
+                                <i class="bi bi-journal-x" style="font-size: 2rem;"></i>
+                                <p class="mt-2 mb-0">No symptoms match your filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                countLabel.textContent = '0 items';
+                return;
+            }
+
+            symptomState.filtered.forEach((item) => {
+                const row = document.createElement('tr');
+                const optionsText = item.input_type === 'CHOICE' ? formatOptions(item.options_json) : '';
+                row.innerHTML = `
+                    <td>
+                        <div class="fw-semibold">${item.code}</div>
+                        <div class="kb-meta">ID: ${item.id}</div>
+                    </td>
+                    <td>${item.name || '-'}</td>
+                    <td>
+                        <div>${item.question_text || '-'}</div>
+                        ${optionsText ? `<div class="kb-options">${optionsText}</div>` : ''}
+                    </td>
+                    <td>
+                        <span class="badge kb-badge bg-primary bg-opacity-10 text-primary">${item.input_type}</span>
+                    </td>
+                    <td>${item.unit || '-'}</td>
+                    <td>
+                        <span class="badge kb-badge ${item.is_derived ? 'bg-warning bg-opacity-10 text-warning' : 'bg-info bg-opacity-10 text-info'}">
+                            ${item.is_derived ? 'Derived' : 'Direct'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge kb-badge ${item.is_active ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary'}">
+                            ${item.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="kb-meta">${formatDate(item.updated_at || item.created_at)}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary" data-action="edit" data-id="${item.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${item.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            countLabel.textContent = `${symptomState.filtered.length} item${symptomState.filtered.length === 1 ? '' : 's'}`;
+        };
+
+        const fetchSymptoms = async () => {
+            hideAlert(alertBox);
+            try {
+                const response = await fetch('/knowledge/symptoms/data', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'fetch',
+                    },
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    showAlert(alertBox, data.message || 'Failed to load symptoms.');
+                    return;
+                }
+                symptomState.items = data.items || [];
+                updateStats();
+                applyFilters();
+            } catch (error) {
+                showAlert(alertBox, 'Failed to load symptoms.');
+            }
+        };
+
+        const resetForm = () => {
+            formFields.id.value = '';
+            formFields.code.value = '';
+            formFields.name.value = '';
+            formFields.questionText.value = '';
+            formFields.inputType.value = 'BOOLEAN';
+            formFields.unit.value = '';
+            formFields.category.value = '';
+            formFields.priority.value = '0';
+            formFields.optionsJson.value = '';
+            formFields.isActive.checked = true;
+            formFields.isDerived.checked = false;
+            formFields.meta.textContent = '';
+            toggleOptionsField();
+        };
+
+        const toggleOptionsField = () => {
+            const wrapper = document.getElementById('options-wrapper');
+            if (formFields.inputType.value === 'CHOICE') {
+                wrapper.classList.remove('d-none');
+            } else {
+                wrapper.classList.add('d-none');
+                formFields.optionsJson.value = '';
+            }
+        };
+
+        const openModalForCreate = () => {
+            resetForm();
+            hideAlert(modalAlert);
+            modalTitle.textContent = 'New Symptom';
+            modal.show();
+        };
+
+        const openModalForEdit = (item) => {
+            resetForm();
+            hideAlert(modalAlert);
+            modalTitle.textContent = 'Edit Symptom';
+            formFields.id.value = item.id;
+            formFields.code.value = item.code || '';
+            formFields.name.value = item.name || '';
+            formFields.questionText.value = item.question_text || '';
+            formFields.inputType.value = item.input_type || 'BOOLEAN';
+            formFields.unit.value = item.unit || '';
+            formFields.category.value = item.category || '';
+            formFields.priority.value = item.priority_order ?? 0;
+            formFields.optionsJson.value = item.options_json ? JSON.stringify(item.options_json, null, 2) : '';
+            formFields.isActive.checked = !!item.is_active;
+            formFields.isDerived.checked = !!item.is_derived;
+            formFields.meta.textContent = `Created: ${formatDate(item.created_at)} | Updated: ${formatDate(item.updated_at)}`;
+            toggleOptionsField();
+            modal.show();
+        };
+
+        const parseOptionsField = () => {
+            const raw = formFields.optionsJson.value.trim();
+            if (!raw) {
+                return { value: null, error: null };
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed) && typeof parsed !== 'object') {
+                    return { value: null, error: 'Options must be a JSON array or object.' };
+                }
+                return { value: parsed, error: null };
+            } catch (error) {
+                return { value: null, error: 'Options JSON is invalid.' };
+            }
+        };
+
+        const saveSymptom = async () => {
+            hideAlert(modalAlert);
+            const payload = {
+                code: formFields.code.value.trim(),
+                name: formFields.name.value.trim(),
+                question_text: formFields.questionText.value.trim(),
+                input_type: formFields.inputType.value,
+                unit: formFields.unit.value.trim(),
+                category: formFields.category.value.trim(),
+                priority_order: formFields.priority.value,
+                is_active: formFields.isActive.checked,
+                is_derived: formFields.isDerived.checked,
+            };
+
+            if (!payload.code || !payload.question_text) {
+                showAlert(modalAlert, 'Code and question text are required.');
+                return;
+            }
+
+            if (payload.input_type === 'CHOICE') {
+                const parsed = parseOptionsField();
+                if (parsed.error) {
+                    showAlert(modalAlert, parsed.error);
+                    return;
+                }
+                if (!parsed.value) {
+                    showAlert(modalAlert, 'Options JSON is required for CHOICE input type.');
+                    return;
+                }
+                payload.options_json = parsed.value;
+            }
+
+            const isEdit = Boolean(formFields.id.value);
+            const url = isEdit ? `/knowledge/symptoms/${formFields.id.value}` : '/knowledge/symptoms';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'fetch',
+                    },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    showAlert(modalAlert, data.message || 'Failed to save symptom.');
+                    return;
+                }
+                if (data.symptom) {
+                    const index = symptomState.items.findIndex((item) => item.id === data.symptom.id);
+                    if (index >= 0) {
+                        symptomState.items[index] = data.symptom;
+                    } else {
+                        symptomState.items.unshift(data.symptom);
+                    }
+                } else {
+                    await fetchSymptoms();
+                }
+                updateStats();
+                applyFilters();
+                modal.hide();
+            } catch (error) {
+                showAlert(modalAlert, 'Failed to save symptom.');
+            }
+        };
+
+        const deleteSymptom = async (id) => {
+            if (!confirm('Delete this symptom? This cannot be undone.')) {
+                return;
+            }
+            try {
+                const response = await fetch(`/knowledge/symptoms/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'fetch',
+                    },
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    showAlert(alertBox, data.message || 'Failed to delete symptom.');
+                    return;
+                }
+                symptomState.items = symptomState.items.filter((item) => item.id !== id);
+                updateStats();
+                applyFilters();
+            } catch (error) {
+                showAlert(alertBox, 'Failed to delete symptom.');
+            }
+        };
+
+        document.getElementById('create-symptom').addEventListener('click', openModalForCreate);
+        document.getElementById('refresh-symptoms').addEventListener('click', fetchSymptoms);
+        document.getElementById('save-symptom').addEventListener('click', saveSymptom);
+        formFields.inputType.addEventListener('change', toggleOptionsField);
+
+        [searchInput, typeFilter, statusFilter, derivedFilter].forEach((el) => {
+            el.addEventListener('input', applyFilters);
+            el.addEventListener('change', applyFilters);
+        });
+
+        tableBody.addEventListener('click', (event) => {
+            const button = event.target.closest('button');
+            if (!button) {
+                return;
+            }
+            const action = button.dataset.action;
+            const id = Number(button.dataset.id);
+            const item = symptomState.items.find((symptom) => symptom.id === id);
+            if (action === 'edit' && item) {
+                openModalForEdit(item);
+            }
+            if (action === 'delete') {
+                deleteSymptom(id);
+            }
+        });
+
+        updateStats();
+        applyFilters();
+        if (!symptomState.items.length) {
+            fetchSymptoms();
+        }
+    </script>
+</body>
+</html>

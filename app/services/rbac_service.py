@@ -15,3 +15,10 @@ def get_user_permission_codes(user_id: int) -> Set[str]:
         for perm in role.permissions:
             codes.add(perm.code)
     return codes
+
+
+def user_has_permission(user_id: int, permission_code: str) -> bool:
+    """
+    Lightweight helper used by routes that need per-user permission checks.
+    """
+    return permission_code in get_user_permission_codes(user_id)

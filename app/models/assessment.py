@@ -56,7 +56,7 @@ class AssessmentResult(db.Model):
     risk_level = db.Column(db.String(30), nullable=False)
 
     explanation_json = db.Column(db.Text)  # fired rule + matched conditions + facts
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     assessment = relationship("Assessment", back_populates="result")
 

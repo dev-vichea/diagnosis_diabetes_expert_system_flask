@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Rule</title>
+    <meta name="description" content="Create a new diagnosis rule with conditions.">
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
+
+    <style>
+        .kb-card {
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .kb-alert {
+            border-radius: 12px;
+        }
+
+        .condition-table th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        /* .kb-editor {
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 12px;
+            background: #fff;
+        } */
+
+        .kb-editor .ql-toolbar {
+            border: none;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .kb-editor .ql-container {
+            max-height: 220px;
+            /* adjust */
+            overflow-y: auto;
+        }
+
+        .kb-editor .ql-editor {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .kb-editor {
+            margin-bottom: 0.35rem;
+        }
+
+        .doctor-response-block {
+            position: relative;
+            z-index: 1;
+        }
+
+        .doctor-response-block .form-text {
+            display: block;
+            margin-top: 0.4rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .rule-conditions-section {
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body data-page="rules-create" class="kb-rules-page">
+    <script>
+        window.__symptomsData = {{ symptoms | tojson }};
+    </script>
+
+    <div class="admin-app">
+        <div class="admin-wrapper" id="admin-wrapper">
+            <header class="admin-header">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32"
+                                class="d-inline-block align-text-top me-2">
+                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+                        </a>
+
+                        <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
+                            <div class="position-relative">
+                                <input type="search" class="form-control" placeholder="Search..." x-model="query"
+                                    @input="search()" data-search-input>
+                                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+                            </div>
+                        </div>
+
+                        <div class="navbar-nav flex-row">
+                            <div x-data="themeSwitch">
+                                <button class="btn btn-outline-secondary me-2" @click="toggle()">
+                                    <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
+                                    <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-outline-secondary me-2" data-fullscreen-toggle>
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary d-flex align-items-center"
+                                    data-bs-toggle="dropdown">
+                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
+                                        width="24" height="24" class="rounded-circle me-2">
+                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or
+                                        session.get('me', {}).get('email') or 'User') }}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i
+                                                class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            {% include 'shared/_sidebar.html' %}
+
+            <button class="hamburger-menu" data-sidebar-toggle>
+                <i class="bi bi-list"></i>
+            </button>
+
+            <main class="admin-main">
+                <div class="container-fluid p-4 p-lg-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <div>
+                            <h1 class="h3 mb-1">Create Rule</h1>
+                            <p class="text-muted mb-0">Define the rule header and conditions.</p>
+                        </div>
+                        <a class="btn btn-outline-secondary" href="{{ url_for('web.kb_rules') }}">
+                            <i class="bi bi-arrow-left me-2"></i>Back
+                        </a>
+                    </div>
+
+                    <div id="rules-alert" class="alert kb-alert d-none" role="alert"></div>
+
+                    <form id="rule-create-form">
+                        <div class="card kb-card">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rule-code">Rule Code</label>
+                                        <input type="text" class="form-control" id="rule-code" placeholder="R_DIAB_001">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rule-title">Title</label>
+                                        <input type="text" class="form-control" id="rule-title"
+                                            placeholder="High Risk Pattern">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rule-diagnosis">Diagnosis</label>
+                                        <select class="form-select" id="rule-diagnosis"></select>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rule-priority">Priority</label>
+                                        <input type="number" class="form-control" id="rule-priority" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rule-confidence">Confidence (%)</label>
+                                        <input type="number" class="form-control" id="rule-confidence" placeholder="80"
+                                            min="0" max="100">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-center">
+                                        <div class="form-check form-switch mt-4">
+                                            <input class="form-check-input" type="checkbox" id="rule-active" checked>
+                                            <label class="form-check-label" for="rule-active">Active</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+                                <div
+                                    class="rule-conditions-section d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h6 class="mb-0">Rule Conditions</h6>
+                                        <p class="kb-meta mb-0">All conditions must be satisfied for the rule to fire.
+                                        </p>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-condition">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Condition
+                                    </button>
+                                </div>
+
+                                <div class="table-responsive conditions-scroll">
+                                    <table class="table table-sm condition-table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Symptom</th>
+                                                <th>Operator</th>
+                                                <th>Value</th>
+                                                <th>Logic Group</th>
+                                                <th class="text-end">Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="conditions-table"></tbody>
+                                    </table>
+                                </div>
+
+                                <div class="row g-3 mt-4 doctor-response-block">
+                                    <div class="col-12">
+                                        <label class="form-label" for="rule-explanation-editor">Doctor Response</label>
+                                        <div id="rule-explanation-editor" class="kb-editor"></div>
+                                        <div class="form-text">Shown in the diagnosis report when this rule matches.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>Save Rule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
+    <script>
+        const symptoms = Array.isArray(window.__symptomsData) ? window.__symptomsData : [];
+        const diagnosisOptions = [
+            'Normal',
+            'Low Risk',
+            'Monitor',
+            'Prediabetes',
+            'Moderate Risk',
+            'Type 2 Diabetes Risk',
+            'High Risk Type 2 Diabetes',
+            'Very High Type 2 Diabetes Risk',
+        ];
+
+        const form = document.getElementById('rule-create-form');
+        const alertBox = document.getElementById('rules-alert');
+        const conditionsTable = document.getElementById('conditions-table');
+        const diagnosisSelect = document.getElementById('rule-diagnosis');
+        const explanationEditor = new Quill('#rule-explanation-editor', {
+            theme: 'snow',
+            placeholder: 'Write a short doctor response that explains this diagnosis...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean'],
+                ],
+            },
+        });
+
+        const operatorOptions = {
+            BOOLEAN: ['=='],
+            NUMBER: ['==', '>=', '<='],
+            CHOICE: ['==', 'IN'],
+            DEFAULT: ['=='],
+        };
+
+        const showAlert = (message, type = 'danger') => {
+            alertBox.textContent = message;
+            alertBox.className = `alert kb-alert alert-${type}`;
+            alertBox.classList.remove('d-none');
+        };
+
+        const hideAlert = () => {
+            alertBox.classList.add('d-none');
+            alertBox.textContent = '';
+        };
+
+        const getExplanationHtml = () => {
+            const text = explanationEditor.getText().trim();
+            if (!text) {
+                return null;
+            }
+            return explanationEditor.root.innerHTML.trim();
+        };
+
+        const buildValueField = (row, inputType, value) => {
+            const cell = row.querySelector('.condition-value-cell');
+            cell.innerHTML = '';
+            if (inputType === 'BOOLEAN') {
+                const select = document.createElement('select');
+                select.className = 'form-select form-select-sm condition-value';
+                ['true', 'false'].forEach((val) => {
+                    const option = document.createElement('option');
+                    option.value = val;
+                    option.textContent = val.toUpperCase();
+                    select.appendChild(option);
+                });
+                if (value !== undefined && value !== null) {
+                    select.value = String(value).toLowerCase();
+                }
+                cell.appendChild(select);
+                return;
+            }
+            const input = document.createElement('input');
+            input.className = 'form-control form-control-sm condition-value';
+            input.type = inputType === 'NUMBER' ? 'number' : 'text';
+            input.placeholder = inputType === 'CHOICE' ? '["A", "B"]' : 'Value';
+            if (value !== undefined && value !== null) {
+                input.value = value;
+            }
+            cell.appendChild(input);
+        };
+
+        const createConditionRow = () => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <select class="form-select form-select-sm condition-symptom"></select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm condition-operator"></select>
+                </td>
+                <td class="condition-value-cell"></td>
+                <td>
+                    <input type="text" class="form-control form-control-sm condition-group" placeholder="Group A">
+                </td>
+                <td class="text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-action="remove">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </td>
+            `;
+
+            const symptomSelect = row.querySelector('.condition-symptom');
+            symptoms.forEach((symptom) => {
+                const option = document.createElement('option');
+                option.value = symptom.id;
+                option.textContent = `${symptom.code} - ${symptom.name || symptom.question_text}`;
+                option.dataset.inputType = symptom.input_type || 'BOOLEAN';
+                symptomSelect.appendChild(option);
+            });
+
+            const selectedOption = symptomSelect.options[symptomSelect.selectedIndex];
+            const inputType = selectedOption ? selectedOption.dataset.inputType : 'BOOLEAN';
+            const operatorSelect = row.querySelector('.condition-operator');
+            const availableOperators = operatorOptions[inputType] || operatorOptions.DEFAULT;
+            availableOperators.forEach((op) => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = op;
+                operatorSelect.appendChild(option);
+            });
+            buildValueField(row, inputType, 'true');
+
+            return row;
+        };
+
+        const parseConditionValue = (inputType, valueRaw) => {
+            if (inputType === 'BOOLEAN') {
+                return valueRaw === 'true';
+            }
+            if (inputType === 'NUMBER') {
+                return valueRaw;
+            }
+            if (inputType === 'CHOICE') {
+                const trimmed = valueRaw.trim();
+                if (!trimmed) {
+                    return '';
+                }
+                if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                    try {
+                        return JSON.parse(trimmed);
+                    } catch (error) {
+                        return valueRaw;
+                    }
+                }
+            }
+            return valueRaw;
+        };
+
+        const collectConditions = () => {
+            const rows = Array.from(conditionsTable.querySelectorAll('tr'));
+            const conditions = [];
+            for (const row of rows) {
+                const symptomId = row.querySelector('.condition-symptom').value;
+                const operator = row.querySelector('.condition-operator').value;
+                const valueField = row.querySelector('.condition-value');
+                const group = row.querySelector('.condition-group').value.trim();
+                const symptomOption = row.querySelector('.condition-symptom').selectedOptions[0];
+                const inputType = symptomOption ? symptomOption.dataset.inputType : 'BOOLEAN';
+                const value = parseConditionValue(inputType, valueField.value);
+
+                if (!symptomId) {
+                    continue;
+                }
+
+                if (inputType !== 'BOOLEAN' && !String(value).trim()) {
+                    showAlert('All non-boolean conditions require a value.');
+                    return null;
+                }
+
+                conditions.push({
+                    symptom_id: Number(symptomId),
+                    operator,
+                    value,
+                    logic_group: group || null,
+                });
+            }
+            if (!conditions.length) {
+                showAlert('Add at least one condition.');
+                return null;
+            }
+            return conditions;
+        };
+
+        diagnosisOptions.forEach((optionValue) => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue;
+            diagnosisSelect.appendChild(option);
+        });
+
+        document.getElementById('add-condition').addEventListener('click', () => {
+            conditionsTable.appendChild(createConditionRow());
+        });
+
+        conditionsTable.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-action="remove"]');
+            if (!button) {
+                return;
+            }
+            const row = button.closest('tr');
+            if (row) {
+                row.remove();
+            }
+        });
+
+        conditionsTable.addEventListener('change', (event) => {
+            const select = event.target.closest('.condition-symptom');
+            if (!select) {
+                return;
+            }
+            const row = select.closest('tr');
+            const selectedOption = select.options[select.selectedIndex];
+            const inputType = selectedOption ? selectedOption.dataset.inputType : 'BOOLEAN';
+            const operatorSelect = row.querySelector('.condition-operator');
+            const available = operatorOptions[inputType] || operatorOptions.DEFAULT;
+            operatorSelect.innerHTML = '';
+            available.forEach((op) => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = op;
+                operatorSelect.appendChild(option);
+            });
+            buildValueField(row, inputType, null);
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideAlert();
+
+            const payload = {
+                rule_code: document.getElementById('rule-code').value.trim(),
+                title: document.getElementById('rule-title').value.trim(),
+                diagnosis: diagnosisSelect.value,
+                priority: document.getElementById('rule-priority').value,
+                confidence: document.getElementById('rule-confidence').value,
+                is_active: document.getElementById('rule-active').checked,
+                explanation_text: getExplanationHtml(),
+            };
+
+            if (!payload.rule_code || !payload.diagnosis) {
+                showAlert('Rule code and diagnosis are required.');
+                return;
+            }
+
+            const conditions = collectConditions();
+            if (!conditions) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/knowledge/rules', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'fetch',
+                    },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    showAlert(data.message || 'Failed to create rule.');
+                    return;
+                }
+
+                const ruleId = data.rule?.id;
+                if (!ruleId) {
+                    showAlert('Failed to resolve rule id.');
+                    return;
+                }
+
+                const conditionResponse = await fetch(`/knowledge/rules/${ruleId}/conditions`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'fetch',
+                    },
+                    body: JSON.stringify({ conditions }),
+                });
+                const conditionData = await conditionResponse.json();
+                if (!conditionResponse.ok) {
+                    showAlert(conditionData.message || 'Failed to save conditions.');
+                    return;
+                }
+
+                window.location.href = '{{ url_for('web.kb_rules') }}';
+            } catch (error) {
+                showAlert('Failed to create rule.');
+            }
+        });
+
+        form.addEventListener('reset', () => {
+            explanationEditor.setText('');
+        });
+
+        conditionsTable.appendChild(createConditionRow());
+    </script>
+</body>
+
+</html>

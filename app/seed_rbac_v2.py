@@ -10,6 +10,8 @@ def seed_roles_permissions_v2():
         - KB_* for knowledge base CRUD
         - CASE_* for viewing all assessments & facts
         - DIAGNOSIS_* for diagnosis flow
+        - USER_* for user administration
+        - RBAC_* for role/permission administration
       Mapping:
         - ADMIN: all permissions
         - KB_DOCTOR: KB_* + CASE_* + DIAGNOSIS_VIEW/HISTORY
@@ -69,13 +71,31 @@ def seed_roles_permissions_v2():
     perms["DIAGNOSIS_VIEW"] = get_or_create_perm("DIAGNOSIS_VIEW", "View diagnosis result/progress")
     perms["DIAGNOSIS_HISTORY"] = get_or_create_perm("DIAGNOSIS_HISTORY", "View diagnosis history")
 
+    # User administration
+    perms["USER_VIEW"] = get_or_create_perm("USER_VIEW", "View users")
+    perms["USER_CREATE"] = get_or_create_perm("USER_CREATE", "Create users")
+    perms["USER_UPDATE"] = get_or_create_perm("USER_UPDATE", "Update users")
+
+    # RBAC administration
+    perms["RBAC_VIEW"] = get_or_create_perm("RBAC_VIEW", "View roles and permissions")
+    perms["RBAC_UPDATE"] = get_or_create_perm("RBAC_UPDATE", "Manage roles and permissions")
+
     # ---- Mapping ----
     # ADMIN: everything
     for p in perms.values():
         link(admin, p)
 
     # KB_DOCTOR: KB CRUD + view all cases/facts + view history/results
-    for code in ("KB_VIEW", "KB_CREATE", "KB_UPDATE", "KB_DELETE", "CASE_VIEW_ALL", "CASE_VIEW_FACTS", "DIAGNOSIS_VIEW", "DIAGNOSIS_HISTORY"):
+    for code in (
+        "KB_VIEW",
+        "KB_CREATE",
+        "KB_UPDATE",
+        "KB_DELETE",
+        "CASE_VIEW_ALL",
+        "CASE_VIEW_FACTS",
+        "DIAGNOSIS_VIEW",
+        "DIAGNOSIS_HISTORY",
+    ):
         link(kb_doctor, perms[code])
 
     # USER: diagnosis only (start/answer/view/history)

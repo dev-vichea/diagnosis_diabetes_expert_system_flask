@@ -14,7 +14,7 @@ class AuditLog(db.Model):
     entity_id = db.Column(db.Integer)
 
     meta_json = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     __table_args__ = (
         Index("ix_audit_actor", "actor_user_id"),

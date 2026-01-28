@@ -68,6 +68,7 @@ def build_report(assessment_id: int):
             "title": advice_obj.title,
             "content": advice_obj.content,
             "severity": advice_obj.severity,
+            "recommendations": advice_obj.recommendations_json,
         }
 
     return {
