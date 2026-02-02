@@ -30,7 +30,6 @@ def create_app():
     from .routes.api.admin_rbac import admin_rbac_bp
     from .routes.api.kb import kb_bp
     from .routes.api.kb_rules import kb_rules_bp
-    from .routes.api.kb_advices import kb_advices_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(admin_kb_bp, url_prefix="/api/admin/kb")
@@ -39,7 +38,6 @@ def create_app():
     app.register_blueprint(diagnosis_bp, url_prefix="/api/diagnosis")
     app.register_blueprint(kb_bp, url_prefix="/api/kb")
     app.register_blueprint(kb_rules_bp, url_prefix="/api/kb")
-    app.register_blueprint(kb_advices_bp, url_prefix="/api/kb")
 
     @app.context_processor
     def inject_rbac():

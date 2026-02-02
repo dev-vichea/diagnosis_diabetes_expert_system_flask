@@ -1,12 +1,4 @@
 {% set current_path = request.path %}
-{% set elements_paths = [
-url_for('web.kb_questions'),
-url_for('web.kb_questions_create'),
-url_for('web.kb_symptoms'),
-url_for('web.kb_symptoms_create'),
-url_for('web.kb_rules_create')
-] %}
-{% set elements_active = current_path in elements_paths %}
 {% set can_users = has_perm('USER_VIEW') or has_perm('USER_CREATE') or has_perm('USER_UPDATE') %}
 {% set can_roles = has_perm('RBAC_VIEW') or has_perm('RBAC_UPDATE') %}
 {% set can_kb_view = has_perm('KB_VIEW') %}
@@ -16,14 +8,14 @@ url_for('web.kb_rules_create')
 has_perm('DIAGNOSIS_HISTORY') %}
 {% set can_cases = has_perm('CASE_VIEW_ALL') or has_perm('CASE_VIEW_FACTS') %}
 {% set can_reports = can_cases %}
-{% set can_dashboard = can_users or can_roles or can_kb or can_cases %}
+{% set can_dashboard = has_role('ADMIN') %}
 {% set show_admin_section = can_users or can_roles or can_kb or can_reports %}
 {% set show_patient_section = can_diagnosis or can_cases %}
 {% set show_patient_history = has_perm('DIAGNOSIS_HISTORY') or can_cases %}
 {% set show_patient_calendar = can_diagnosis %}
 
 <aside class="admin-sidebar" id="admin-sidebar">
-    <div class="sidebar-content">
+    <div class="sidebar-content p-3">
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
                 {% if can_dashboard %}
@@ -50,6 +42,22 @@ has_perm('DIAGNOSIS_HISTORY') %}
                         href="{{ url_for('web.kb_symptoms') }}">
                         <i class="bi bi-clipboard2-pulse"></i>
                         <span>Symptoms</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% if can_kb_create %}
+                <li class="nav-item">
+                    <a class="nav-link{% if current_path == url_for('web.kb_rules_create') %} active{% endif %}"
+                        href="{{ url_for('web.kb_rules_create') }}">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>New Rule</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{% if current_path == url_for('web.kb_symptoms_create') %} active{% endif %}"
+                        href="{{ url_for('web.kb_symptoms_create') }}">
+                        <i class="bi bi-ui-checks"></i>
+                        <span>New Symptom</span>
                     </a>
                 </li>
                 {% endif %}
@@ -90,97 +98,6 @@ has_perm('DIAGNOSIS_HISTORY') %}
                     </a>
                 </li> -->
                 {% endif %}
-                {% if can_kb %}
-                <li class="nav-item">
-                    <a class="nav-link{% if elements_active %} active{% endif %}" href="#" data-bs-toggle="collapse"
-                        data-bs-target="#elementsSubmenu" aria-expanded="{{ 'true' if elements_active else 'false' }}">
-                        <i class="bi bi-puzzle"></i>
-                        <span>Knowlegdes Base</span>
-                        <span class="badge bg-primary rounded-pill me-2">New</span>
-                        <i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <div class="collapse{% if elements_active %} show{% endif %}" id="elementsSubmenu">
-                        <ul class="nav nav-submenu">
-                            {% if can_kb_view %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_questions') %} active{% endif %}" href="{{ url_for('web.kb_questions') }}">
-                                    <i class="bi bi-grid"></i>
-                                    <span>Overview</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_roles %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="bi bi-square"></i>
-                                    <span>Buttons</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_kb_create %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_rules_create') %} active{% endif %}"
-                                    href="{{ url_for('web.kb_rules_create') }}">
-                                    <i class="bi bi-diagram-3"></i>
-                                    <span>New Rule</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                            {% if can_roles %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="bi bi-award"></i>
-                                    <span>Badges</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_roles %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="bi bi-card-text"></i>
-                                    <span>Cards</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_kb_create %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_questions_create') %} active{% endif %}" href="{{ url_for('web.kb_questions_create') }}">
-                                    <i class="bi bi-window"></i>
-                                    <span>Modals</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_kb_create %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_symptoms_create') %} active{% endif %}"
-                                    href="{{ url_for('web.kb_symptoms_create') }}">
-                                    <i class="bi bi-ui-checks"></i>
-                                    <span>New Symptom</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                            {% if can_kb_view %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_symptoms') %} active{% endif %}"
-                                    href="{{ url_for('web.kb_symptoms') }}">
-                                    <i class="bi bi-clipboard2-pulse"></i>
-                                    <span>Symptoms</span>
-                                </a>
-                            </li> -->
-                            {% endif %}
-                            {% if can_kb_view %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if current_path == url_for('web.kb_advices') %} active{% endif %}"
-                                    href="{{ url_for('web.kb_advices') }}">
-                                    <i class="bi bi-journal-medical"></i>
-                                    <span>Advice</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                </li>
-                {% endif %}
                 {% if can_reports %}
                 <!-- <li class="nav-item">
                     <a class="nav-link" href="#">
@@ -201,10 +118,10 @@ has_perm('DIAGNOSIS_HISTORY') %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link{% if current_path == url_for('web.patient_messages') %} active{% endif %}"
-                        href="{{ url_for('web.patient_messages') }}">
+                    <a class="nav-link{% if current_path == url_for('web.patient_assessment') %} active{% endif %}"
+                        href="{{ url_for('web.patient_assessment') }}">
                         <i class="bi bi-chat-dots"></i>
-                        <span>Messages</span>
+                        <span>Assessment</span>
                     </a>
                 </li>
                 {% if show_patient_history %}
@@ -225,6 +142,13 @@ has_perm('DIAGNOSIS_HISTORY') %}
                     </a>
                 </li>
                 {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link{% if current_path == url_for('web.patient_update_symptoms') %} active{% endif %}"
+                        href="{{ url_for('web.patient_update_symptoms') }}">
+                        <i class="bi bi-clipboard2-heart"></i>
+                        <span>Update Symptoms</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link{% if current_path == url_for('web.patient_profile') %} active{% endif %}"
                         href="{{ url_for('web.patient_profile') }}">
@@ -259,3 +183,6 @@ has_perm('DIAGNOSIS_HISTORY') %}
         </nav>
     </div>
 </aside>
+
+<!-- SweetAlert2 (global dialogs) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

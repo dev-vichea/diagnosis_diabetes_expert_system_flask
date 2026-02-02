@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assessment</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg: #f7f8fb;
+            --panel: #ffffff;
+            --soft: #eef2f7;
+            --line: #e1e7f2;
+            --text: #0b1220;
+            --muted: #52607a;
+            --blue: #1d4ed8;
+            --blue-700: #1e40af;
+            --blue-50: #e8f0ff;
+            --teal: #0f766e;
+            --teal-50: #e6fffb;
+            --danger: #b42318;
+            --danger-bg: #fff1f1;
+            --shadow: 0 18px 40px rgba(15, 23, 42, .08);
+            --radius: 18px;
+            --font-sans: "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-display: "Space Grotesk", "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            color: var(--text);
+            background: radial-gradient(1200px 480px at 10% -10%, #e8f0ff 0%, transparent 60%),
+                radial-gradient(900px 380px at 90% 0%, #e6fffb 0%, transparent 55%),
+                var(--bg);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Top nav (Symptomate vibe) */
+        .topbar {
+            background: var(--blue-50);
+            border-bottom: 1px solid #d6e3ff;
+        }
+
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 22px;
+        }
+
+        .topbar .wrap {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-family: var(--font-display);
+        }
+
+        .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--blue), #1b72e8);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .navright {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--muted);
+            font-size: .92rem;
+            white-space: nowrap;
+        }
+
+        .pillbtn {
+            border: 1px solid #cfe0ff;
+            background: #fff;
+            color: var(--text);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: .88rem;
+        }
+
+        /* Page layout */
+        .page {
+            padding: 22px 0 72px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* Left Stepper (sticky, Symptomate-style) */
+        .stepper {
+            position: sticky;
+            top: 18px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px 14px;
+        }
+
+        .stepper-title {
+            font-size: .85rem;
+            color: var(--muted);
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            margin: 2px 8px 10px;
+            font-family: var(--font-display);
+        }
+
+        .step {
+            display: flex;
+            gap: 10px;
+            padding: 10px 10px;
+            border-radius: 14px;
+            color: #94a3b8;
+        }
+
+        .step:hover {
+            background: #f8fbff;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 2px solid #cfe0ff;
+            display: grid;
+            place-items: center;
+            flex: 0 0 18px;
+            margin-top: 1px;
+            background: #fff;
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        .step.is-done {
+            color: #1e3a8a;
+        }
+
+        .step.is-done .dot {
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .step.is-current {
+            color: var(--text);
+            font-weight: 700;
+            background: #f2f7ff;
+        }
+
+        .step.is-current .dot {
+            background: var(--blue-700);
+            border-color: var(--blue-700);
+        }
+
+        .steplabel {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .steplabel span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .steplabel small {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: .78rem;
+        }
+
+        /* Main content */
+        .main {
+            min-width: 0;
+        }
+
+        .backrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--blue);
+            font-weight: 700;
+            margin: 4px 0 12px;
+        }
+
+        .backrow a {
+            color: var(--blue);
+        }
+
+        .title {
+            font-size: 2rem;
+            margin: 6px 0 6px;
+            letter-spacing: -0.02em;
+            font-family: var(--font-display);
+        }
+
+        .subtitle {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.5;
+            max-width: 72ch;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 18px;
+        }
+
+        .flowhead {
+            display: grid;
+            gap: 12px;
+            margin: 4px 0 18px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .flowhead .kicker {
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            font-size: .7rem;
+            font-weight: 800;
+            color: var(--muted);
+            font-family: var(--font-display);
+        }
+
+        .flowhead .flowtitle {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-top: 4px;
+            font-family: var(--font-display);
+        }
+
+        .flowhead .flowmeta {
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .flowprogress {
+            position: relative;
+            height: 10px;
+            border-radius: 999px;
+            background: #e9efff;
+            overflow: hidden;
+        }
+
+        .flowprogress span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--blue), #35b0a3);
+            border-radius: 999px;
+        }
+
+        .alert {
+            border: 1px solid #ffd6d6;
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        /* Shared form styles */
+        label {
+            font-weight: 700;
+        }
+
+        .formgrid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 11px 12px;
+            font-size: .95rem;
+            background: #fff;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #bfd6ff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+        }
+
+        /* Options (Symptomate-like) */
+        .optionlist {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .opt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .opt:last-child {
+            border-bottom: none;
+        }
+
+        .opt-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .opt-left span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .opt input {
+            width: 18px;
+            height: 18px;
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .choice-card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+            place-items: center;
+            text-align: center;
+            background: #fff;
+            cursor: pointer;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-2px);
+            border-color: #c7d7ff;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, .08);
+        }
+
+        .choice-card input {
+            display: none;
+        }
+
+        .choice-card .icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: #f1f5ff;
+            display: grid;
+            place-items: center;
+            color: var(--blue);
+            font-size: 2rem;
+        }
+
+        .choice-card .label {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .choice-card input:checked+.card-body {
+            border: 2px solid var(--blue);
+            border-radius: 16px;
+            padding: 14px;
+            width: 100%;
+        }
+
+        /* Action bar */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .actions .inline-form {
+            margin: 0;
+        }
+
+        .btn {
+            border-radius: 14px;
+            padding: 11px 18px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: .95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), #1b72e8);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-700);
+        }
+
+        .btn-ghost {
+            background: #fff;
+            border-color: #cfe0ff;
+            color: var(--text);
+        }
+
+        .btn-ghost:hover {
+            background: #f6faff;
+        }
+
+        /* Helpers */
+        .hint {
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.45;
+        }
+
+        .mini {
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+        details.info summary {
+            cursor: pointer;
+            list-style: none;
+            color: var(--blue);
+            font-weight: 800;
+        }
+
+        details.info summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.info .body {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.45;
+        }
+
+        /* Results */
+        .resultHero {
+            border: 1px solid #ffd9a8;
+            background: #fff7ed;
+            border-radius: 18px;
+            padding: 14px 14px;
+            margin-bottom: 14px;
+        }
+
+        .resultHero .kicker {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 900;
+            font-size: .75rem;
+            color: #9a3412;
+        }
+
+        .resultHero h2 {
+            margin: 8px 0 4px;
+            font-size: 1.2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 12px 12px;
+        }
+
+        .stat .label {
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .stat .value {
+            margin-top: 6px;
+            font-weight: 900;
+        }
+
+        .section {
+            margin-top: 14px;
+        }
+
+        .section h3 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            color: #1e3a8a;
+        }
+
+        .bullets {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .candidates {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            margin-top: 10px;
+        }
+
+        .cand {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 12px 12px;
+        }
+
+        .cand .name {
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 900;
+            color: #1e3a8a;
+            font-size: .85rem;
+        }
+
+        .bar {
+            width: 38px;
+            height: 8px;
+            border-radius: 999px;
+            background: #e8efff;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .bar>i {
+            display: block;
+            height: 100%;
+            width: 60%;
+            background: var(--blue);
+        }
+
+        .cand details summary {
+            cursor: pointer;
+            color: var(--blue);
+            font-weight: 900;
+            margin-top: 10px;
+            list-style: none;
+        }
+
+        .cand details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .cand details .body {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.45;
+        }
+
+        /* Answers accordion */
+        .answers {
+            margin-top: 14px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .answers header {
+            padding: 14px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 900;
+            color: #1e3a8a;
+            background: #f7fbff;
+        }
+
+        .answers .body {
+            padding: 14px 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .symptom-tools {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .symptom-tools .search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            padding: 8px 12px;
+        }
+
+        .symptom-tools input[type="text"] {
+            border: none;
+            padding: 6px 2px;
+            font-size: .95rem;
+            width: 100%;
+            outline: none;
+            background: transparent;
+        }
+
+        .counter {
+            background: var(--teal-50);
+            color: var(--teal);
+            border: 1px solid #bff5ee;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 800;
+            font-size: .86rem;
+            white-space: nowrap;
+        }
+
+        .group {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 14px;
+            background: #f6f8ff;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .group-title {
+            font-weight: 900;
+            font-size: 1rem;
+            font-family: var(--font-display);
+        }
+
+        .group-meta {
+            color: var(--muted);
+            font-size: .88rem;
+            margin-top: 4px;
+        }
+
+        .group-toggle {
+            border: 1px solid #cfe0ff;
+            background: #fff;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-weight: 700;
+            font-size: .8rem;
+            cursor: pointer;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .group-items {
+            border: none;
+            border-radius: 0;
+        }
+
+        .chipgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .chip {
+            border: 1px solid var(--line);
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 10px 10px;
+            font-size: .92rem;
+            color: var(--text);
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stepper {
+                position: relative;
+                top: auto;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .symptom-tools {
+                grid-template-columns: 1fr;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <div class="brand">
+                <span class="logo">+</span>
+                <span>Diabetes Expert</span>
+            </div>
+
+            <div class="navright">
+                {% if assessment %}
+                <form method="post" style="margin:0">
+                    <input type="hidden" name="action" value="restart" />
+                    <button class="pillbtn" type="submit">Restart assessment</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap page">
+        <div class="grid">
+            <!-- LEFT: Stepper -->
+            <aside class="stepper">
+                <div class="stepper-title">Assessment steps</div>
+                {% for step in assessment_steps %}
+                <div class="step{% if step.is_current %} is-current{% endif %}{% if step.is_done %} is-done{% endif %}">
+                    <div class="dot">{% if step.is_done %}✓{% else %}{% endif %}</div>
+                    <div class="steplabel">
+                        <span>{{ step.label }}</span>
+                        {% if step.is_current %}
+                        <small>Current</small>
+                        {% elif step.is_done %}
+                        <small>Done</small>
+                        {% else %}
+                        <small>Next</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </aside>
+
+            <!-- RIGHT: Content -->
+            <section class="main">
+                {% if error_message %}
+                <div class="alert">{{ error_message }}</div>
+                {% endif %}
+
+                {% if prev_step %}
+                <div class="backrow">
+                    <a href="{{ url_for('web.patient_assessment', step=prev_step) }}">← Back</a>
+                </div>
+                {% endif %}
+
+                <section class="flowhead" aria-live="polite">
+                    <div>
+                        <div class="kicker">Assessment flow</div>
+                        <div class="flowtitle">{{ step_label }}</div>
+                        <div class="flowmeta">Step {{ step_index }} of {{ step_total }}</div>
+                    </div>
+                    <div class="flowprogress" role="progressbar" aria-valuenow="{{ step_progress }}" aria-valuemin="0"
+                        aria-valuemax="100">
+                        <span class="progress" style="--w: {{ step_progress }}%;"></span>
+                    </div>
+                </section>
+
+                <!-- =========================
+             STEP: PATIENT INTRO
+        ========================== -->
+                {% if current_step == "patient_intro" %}
+                <h1 class="title">Who is the survey for?</h1>
+                <p class="subtitle">Select the option that matches the person answering this assessment.</p>
+
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="patient_intro" />
+                    <input type="hidden" name="step" value="patient_intro" />
+
+                    <div class="choice-grid">
+                        <label class="choice-card">
+                            <input type="radio" name="survey_for" value="myself" {% if profile_data.survey_for
+                                !='someone' %}checked{% endif %} required />
+                            <div class="card-body">
+                                <div class="icon">👤</div>
+                                <div class="label">Myself</div>
+                                <div class="mini">I’m answering about my own health.</div>
+                            </div>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="survey_for" value="someone" {% if
+                                profile_data.survey_for=='someone' %}checked{% endif %} />
+                            <div class="card-body">
+                                <div class="icon">👥</div>
+                                <div class="label">Someone else</div>
+                                <div class="mini">I’m answering for another person.</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </div>
+                </form>
+
+                <!-- =========================
+             STEP: SEX
+        ========================== -->
+                {% elif current_step == "patient_sex" %}
+                <h1 class="title">Select sex</h1>
+                <p class="subtitle">This helps provide more accurate screening guidance.</p>
+
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="patient_sex" />
+                    <input type="hidden" name="step" value="patient_sex" />
+
+                    <div class="choice-grid">
+                        <label class="choice-card">
+                            <input type="radio" name="sex" value="female" {% if profile_data.sex=='female' %}checked{%
+                                endif %} required />
+                            <div class="card-body">
+                                <div class="icon">♀</div>
+                                <div class="label">Female</div>
+                            </div>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="sex" value="male" {% if profile_data.sex=='male' %}checked{% endif
+                                %} />
+                            <div class="card-body">
+                                <div class="icon">♂</div>
+                                <div class="label">Male</div>
+                            </div>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="sex" value="prefer_not" {% if profile_data.sex=='prefer_not' or
+                                not profile_data.sex %}checked{% endif %} />
+                            <div class="card-body">
+                                <div class="icon">—</div>
+                                <div class="label">Prefer not to say</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="actions">
+                        <a class="btn btn-ghost"
+                            href="{{ url_for('web.patient_assessment', step='patient_intro') }}">Back</a>
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </div>
+                </form>
+
+                <!-- =========================
+             STEP: AGE
+        ========================== -->
+                {% elif current_step == "patient_age" %}
+                <h1 class="title">Age</h1>
+                <p class="subtitle">Enter age in years to personalize the assessment.</p>
+
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="patient_age" />
+                    <input type="hidden" name="step" value="patient_age" />
+
+                    <div class="formgrid">
+                        <div class="field">
+                            <label for="age_years">Age (years)</label>
+                            <input id="age_years" type="number" name="age_years" min="1" max="120"
+                                value="{{ profile_data.age_years or '' }}" required />
+                        </div>
+
+                        <div class="actions">
+                            <a class="btn btn-ghost"
+                                href="{{ url_for('web.patient_assessment', step='patient_sex') }}">Back</a>
+                            <button class="btn btn-primary" type="submit">Continue</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- =========================
+             STEP: STATEMENTS
+        ========================== -->
+                {% elif current_step == "patient_statements" %}
+                <h1 class="title">Select any statements that apply</h1>
+                <p class="subtitle">These help determine risk factors before symptom review.</p>
+
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="patient_statements" />
+                    <input type="hidden" name="step" value="patient_statements" />
+                    {% if statement_symptoms %}
+                    <div class="optionlist">
+                        {% for symptom in statement_symptoms %}
+                        <label class="opt">
+                            <span class="opt-left">
+                                <input type="checkbox" name="statement_ids" value="{{ symptom.id }}" {% if symptom.id in
+                                    statement_selected_ids %}checked{% endif %} />
+                                <span>{{ symptom.question_text or symptom.name or symptom.code }}</span>
+                            </span>
+                        </label>
+                        <input type="hidden" name="all_statement_ids" value="{{ symptom.id }}" />
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="hint">No intake statements found. Please seed the knowledge base.</div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <a class="btn btn-ghost"
+                            href="{{ url_for('web.patient_assessment', step='patient_age') }}">Back</a>
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </div>
+                </form>
+
+                <!-- =========================
+             STEP: SYMPTOMS (multi-select list)
+        ========================== -->
+                {% elif current_step == "symptoms" %}
+                <h1 class="title">Select symptoms</h1>
+                <p class="subtitle">Choose all symptoms that apply. This helps the system decide what to ask next.</p>
+
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="symptoms" />
+                    <input type="hidden" name="step" value="symptoms" />
+
+                    <div class="symptom-tools">
+                        <label class="search" aria-label="Search symptoms">
+                            <span>🔎</span>
+                            <input type="text" id="symptomSearch" placeholder="Search symptoms..." autocomplete="off" />
+                        </label>
+                        <div class="counter" id="symptomCounter">
+                            {{ selected_count }} selected · {{ symptom_total }} total
+                        </div>
+                    </div>
+
+                    {% if symptom_groups %}
+                    {% for group in symptom_groups %}
+                    <section class="group" data-group>
+                        <div class="group-header">
+                            <div>
+                                <div class="group-title">{{ group.title }}</div>
+                                {% if group.description %}
+                                <div class="group-meta">{{ group.description }}</div>
+                                {% endif %}
+                            </div>
+                            <button type="button" class="group-toggle" data-toggle>Collapse</button>
+                        </div>
+                        <div class="optionlist group-items" data-items>
+                            {% for symptom in group.symptoms %}
+                            <label class="opt"
+                                data-symptom="{{ symptom.name or symptom.code or symptom.question_text }}">
+                                <span class="opt-left">
+                                    <input type="checkbox" name="symptom_ids" value="{{ symptom.id }}" {% if symptom.id
+                                        in answered_yes %}checked{% endif %} />
+                                    <span>{{ symptom.name or symptom.code or symptom.question_text }}</span>
+                                </span>
+                            </label>
+                            <input type="hidden" name="all_symptom_ids" value="{{ symptom.id }}" />
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endfor %}
+                    {% else %}
+                    <div class="optionlist" style="max-height:420px; overflow:auto;">
+                        {% for symptom in symptoms %}
+                        <label class="opt">
+                            <span class="opt-left">
+                                <input type="checkbox" name="symptom_ids" value="{{ symptom.id }}" {% if symptom.id in
+                                    answered_yes %}checked{% endif %} />
+                                <span>{{ symptom.name or symptom.code or symptom.question_text }}</span>
+                            </span>
+                        </label>
+                        <input type="hidden" name="all_symptom_ids" value="{{ symptom.id }}" />
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <a class="btn btn-ghost"
+                            href="{{ url_for('web.patient_assessment', step='patient_statements') }}">Back</a>
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </div>
+                </form>
+
+                <!-- =========================
+             STEP: INTERVIEW (question-driven)
+        ========================== -->
+                {% elif current_step == "interview" %}
+                <h1 class="title">Interview</h1>
+                <p class="subtitle">Answer a few follow-up questions to increase certainty.</p>
+
+                {% if current_symptom %}
+                <form method="post" class="card">
+                    <input type="hidden" name="action" value="interview" />
+                    <input type="hidden" name="step" value="interview" />
+                    <input type="hidden" name="symptom_id" value="{{ current_symptom.id }}" />
+
+                    <div class="formgrid">
+                        <div class="field">
+                            <label style="font-size:1.05rem;">
+                                {{ current_symptom.question_text or current_symptom.name or current_symptom.code }}
+                            </label>
+
+                            {% set qtype = (current_symptom.input_type or 'BOOLEAN')|upper %}
+                            {% if qtype == 'NUMBER' %}
+                            <input class="form-input" type="number" name="answer_number" step="any" required />
+                            {% elif qtype == 'TEXT' %}
+                            <input class="form-input" type="text" name="answer_text" required />
+                            {% elif qtype == 'SINGLE' %}
+                            <div class="optionlist">
+                                {% for opt in current_symptom.options_json or [] %}
+                                {% if opt is mapping %}
+                                {% set opt_label = opt.get('label') or opt.get('value') %}
+                                {% set opt_value = opt.get('value') or opt.get('label') %}
+                                {% else %}
+                                {% set opt_label = opt %}
+                                {% set opt_value = opt %}
+                                {% endif %}
+                                <label class="opt">
+                                    <span class="opt-left">
+                                        <input type="radio" name="answer_choice" value="{{ opt_value }}" required />
+                                        <span>{{ opt_label }}</span>
+                                    </span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="optionlist">
+                                <label class="opt">
+                                    <span class="opt-left">
+                                        <input type="radio" name="answer_bool" value="yes" required />
+                                        <span>Yes</span>
+                                    </span>
+                                </label>
+                                <label class="opt">
+                                    <span class="opt-left">
+                                        <input type="radio" name="answer_bool" value="no" required />
+                                        <span>No</span>
+                                    </span>
+                                </label>
+                            </div>
+                            {% endif %}
+
+                            <details class="info">
+                                <summary>What does it mean?</summary>
+                                <div class="body">
+                                    This question helps refine which outcomes are more likely.
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="actions">
+                            <a class="btn btn-ghost"
+                                href="{{ url_for('web.patient_assessment', step='symptoms') }}">Back</a>
+                            <form method="post" class="inline-form">
+                                <input type="hidden" name="action" value="skip_question" />
+                                <input type="hidden" name="step" value="interview" />
+                                <input type="hidden" name="symptom_id" value="{{ current_symptom.id }}" />
+                                <button class="btn btn-ghost" type="submit">Skip for now</button>
+                            </form>
+                            <button class="btn btn-primary" type="submit">Next question</button>
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                <div class="card">
+                    <p class="subtitle">No more questions are needed.</p>
+                    <div class="actions">
+                        <a class="btn btn-primary" href="{{ url_for('web.patient_assessment', step='results') }}">View
+                            results</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- =========================
+             STEP: RESULTS (patient-friendly)
+        ========================== -->
+                {% elif current_step == "results" %}
+                <h1 class="title">Your results</h1>
+                <p class="subtitle">This is a summary based on the answers provided.</p>
+
+                <div class="card">
+                    {% if report and report.risk_assessment %}
+                    <div class="resultHero">
+                        <div class="kicker">Recommended next step</div>
+                        <h2>
+                            {% if report.advice and report.advice.title %}
+                            {{ report.advice.title }}
+                            {% else %}
+                            Follow up with a healthcare professional if symptoms persist.
+                            {% endif %}
+                        </h2>
+                        {% if report.advice and report.advice.content %}
+                        <div class="hint">{{ report.advice.content|replace('\\n','<br>')|safe }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="label">Risk level</div>
+                            <div class="value">{{ report.risk_assessment.risk_level }}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Top outcome</div>
+                            {% set top_label = (candidate_views[0].label if candidate_views else
+                            report.risk_assessment.diagnosis_code) %}
+                            <div class="value">{{ top_label }}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Status</div>
+                            <div class="value">Completed</div>
+                        </div>
+                    </div>
+
+                    {% if evidence_bullets %}
+                    <div class="section">
+                        <h3>Be sure to mention</h3>
+                        <ul class="bullets">
+                            {% for item in evidence_bullets %}<li>{{ item }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if missing_bullets %}
+                    <div class="section">
+                        <h3>Missing info (uncertainty)</h3>
+                        <ul class="bullets">
+                            {% for item in missing_bullets %}<li>{{ item }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if report.advice and report.advice.recommendations and
+                    report.advice.recommendations.screening_tests %}
+                    <div class="section">
+                        <h3>Recommended tests</h3>
+                        <ul class="bullets">
+                            {% for item in report.advice.recommendations.screening_tests %}<li>{{ item }}</li>{% endfor
+                            %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if candidate_views %}
+                    <div class="section">
+                        <h3>Possible conditions</h3>
+                        <div class="candidates">
+                            {% for cand in candidate_views %}
+                            <div class="cand">
+                                <div class="badge">
+                                    <span class="bar"><i></i></span>
+                                    <span>{{ cand.evidence }} evidence</span>
+                                </div>
+
+                                <div class="name" style="margin-top:8px;">{{ cand.label }}</div>
+                                {% if cand.confidence is not none %}
+                                <div class="mini">Confidence: {{ cand.confidence }}%</div>
+                                {% endif %}
+
+                                <details>
+                                    <summary>Show details</summary>
+                                    <div class="body">
+                                        <div class="mini">Risk level: {{ cand.risk_level }}</div>
+                                        <div class="hint" style="margin-top:8px;">
+                                            Show matched evidence and why this was suggested (from your explanation
+                                            trace).
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <p class="subtitle">Your results are still being generated.</p>
+                    {% endif %}
+
+                    <div class="actions">
+                        <form method="post" style="margin:0">
+                            <input type="hidden" name="action" value="restart" />
+                            <button type="submit" class="btn btn-primary">Start new assessment</button>
+                        </form>
+                        <a class="btn btn-ghost" href="{{ url_for('web.patient_diagnosis') }}">Return</a>
+                    </div>
+                </div>
+
+                <!-- Answers accordion -->
+                <div class="answers" id="answersCard">
+                    <header id="answersToggle">
+                        <span>Your answers</span>
+                        <span id="answersChevron">▲</span>
+                    </header>
+                    <div class="body" id="answersBody">
+                        <div>
+                            <div class="mini" style="font-weight:900; color:#1e3a8a;">Patient</div>
+                            <div class="chipgrid" style="margin-top:8px;">
+                                <div class="chip">Survey for: {{ 'Myself' if profile_data.survey_for != 'someone' else
+                                    'Someone else' }}</div>
+                                {% set sex_label_map = {'female':'Female','male':'Male','prefer_not':'Prefer not to
+                                say'} %}
+                                <div class="chip">Sex: {{ sex_label_map.get(profile_data.sex,'Prefer not to say') }}
+                                </div>
+                                <div class="chip">Age: {{ profile_data.age_years or 'Not set' }}</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mini" style="font-weight:900; color:#1e3a8a;">Body metrics</div>
+                            <div class="chipgrid" style="margin-top:8px;">
+                                <div class="chip">Metrics not collected in this flow.</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mini" style="font-weight:900; color:#1e3a8a;">Reported symptoms</div>
+                            {% if yes_symptoms %}
+                            <ul class="bullets" style="margin-top:8px;">
+                                {% for symptom in yes_symptoms %}
+                                <li>{{ symptom.name or symptom.code or symptom.question_text }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <div class="hint" style="margin-top:8px;">No symptoms selected.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Answers accordion (results page)
+        const t = document.getElementById("answersToggle");
+        const b = document.getElementById("answersBody");
+        const c = document.getElementById("answersChevron");
+        if (t && b && c) {
+            t.addEventListener("click", () => {
+                const hidden = b.style.display === "none";
+                b.style.display = hidden ? "grid" : "none";
+                c.textContent = hidden ? "▲" : "▼";
+            });
+        }
+
+        // Symptom search + group toggles
+        const searchInput = document.getElementById("symptomSearch");
+        const counter = document.getElementById("symptomCounter");
+        if (searchInput) {
+            const symptomRows = Array.from(document.querySelectorAll("[data-symptom]"));
+            const groups = Array.from(document.querySelectorAll("[data-group]"));
+            const totalCount = symptomRows.length;
+
+            const updateCounter = () => {
+                const checked = document.querySelectorAll("input[name='symptom_ids']:checked").length;
+                if (counter) {
+                    counter.textContent = `${checked} selected · ${totalCount} total`;
+                }
+            };
+
+            const applyFilter = () => {
+                const query = searchInput.value.trim().toLowerCase();
+                symptomRows.forEach((row) => {
+                    const text = (row.getAttribute("data-symptom") || "").toLowerCase();
+                    row.style.display = text.includes(query) ? "flex" : "none";
+                });
+                groups.forEach((group) => {
+                    const visible = group.querySelectorAll("[data-symptom]:not([style*='display: none'])").length;
+                    group.style.display = visible ? "block" : "none";
+                });
+            };
+
+            searchInput.addEventListener("input", applyFilter);
+            document.addEventListener("change", (event) => {
+                if (event.target && event.target.name === "symptom_ids") {
+                    updateCounter();
+                }
+            });
+            updateCounter();
+        }
+
+        document.querySelectorAll("[data-toggle]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const group = btn.closest("[data-group]");
+                if (!group) return;
+                const items = group.querySelector("[data-items]");
+                const isHidden = items && items.style.display === "none";
+                if (items) items.style.display = isHidden ? "block" : "none";
+                btn.textContent = isHidden ? "Collapse" : "Expand";
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,74 +1,78 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics Dashboard - Modern Bootstrap Admin</title>
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Comprehensive analytics dashboard with advanced charts, KPIs, and data visualizations">
+    <meta name="description"
+        content="Comprehensive analytics dashboard with advanced charts, KPIs, and data visualizations">
     <meta name="keywords" content="bootstrap, admin, dashboard, analytics, charts, data visualization">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
-    
+
     <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- ApexCharts CDN -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    
+
     <!-- Custom Styles for Analytics Dashboard -->
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/analytics-ChgB2M2c.js') }}"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/analytics-ChgB2M2c.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
 <body data-page="analytics" class="analytics-page">
     <!-- Admin App Container -->
     <div class="admin-app">
         <div class="admin-wrapper" id="admin-wrapper">
-            
+
             <!-- Header -->
             <header class="admin-header">
                 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                     <div class="container-fluid">
                         <!-- Logo/Brand -->
                         <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
-                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32"
+                                class="d-inline-block align-text-top me-2">
                             <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
                         </a>
 
                         <!-- Search Bar with Alpine.js -->
                         <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
                             <div class="position-relative">
-                                <input type="search" 
-                                       class="form-control" 
-                                       placeholder="Search... (Ctrl+K)"
-                                       x-model="query"
-                                       @input="search()"
-                                       data-search-input
-                                       aria-label="Search">
+                                <input type="search" class="form-control" placeholder="Search... (Ctrl+K)"
+                                    x-model="query" @input="search()" data-search-input aria-label="Search">
                                 <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
-                                
+
                                 <!-- Search Results Dropdown -->
-                                <div x-show="results.length > 0" 
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
+                                <div x-show="results.length > 0" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
                                     <template x-for="result in results" :key="result.title">
-                                        <a :href="result.url" class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
+                                        <a :href="result.url"
+                                            class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
                                             <div class="d-flex align-items-center">
                                                 <i class="bi bi-file-text me-2 text-muted"></i>
                                                 <span x-text="result.title"></span>
@@ -84,67 +88,63 @@
                         <div class="navbar-nav flex-row">
                             <!-- Theme Toggle with Alpine.js -->
                             <div x-data="themeSwitch">
-                                <button class="btn btn-outline-secondary me-2" 
-                                        type="button" 
-                                        @click="toggle()"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="Toggle theme">
+                                <button class="btn btn-outline-secondary me-2" type="button" @click="toggle()"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle theme">
                                     <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
                                     <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
                                 </button>
                             </div>
 
                             <!-- Fullscreen Toggle -->
-                            <button class="btn btn-outline-secondary me-2" 
-                                    type="button" 
-                                    data-fullscreen-toggle
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="Toggle fullscreen">
+                            <button class="btn btn-outline-secondary me-2" type="button" data-fullscreen-toggle
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle fullscreen">
                                 <i class="bi bi-arrows-fullscreen icon-hover"></i>
                             </button>
 
                             <!-- Notifications -->
                             <div class="dropdown me-2">
-                                <button class="btn btn-outline-secondary position-relative" 
-                                        type="button" 
-                                        data-bs-toggle="dropdown" 
-                                        aria-expanded="false">
+                                <button class="btn btn-outline-secondary position-relative" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-bell"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                         3
                                     </span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                                    <li>
+                                        <h6 class="dropdown-header">Notifications</h6>
+                                    </li>
                                     <li><a class="dropdown-item" href="#">New user registered</a></li>
                                     <li><a class="dropdown-item" href="#">Server status update</a></li>
                                     <li><a class="dropdown-item" href="#">New message received</a></li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                     <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
                                 </ul>
                             </div>
 
                             <!-- User Menu -->
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary d-flex align-items-center" 
-                                        type="button" 
-                                        data-bs-toggle="dropdown" 
-                                        aria-expanded="false">
-                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e" 
-                                         alt="User Avatar" 
-                                         width="24" 
-                                         height="24" 
-                                         class="rounded-circle me-2">
-                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or session.get('me', {}).get('email') or 'User') }}</span>
+                                <button class="btn btn-outline-secondary d-flex align-items-center" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
+                                        alt="User Avatar" width="24" height="24" class="rounded-circle me-2">
+                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or
+                                        session.get('me', {}).get('email') or 'User') }}</span>
                                     <i class="bi bi-chevron-down ms-1"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i
+                                                class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -153,20 +153,17 @@
             </header>
 
             <!-- Sidebar -->
-{% include 'shared/_sidebar.html' %}
+            {% include 'shared/_sidebar.html' %}
 
             <!-- Floating Hamburger Menu -->
-            <button class="hamburger-menu" 
-                    type="button" 
-                    data-sidebar-toggle
-                    aria-label="Toggle sidebar">
+            <button class="hamburger-menu" type="button" data-sidebar-toggle aria-label="Toggle sidebar">
                 <i class="bi bi-list"></i>
             </button>
 
             <!-- Main Content -->
             <main class="admin-main">
                 <div class="container-fluid p-4 p-lg-5">
-                    
+
                     <!-- Page Header -->
                     <div class="d-flex justify-content-between align-items-center mb-4 mb-lg-5">
                         <div>
@@ -175,7 +172,8 @@
                         </div>
                         <div class="d-flex gap-2">
                             <div class="btn-group" role="group">
-                                <input type="radio" class="btn-check" name="dateRange" id="today" autocomplete="off" checked>
+                                <input type="radio" class="btn-check" name="dateRange" id="today" autocomplete="off"
+                                    checked>
                                 <label class="btn btn-outline-secondary btn-sm" for="today">Today</label>
                                 <input type="radio" class="btn-check" name="dateRange" id="week" autocomplete="off">
                                 <label class="btn btn-outline-secondary btn-sm" for="week">7D</label>
@@ -192,7 +190,7 @@
 
                     <!-- Analytics Dashboard Container -->
                     <div x-data="analyticsComponent" x-init="init()">
-                        
+
                         <!-- Key Metrics Row -->
                         <div class="row g-4 g-lg-5 g-xl-6 mb-5 mb-lg-5 mb-xl-6">
                             <div class="col-xl-3 col-lg-6">
@@ -277,12 +275,16 @@
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h5 class="card-title mb-0">Revenue Analytics</h5>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="revenueView" id="revenue-daily" autocomplete="off" checked>
+                                            <input type="radio" class="btn-check" name="revenueView" id="revenue-daily"
+                                                autocomplete="off" checked>
                                             <label class="btn btn-outline-secondary" for="revenue-daily">Daily</label>
-                                            <input type="radio" class="btn-check" name="revenueView" id="revenue-weekly" autocomplete="off">
+                                            <input type="radio" class="btn-check" name="revenueView" id="revenue-weekly"
+                                                autocomplete="off">
                                             <label class="btn btn-outline-secondary" for="revenue-weekly">Weekly</label>
-                                            <input type="radio" class="btn-check" name="revenueView" id="revenue-monthly" autocomplete="off">
-                                            <label class="btn btn-outline-secondary" for="revenue-monthly">Monthly</label>
+                                            <input type="radio" class="btn-check" name="revenueView"
+                                                id="revenue-monthly" autocomplete="off">
+                                            <label class="btn btn-outline-secondary"
+                                                for="revenue-monthly">Monthly</label>
                                         </div>
                                     </div>
                                     <div class="card-body p-3 p-lg-4">
@@ -304,7 +306,9 @@
                                         <div class="traffic-sources-list">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2" style="width: 12px; height: 12px; background-color: #007bff; border-radius: 50%"></div>
+                                                    <div class="me-2"
+                                                        style="width: 12px; height: 12px; background-color: #007bff; border-radius: 50%">
+                                                    </div>
                                                     <span class="text-muted">Organic Search</span>
                                                 </div>
                                                 <div class="text-end">
@@ -314,7 +318,9 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2" style="width: 12px; height: 12px; background-color: #28a745; border-radius: 50%"></div>
+                                                    <div class="me-2"
+                                                        style="width: 12px; height: 12px; background-color: #28a745; border-radius: 50%">
+                                                    </div>
                                                     <span class="text-muted">Direct</span>
                                                 </div>
                                                 <div class="text-end">
@@ -324,7 +330,9 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2" style="width: 12px; height: 12px; background-color: #fd7e14; border-radius: 50%"></div>
+                                                    <div class="me-2"
+                                                        style="width: 12px; height: 12px; background-color: #fd7e14; border-radius: 50%">
+                                                    </div>
                                                     <span class="text-muted">Social Media</span>
                                                 </div>
                                                 <div class="text-end">
@@ -334,7 +342,9 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="me-2" style="width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%"></div>
+                                                    <div class="me-2"
+                                                        style="width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%">
+                                                    </div>
                                                     <span class="text-muted">Referral</span>
                                                 </div>
                                                 <div class="text-end">
@@ -484,9 +494,12 @@
                                         <h5 class="card-title mb-0">Geographic Distribution</h5>
                                     </div>
                                     <div class="card-body p-3 p-lg-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-2" style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/us.png'); background-size: cover; border-radius: 2px;"></div>
+                                                <div class="me-2"
+                                                    style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/us.png'); background-size: cover; border-radius: 2px;">
+                                                </div>
                                                 <span class="fw-medium">United States</span>
                                             </div>
                                             <div class="text-end">
@@ -494,9 +507,12 @@
                                                 <small class="text-muted">17,446</small>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-2" style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/gb.png'); background-size: cover; border-radius: 2px;"></div>
+                                                <div class="me-2"
+                                                    style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/gb.png'); background-size: cover; border-radius: 2px;">
+                                                </div>
                                                 <span class="fw-medium">United Kingdom</span>
                                             </div>
                                             <div class="text-end">
@@ -504,9 +520,12 @@
                                                 <small class="text-muted">10,367</small>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-2" style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/ca.png'); background-size: cover; border-radius: 2px;"></div>
+                                                <div class="me-2"
+                                                    style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/ca.png'); background-size: cover; border-radius: 2px;">
+                                                </div>
                                                 <span class="fw-medium">Canada</span>
                                             </div>
                                             <div class="text-end">
@@ -514,9 +533,12 @@
                                                 <small class="text-muted">7,215</small>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-2" style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/de.png'); background-size: cover; border-radius: 2px;"></div>
+                                                <div class="me-2"
+                                                    style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/de.png'); background-size: cover; border-radius: 2px;">
+                                                </div>
                                                 <span class="fw-medium">Germany</span>
                                             </div>
                                             <div class="text-end">
@@ -526,7 +548,9 @@
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-2" style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/au.png'); background-size: cover; border-radius: 2px;"></div>
+                                                <div class="me-2"
+                                                    style="width: 24px; height: 18px; background-image: url('https://flagcdn.com/24x18/au.png'); background-size: cover; border-radius: 2px;">
+                                                </div>
                                                 <span class="fw-medium">Australia</span>
                                             </div>
                                             <div class="text-end">
@@ -560,7 +584,8 @@
                                                             <span class="text-muted">68.4%</span>
                                                         </div>
                                                         <div class="progress" style="height: 6px;">
-                                                            <div class="progress-bar bg-primary" style="width: 68.4%"></div>
+                                                            <div class="progress-bar bg-primary" style="width: 68.4%">
+                                                            </div>
                                                         </div>
                                                         <small class="text-muted">31,247 users</small>
                                                     </div>
@@ -577,7 +602,8 @@
                                                             <span class="text-muted">24.8%</span>
                                                         </div>
                                                         <div class="progress" style="height: 6px;">
-                                                            <div class="progress-bar bg-success" style="width: 24.8%"></div>
+                                                            <div class="progress-bar bg-success" style="width: 24.8%">
+                                                            </div>
                                                         </div>
                                                         <small class="text-muted">11,327 users</small>
                                                     </div>
@@ -594,7 +620,8 @@
                                                             <span class="text-muted">6.8%</span>
                                                         </div>
                                                         <div class="progress" style="height: 6px;">
-                                                            <div class="progress-bar bg-warning" style="width: 6.8%"></div>
+                                                            <div class="progress-bar bg-warning" style="width: 6.8%">
+                                                            </div>
                                                         </div>
                                                         <small class="text-muted">3,098 users</small>
                                                     </div>
@@ -617,7 +644,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div> <!-- End Analytics Container -->
 
                 </div>
@@ -628,10 +655,10 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-0 text-muted">© 2025 Modern Bootstrap Admin Template</p>
+                            <p class="mb-0 text-muted">© 2026 Diabetes Expert System</p>
                         </div>
                         <div class="col-md-6 text-md-end">
-                            <p class="mb-0 text-muted">Built with Bootstrap 5.3.7</p>
+                            <p class="mb-0 text-muted">Built with Flask and Bootstrap 5</p>
                         </div>
                     </div>
                 </div>
@@ -645,36 +672,39 @@
     <!-- Main App Script -->
 
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.querySelector('[data-sidebar-toggle]');
-        const wrapper = document.getElementById('admin-wrapper');
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.querySelector('[data-sidebar-toggle]');
+            const wrapper = document.getElementById('admin-wrapper');
 
-        if (toggleButton && wrapper) {
-          // Set initial state from localStorage
-          const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-          if (isCollapsed) {
-            wrapper.classList.add('sidebar-collapsed');
-            toggleButton.classList.add('is-active');
-          }
+            if (toggleButton && wrapper) {
+                // Set initial state from localStorage
+                const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+                if (isCollapsed) {
+                    wrapper.classList.add('sidebar-collapsed');
+                    toggleButton.classList.add('is-active');
+                }
 
-          // Attach click listener
-          toggleButton.addEventListener('click', () => {
-            const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
-            
-            if (isCurrentlyCollapsed) {
-              wrapper.classList.remove('sidebar-collapsed');
-              toggleButton.classList.remove('is-active');
-              localStorage.setItem('sidebar-collapsed', 'false');
-            } else {
-              wrapper.classList.add('sidebar-collapsed');
-              toggleButton.classList.add('is-active');
-              localStorage.setItem('sidebar-collapsed', 'true');
+                // Attach click listener
+                toggleButton.addEventListener('click', () => {
+                    const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
+
+                    if (isCurrentlyCollapsed) {
+                        wrapper.classList.remove('sidebar-collapsed');
+                        toggleButton.classList.remove('is-active');
+                        localStorage.setItem('sidebar-collapsed', 'false');
+                    } else {
+                        wrapper.classList.add('sidebar-collapsed');
+                        toggleButton.classList.add('is-active');
+                        localStorage.setItem('sidebar-collapsed', 'true');
+                    }
+                });
             }
-          });
-        }
-      });
+        });
     </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
 </body>
-</html> 
+
+</html>

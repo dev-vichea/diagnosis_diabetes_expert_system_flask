@@ -55,6 +55,18 @@ def current_roles() -> set:
 def require_login():
     if not session.get("access_token"):
         return redirect(url_for("web.login_page", next=request.path))
+
+    me = session.get("me") or {}
+    user_id = me.get("user_id")
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        session.clear()
+        return redirect(url_for("web.login_page", next=request.path))
+
+    if not User.query.get(user_id):
+        session.clear()
+        return redirect(url_for("web.login_page", next=request.path))
     return None
 
 
@@ -70,6 +82,8 @@ def require_permissions(*codes: str):
 
 
 def dashboard_redirect_target() -> str:
+    if "ADMIN" in current_roles():
+        return url_for("web.admin_dashboard")
     perms = current_permissions()
     if "USER_VIEW" in perms:
         return url_for("web.admin_users")
@@ -79,4 +93,4 @@ def dashboard_redirect_target() -> str:
         return url_for("web.kb_symptoms")
     if perms.intersection({"DIAGNOSIS_VIEW", "DIAGNOSIS_START", "DIAGNOSIS_ANSWER"}):
         return url_for("web.patient_diagnosis")
-    return url_for("web.admin_dashboard")
+    return url_for("web.patient_diagnosis")

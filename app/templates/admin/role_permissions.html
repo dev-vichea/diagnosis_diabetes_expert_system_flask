@@ -1,497 +1,493 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Role Permissions - Diabetes Expert</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Role Permissions - Diabetes Expert</title>
 
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Role permission matrix for the Diabetes Expert system">
-    <meta name="keywords" content="admin, roles, permissions, rbac, matrix">
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Role permission matrix for the Diabetes Expert system">
+  <meta name="keywords" content="admin, roles, permissions, rbac, matrix">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
 
-    <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Preload critical fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    as="style">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
-    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
-    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<style>
-        .perm-table th,
-        .perm-table td {
-            vertical-align: middle;
-        }
+  <script type="module" crossorigin
+    src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+  <script type="module" crossorigin
+    src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    .perm-table th,
+    .perm-table td {
+      vertical-align: middle;
+    }
 
-        .perm-table th {
-            font-size: 0.75rem;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #64748b;
-        }
+    .perm-table th {
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
 
-        .perm-col {
-            min-width: 150px;
-        }
+    .perm-col {
+      min-width: 150px;
+    }
 
-        .perm-cell {
-            text-align: center;
-        }
+    .perm-cell {
+      text-align: center;
+    }
 
-        .checkbox-wrapper-45 {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-        }
+    .checkbox-wrapper-45 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"] {
-            display: none;
-            visibility: hidden;
-        }
+    .checkbox-wrapper-45 input[type="checkbox"] {
+      display: none;
+      visibility: hidden;
+    }
 
-        .checkbox-wrapper-45 .cbx {
-            perspective: 20px;
-            display: inline-block;
-            border: 2px solid #e8e8eb;
-            background: #e8e8eb;
-            border-radius: 6px;
-            transform: translateZ(0);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+    .checkbox-wrapper-45 .cbx {
+      perspective: 20px;
+      display: inline-block;
+      border: 2px solid #e8e8eb;
+      background: #e8e8eb;
+      border-radius: 6px;
+      transform: translateZ(0);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
 
-        .checkbox-wrapper-45 .cbx:hover {
-            border-color: #0b76ef;
-        }
+    .checkbox-wrapper-45 .cbx:hover {
+      border-color: #0b76ef;
+    }
 
-        .checkbox-wrapper-45 .flip {
-            display: block;
-            transition: transform 0.25s ease;
-            transform-style: preserve-3d;
-            position: relative;
-            width: 20px;
-            height: 20px;
-            will-change: transform;
-        }
+    .checkbox-wrapper-45 .flip {
+      display: block;
+      transition: transform 0.25s ease;
+      transform-style: preserve-3d;
+      position: relative;
+      width: 20px;
+      height: 20px;
+      will-change: transform;
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"]:checked + .cbx {
-            border-color: #0b76ef;
-        }
+    .checkbox-wrapper-45 input[type="checkbox"]:checked+.cbx {
+      border-color: #0b76ef;
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"]:checked + .cbx .flip {
-            transform: rotateY(180deg);
-        }
+    .checkbox-wrapper-45 input[type="checkbox"]:checked+.cbx .flip {
+      transform: rotateY(180deg);
+    }
 
-        .checkbox-wrapper-45 .front,
-        .checkbox-wrapper-45 .back {
-            backface-visibility: hidden;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
+    .checkbox-wrapper-45 .front,
+    .checkbox-wrapper-45 .back {
+      backface-visibility: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
 
-        .checkbox-wrapper-45 .front {
-            background: #fff;
-            border: 1px solid #d7d7dc;
-        }
+    .checkbox-wrapper-45 .front {
+      background: #fff;
+      border: 1px solid #d7d7dc;
+    }
 
-        .checkbox-wrapper-45 .back {
-            transform: rotateY(180deg);
-            background: #0b76ef;
-            text-align: center;
-            color: #fff;
-            line-height: 20px;
-            box-shadow: 0 0 0 1px #0b76ef;
-        }
+    .checkbox-wrapper-45 .back {
+      transform: rotateY(180deg);
+      background: #0b76ef;
+      text-align: center;
+      color: #fff;
+      line-height: 20px;
+      box-shadow: 0 0 0 1px #0b76ef;
+    }
 
-        .checkbox-wrapper-45 .back svg {
-            margin-top: 3px;
-            fill: none;
-        }
+    .checkbox-wrapper-45 .back svg {
+      margin-top: 3px;
+      fill: none;
+    }
 
-        .checkbox-wrapper-45 .back svg path {
-            stroke: #fff;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+    .checkbox-wrapper-45 .back svg path {
+      stroke: #fff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"]:focus-visible + .cbx {
-            box-shadow: 0 0 0 3px rgba(11, 118, 239, 0.25);
-        }
+    .checkbox-wrapper-45 input[type="checkbox"]:focus-visible+.cbx {
+      box-shadow: 0 0 0 3px rgba(11, 118, 239, 0.25);
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"]:disabled + .cbx {
-            cursor: not-allowed;
-            opacity: 0.6;
-            border-color: #d5d5dd;
-            background: #f1f5f9;
-        }
+    .checkbox-wrapper-45 input[type="checkbox"]:disabled+.cbx {
+      cursor: not-allowed;
+      opacity: 0.6;
+      border-color: #d5d5dd;
+      background: #f1f5f9;
+    }
 
-        .checkbox-wrapper-45 input[type="checkbox"]:disabled + .cbx .back {
-            background: #94a3b8;
-            box-shadow: 0 0 0 1px #94a3b8;
-        }
+    .checkbox-wrapper-45 input[type="checkbox"]:disabled+.cbx .back {
+      background: #94a3b8;
+      box-shadow: 0 0 0 1px #94a3b8;
+    }
 
-        .perm-row-dirty {
-            background-color: rgba(59, 130, 246, 0.08);
-        }
-    </style>
+    .perm-row-dirty {
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+  </style>
 </head>
 
 <body data-page="role-permissions" class="admin-layout">
-    <script>
-        window.__rbacRoles = {{ roles|tojson }};
-        window.__rbacPermissions = {{ permissions|tojson }};
-        window.__rbacCanUpdate = {{ 'true' if can_update else 'false' }};
-    </script>
-    <!-- Admin App Container -->
-    <div class="admin-app">
-        <div class="admin-wrapper" id="admin-wrapper">
+  <script id="rbac-roles" type="application/json">{{ roles | tojson | safe }}</script>
+  <script id="rbac-perms" type="application/json">{{ permissions | tojson | safe }}</script>
+  <script id="rbac-can-update" type="application/json">{{ can_update | tojson | safe }}</script>
 
-            <!-- Header -->
-            <header class="admin-header">
-                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-                    <div class="container-fluid">
-                        <!-- Logo/Brand -->
-                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
-                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
-                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
-                        </a>
+  <script>
+    window.__rbacRoles = JSON.parse(document.getElementById("rbac-roles").textContent);
+    window.__rbacPermissions = JSON.parse(document.getElementById("rbac-perms").textContent);
+    window.__rbacCanUpdate = JSON.parse(document.getElementById("rbac-can-update").textContent);
+  </script>
 
-                        <!-- Search Bar with Alpine.js -->
-                        <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
-                            <div class="position-relative">
-                                <input type="search"
-                                       class="form-control"
-                                       placeholder="Search... (Ctrl+K)"
-                                       x-model="query"
-                                       @input="search()"
-                                       data-search-input
-                                       aria-label="Search">
-                                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+  <!-- Admin App Container -->
+  <div class="admin-app">
+    <div class="admin-wrapper" id="admin-wrapper">
 
-                                <!-- Search Results Dropdown -->
-                                <div x-show="results.length > 0"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
-                                    <template x-for="result in results" :key="result.title">
-                                        <a :href="result.url" class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-file-text me-2 text-muted"></i>
-                                                <span x-text="result.title"></span>
-                                                <small class="ms-auto text-muted" x-text="result.type"></small>
-                                            </div>
-                                        </a>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
+      <!-- Header -->
+      <header class="admin-header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+          <div class="container-fluid">
+            <!-- Logo/Brand -->
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+              <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32"
+                class="d-inline-block align-text-top me-2">
+              <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+            </a>
 
-                        <!-- Right Side Icons -->
-                        <div class="navbar-nav flex-row">
-                            <!-- Theme Toggle with Alpine.js -->
-                            <div x-data="themeSwitch">
-                                <button class="btn btn-outline-secondary me-2"
-                                        type="button"
-                                        @click="toggle()"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        title="Toggle theme">
-                                    <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
-                                    <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
-                                </button>
-                            </div>
+            <!-- Search Bar with Alpine.js -->
+            <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
+              <div class="position-relative">
+                <input type="search" class="form-control" placeholder="Search... (Ctrl+K)" x-model="query"
+                  @input="search()" data-search-input aria-label="Search">
+                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
 
-                            <!-- Fullscreen Toggle -->
-                            <button class="btn btn-outline-secondary me-2"
-                                    type="button"
-                                    data-fullscreen-toggle
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    title="Toggle fullscreen">
-                                <i class="bi bi-arrows-fullscreen icon-hover"></i>
-                            </button>
-
-                            <!-- Notifications -->
-                            <div class="dropdown me-2">
-                                <button class="btn btn-outline-secondary position-relative"
-                                        type="button"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    <i class="bi bi-bell"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        3
-                                    </span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><h6 class="dropdown-header">Notifications</h6></li>
-                                    <li><a class="dropdown-item" href="#">New user registered</a></li>
-                                    <li><a class="dropdown-item" href="#">Server status update</a></li>
-                                    <li><a class="dropdown-item" href="#">New message received</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
-                                </ul>
-                            </div>
-
-                            <!-- User Menu -->
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary d-flex align-items-center"
-                                        type="button"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
-                                         alt="User Avatar"
-                                         width="24"
-                                         height="24"
-                                         class="rounded-circle me-2">
-                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or session.get('me', {}).get('email') or 'User') }}</span>
-                                    <i class="bi bi-chevron-down ms-1"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-
-            <!-- Sidebar -->
-{% include 'shared/_sidebar.html' %}
-
-            <!-- Floating Hamburger Menu -->
-            <button class="hamburger-menu"
-                    type="button"
-                    data-sidebar-toggle
-                    aria-label="Toggle sidebar">
-                <i class="bi bi-list"></i>
-            </button>
-
-            <!-- Main Content -->
-            <main class="admin-main">
-                <div class="container-fluid p-4 p-lg-5">
-                    <!-- Page Header -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h1 class="h3 mb-0">Role Permissions</h1>
-                            <p class="text-muted mb-0">Snapshot of access rights across roles and system modules.</p>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-secondary">
-                                <i class="bi bi-download me-2"></i>Export Matrix
-                            </button>
-                            <button type="button" class="btn btn-primary" id="permissions-save" {% if not can_update %}disabled{% endif %}>
-                                <i class="bi bi-check2-square me-2"></i>Save Changes
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-info d-flex align-items-center" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <div>
-                            {% if can_update %}
-                                Toggle permissions per role and click Save Changes to apply updates.
-                            {% else %}
-                                You have read-only access to role permissions.
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div id="permission-status" class="small text-muted mb-3"></div>
-
-                    <div id="role-permissions-root"></div>
-
+                <!-- Search Results Dropdown -->
+                <div x-show="results.length > 0" x-transition:enter="transition ease-out duration-100"
+                  x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                  class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
+                  <template x-for="result in results" :key="result.title">
+                    <a :href="result.url" class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-file-text me-2 text-muted"></i>
+                        <span x-text="result.title"></span>
+                        <small class="ms-auto text-muted" x-text="result.type"></small>
+                      </div>
+                    </a>
+                  </template>
                 </div>
-            </main>
+              </div>
+            </div>
 
-            <!-- Footer -->
-            <footer class="admin-footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p class="mb-0 text-muted">© 2025 Modern Bootstrap Admin Template</p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <p class="mb-0 text-muted">Built with Bootstrap 5.3.7</p>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <!-- Right Side Icons -->
+            <div class="navbar-nav flex-row">
+              <!-- Theme Toggle with Alpine.js -->
+              <div x-data="themeSwitch">
+                <button class="btn btn-outline-secondary me-2" type="button" @click="toggle()" data-bs-toggle="tooltip"
+                  data-bs-placement="bottom" title="Toggle theme">
+                  <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
+                  <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
+                </button>
+              </div>
 
-        </div> <!-- /.admin-wrapper -->
-    </div>
+              <!-- Fullscreen Toggle -->
+              <button class="btn btn-outline-secondary me-2" type="button" data-fullscreen-toggle
+                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle fullscreen">
+                <i class="bi bi-arrows-fullscreen icon-hover"></i>
+              </button>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.querySelector('[data-sidebar-toggle]');
-        const wrapper = document.getElementById('admin-wrapper');
+              <!-- Notifications -->
+              <div class="dropdown me-2">
+                <button class="btn btn-outline-secondary position-relative" type="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  <i class="bi bi-bell"></i>
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    3
+                  </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <h6 class="dropdown-header">Notifications</h6>
+                  </li>
+                  <li><a class="dropdown-item" href="#">New user registered</a></li>
+                  <li><a class="dropdown-item" href="#">Server status update</a></li>
+                  <li><a class="dropdown-item" href="#">New message received</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                </ul>
+              </div>
 
-        if (toggleButton && wrapper) {
-          const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-          if (isCollapsed) {
+              <!-- User Menu -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary d-flex align-items-center" type="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  <img
+                    src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
+                    alt="User Avatar" width="24" height="24" class="rounded-circle me-2">
+                  <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or session.get('me',
+                    {}).get('email') or 'User') }}</span>
+                  <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i
+                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Sidebar -->
+      {% include 'shared/_sidebar.html' %}
+
+      <!-- Floating Hamburger Menu -->
+      <button class="hamburger-menu" type="button" data-sidebar-toggle aria-label="Toggle sidebar">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <div class="container-fluid p-4 p-lg-5">
+          <!-- Page Header -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 class="h3 mb-0">Role Permissions</h1>
+              <p class="text-muted mb-0">Snapshot of access rights across roles and system modules.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-secondary">
+                <i class="bi bi-download me-2"></i>Export Matrix
+              </button>
+              <button type="button" class="btn btn-primary" id="permissions-save" {% if not can_update %}disabled{%
+                endif %}>
+                <i class="bi bi-check2-square me-2"></i>Save Changes
+              </button>
+            </div>
+          </div>
+
+          <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+              {% if can_update %}
+              Toggle permissions per role and click Save Changes to apply updates.
+              {% else %}
+              You have read-only access to role permissions.
+              {% endif %}
+            </div>
+          </div>
+
+          <div id="permission-status" class="small text-muted mb-3"></div>
+
+          <div id="role-permissions-root"></div>
+
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="admin-footer">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-0 text-muted">© 2026 Diabetes Expert System</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p class="mb-0 text-muted">Built with Flask and Bootstrap 5</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </div> <!-- /.admin-wrapper -->
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleButton = document.querySelector('[data-sidebar-toggle]');
+      const wrapper = document.getElementById('admin-wrapper');
+
+      if (toggleButton && wrapper) {
+        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (isCollapsed) {
+          wrapper.classList.add('sidebar-collapsed');
+          toggleButton.classList.add('is-active');
+        }
+
+        toggleButton.addEventListener('click', () => {
+          const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
+          if (isCurrentlyCollapsed) {
+            wrapper.classList.remove('sidebar-collapsed');
+            toggleButton.classList.remove('is-active');
+            localStorage.setItem('sidebar-collapsed', 'false');
+          } else {
             wrapper.classList.add('sidebar-collapsed');
             toggleButton.classList.add('is-active');
+            localStorage.setItem('sidebar-collapsed', 'true');
           }
-
-          toggleButton.addEventListener('click', () => {
-            const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
-            if (isCurrentlyCollapsed) {
-              wrapper.classList.remove('sidebar-collapsed');
-              toggleButton.classList.remove('is-active');
-              localStorage.setItem('sidebar-collapsed', 'false');
-            } else {
-              wrapper.classList.add('sidebar-collapsed');
-              toggleButton.classList.add('is-active');
-              localStorage.setItem('sidebar-collapsed', 'true');
-            }
-          });
-        }
-      });
-    </script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const roles = Array.isArray(window.__rbacRoles) ? window.__rbacRoles : [];
-        const permissions = Array.isArray(window.__rbacPermissions) ? window.__rbacPermissions : [];
-        const canUpdate = window.__rbacCanUpdate === true;
-        const root = document.getElementById('role-permissions-root');
-        const status = document.getElementById('permission-status');
-        const saveButton = document.getElementById('permissions-save');
-
-        const permMap = new Map(permissions.map((perm) => [perm.code, perm]));
-        const labelOverrides = {
-          KB_VIEW: 'View KB',
-          KB_CREATE: 'Create Items',
-          KB_UPDATE: 'Update Items',
-          KB_DELETE: 'Delete Items',
-          CASE_VIEW_ALL: 'View All Cases',
-          CASE_VIEW_FACTS: 'View Facts',
-          DIAGNOSIS_START: 'Start Consultation',
-          DIAGNOSIS_ANSWER: 'Answer Questions',
-          DIAGNOSIS_VIEW: 'View Results',
-          DIAGNOSIS_HISTORY: 'Access History',
-          USER_VIEW: 'View Users',
-          USER_CREATE: 'Create Users',
-          USER_UPDATE: 'Update Users',
-          RBAC_VIEW: 'View Roles',
-          RBAC_UPDATE: 'Manage Roles',
-        };
-
-        const groups = [
-          {
-            id: 'knowledge-base',
-            title: 'Knowledge Base',
-            badge: { text: 'Clinical data', className: 'bg-success-subtle text-success' },
-            permissions: ['KB_VIEW', 'KB_CREATE', 'KB_UPDATE', 'KB_DELETE'],
-          },
-          {
-            id: 'diagnosis',
-            title: 'Diagnosis',
-            badge: { text: 'Clinical workflow', className: 'bg-warning-subtle text-warning' },
-            permissions: ['DIAGNOSIS_START', 'DIAGNOSIS_ANSWER', 'DIAGNOSIS_VIEW', 'DIAGNOSIS_HISTORY'],
-          },
-          {
-            id: 'cases',
-            title: 'Cases & Reports',
-            badge: { text: 'Case access', className: 'bg-primary-subtle text-primary' },
-            permissions: ['CASE_VIEW_ALL', 'CASE_VIEW_FACTS'],
-          },
-          {
-            id: 'user-management',
-            title: 'User Management',
-            badge: { text: 'Administrative', className: 'bg-danger-subtle text-danger' },
-            permissions: ['USER_VIEW', 'USER_CREATE', 'USER_UPDATE'],
-          },
-          {
-            id: 'rbac',
-            title: 'Role & Permissions',
-            badge: { text: 'Administrative', className: 'bg-danger-subtle text-danger' },
-            permissions: ['RBAC_VIEW', 'RBAC_UPDATE'],
-          },
-        ];
-
-        const setStatus = (message, kind = 'muted') => {
-          if (!status) {
-            return;
-          }
-          status.className = `small mb-3 text-${kind}`;
-          status.textContent = message;
-        };
-
-        const roleLabel = (name) =>
-          String(name || '')
-            .replace(/_/g, ' ')
-            .toLowerCase()
-            .replace(/\b\w/g, (char) => char.toUpperCase());
-
-        const labelFor = (code) => {
-          if (labelOverrides[code]) {
-            return labelOverrides[code];
-          }
-          const perm = permMap.get(code);
-          return perm && perm.description ? perm.description : code;
-        };
-
-        const rolePermissions = new Map();
-        roles.forEach((role) => {
-          const codes = Array.isArray(role.permissions) ? role.permissions.map((code) => String(code).toUpperCase()) : [];
-          rolePermissions.set(role.id, new Set(codes));
         });
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const roles = Array.isArray(window.__rbacRoles) ? window.__rbacRoles : [];
+      const permissions = Array.isArray(window.__rbacPermissions) ? window.__rbacPermissions : [];
+      const canUpdate = window.__rbacCanUpdate === true;
+      const root = document.getElementById('role-permissions-root');
+      const status = document.getElementById('permission-status');
+      const saveButton = document.getElementById('permissions-save');
 
-        const dirtyRoles = new Set();
+      const permMap = new Map(permissions.map((perm) => [perm.code, perm]));
+      const labelOverrides = {
+        KB_VIEW: 'View KB',
+        KB_CREATE: 'Create Items',
+        KB_UPDATE: 'Update Items',
+        KB_DELETE: 'Delete Items',
+        CASE_VIEW_ALL: 'View All Cases',
+        CASE_VIEW_FACTS: 'View Facts',
+        DIAGNOSIS_START: 'Start Consultation',
+        DIAGNOSIS_ANSWER: 'Answer Questions',
+        DIAGNOSIS_VIEW: 'View Results',
+        DIAGNOSIS_HISTORY: 'Access History',
+        USER_VIEW: 'View Users',
+        USER_CREATE: 'Create Users',
+        USER_UPDATE: 'Update Users',
+        RBAC_VIEW: 'View Roles',
+        RBAC_UPDATE: 'Manage Roles',
+      };
 
-        const markDirty = (roleId, dirty) => {
-          if (dirty) {
-            dirtyRoles.add(roleId);
-          } else {
-            dirtyRoles.delete(roleId);
-          }
-          const row = root.querySelector(`tr[data-role-id="${roleId}"]`);
-          if (row) {
-            row.classList.toggle('perm-row-dirty', dirty);
-          }
-          if (saveButton) {
-            saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
-          }
-        };
+      const groups = [
+        {
+          id: 'knowledge-base',
+          title: 'Knowledge Base',
+          badge: { text: 'Clinical data', className: 'bg-success-subtle text-success' },
+          permissions: ['KB_VIEW', 'KB_CREATE', 'KB_UPDATE', 'KB_DELETE'],
+        },
+        {
+          id: 'diagnosis',
+          title: 'Diagnosis',
+          badge: { text: 'Clinical workflow', className: 'bg-warning-subtle text-warning' },
+          permissions: ['DIAGNOSIS_START', 'DIAGNOSIS_ANSWER', 'DIAGNOSIS_VIEW', 'DIAGNOSIS_HISTORY'],
+        },
+        {
+          id: 'cases',
+          title: 'Cases & Reports',
+          badge: { text: 'Case access', className: 'bg-primary-subtle text-primary' },
+          permissions: ['CASE_VIEW_ALL', 'CASE_VIEW_FACTS'],
+        },
+        {
+          id: 'user-management',
+          title: 'User Management',
+          badge: { text: 'Administrative', className: 'bg-danger-subtle text-danger' },
+          permissions: ['USER_VIEW', 'USER_CREATE', 'USER_UPDATE'],
+        },
+        {
+          id: 'rbac',
+          title: 'Role & Permissions',
+          badge: { text: 'Administrative', className: 'bg-danger-subtle text-danger' },
+          permissions: ['RBAC_VIEW', 'RBAC_UPDATE'],
+        },
+      ];
 
-        const renderGroup = (group) => {
-          const groupPermissions = group.permissions.filter((code) => permMap.has(code));
-          if (groupPermissions.length === 0) {
-            return '';
-          }
+      const setStatus = (message, kind = 'muted') => {
+        if (!status) {
+          return;
+        }
+        status.className = `small mb-3 text-${kind}`;
+        status.textContent = message;
+      };
 
-          const headerCells = groupPermissions
-            .map((code) => `<th class="text-center perm-col" title="${labelFor(code)}">${labelFor(code)}</th>`)
-            .join('');
+      const roleLabel = (name) =>
+        String(name || '')
+          .replace(/_/g, ' ')
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase());
 
-          const rows = roles
-            .map((role) => {
-              const roleSet = rolePermissions.get(role.id) || new Set();
-                  const cells = groupPermissions
-                .map((code) => {
-                  const checked = roleSet.has(code) ? 'checked' : '';
-                  const disabled = canUpdate ? '' : 'disabled';
-                  const checkboxId = `perm-${role.id}-${code.toLowerCase()}`;
-                  return `
+      const labelFor = (code) => {
+        if (labelOverrides[code]) {
+          return labelOverrides[code];
+        }
+        const perm = permMap.get(code);
+        return perm && perm.description ? perm.description : code;
+      };
+
+      const rolePermissions = new Map();
+      roles.forEach((role) => {
+        const codes = Array.isArray(role.permissions) ? role.permissions.map((code) => String(code).toUpperCase()) : [];
+        rolePermissions.set(role.id, new Set(codes));
+      });
+
+      const dirtyRoles = new Set();
+
+      const markDirty = (roleId, dirty) => {
+        if (dirty) {
+          dirtyRoles.add(roleId);
+        } else {
+          dirtyRoles.delete(roleId);
+        }
+        const row = root.querySelector(`tr[data-role-id="${roleId}"]`);
+        if (row) {
+          row.classList.toggle('perm-row-dirty', dirty);
+        }
+        if (saveButton) {
+          saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
+        }
+      };
+
+      const renderGroup = (group) => {
+        const groupPermissions = group.permissions.filter((code) => permMap.has(code));
+        if (groupPermissions.length === 0) {
+          return '';
+        }
+
+        const headerCells = groupPermissions
+          .map((code) => `<th class="text-center perm-col" title="${labelFor(code)}">${labelFor(code)}</th>`)
+          .join('');
+
+        const rows = roles
+          .map((role) => {
+            const roleSet = rolePermissions.get(role.id) || new Set();
+            const cells = groupPermissions
+              .map((code) => {
+                const checked = roleSet.has(code) ? 'checked' : '';
+                const disabled = canUpdate ? '' : 'disabled';
+                const checkboxId = `perm-${role.id}-${code.toLowerCase()}`;
+                return `
                     <td class="perm-cell perm-col">
                       <div class="checkbox-wrapper-45">
                         <input class="perm-check" id="${checkboxId}" type="checkbox" ${checked} ${disabled}
@@ -510,18 +506,18 @@
                       </div>
                     </td>
                   `;
-                })
-                .join('');
-              return `
+              })
+              .join('');
+            return `
                 <tr data-role-id="${role.id}">
                   <td>${roleLabel(role.name)}</td>
                   ${cells}
                 </tr>
               `;
-            })
-            .join('');
+          })
+          .join('');
 
-          return `
+        return `
             <div class="card mb-4">
               <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0">${group.title}</h5>
@@ -544,108 +540,111 @@
               </div>
             </div>
           `;
-        };
+      };
 
-        if (!root) {
+      if (!root) {
+        return;
+      }
+
+      if (roles.length === 0 || permissions.length === 0) {
+        root.innerHTML = '<div class="text-muted">No role permissions found.</div>';
+        setStatus('No role data available.', 'muted');
+        return;
+      }
+
+      root.innerHTML = groups.map(renderGroup).join('');
+
+      if (!canUpdate) {
+        setStatus('Read-only access. Ask an admin to update permissions.', 'muted');
+      } else {
+        setStatus('Select permissions and click Save Changes.', 'muted');
+      }
+
+      if (saveButton) {
+        saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
+      }
+
+      root.addEventListener('change', (event) => {
+        const target = event.target;
+        if (!target.classList.contains('perm-check')) {
           return;
         }
-
-        if (roles.length === 0 || permissions.length === 0) {
-          root.innerHTML = '<div class="text-muted">No role permissions found.</div>';
-          setStatus('No role data available.', 'muted');
-          return;
+        const roleId = Number(target.dataset.roleId);
+        const code = target.dataset.permCode;
+        if (!rolePermissions.has(roleId)) {
+          rolePermissions.set(roleId, new Set());
         }
-
-        root.innerHTML = groups.map(renderGroup).join('');
-
-        if (!canUpdate) {
-          setStatus('Read-only access. Ask an admin to update permissions.', 'muted');
+        const set = rolePermissions.get(roleId);
+        if (target.checked) {
+          set.add(code);
         } else {
-          setStatus('Select permissions and click Save Changes.', 'muted');
+          set.delete(code);
         }
-
-        if (saveButton) {
-          saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
-        }
-
-        root.addEventListener('change', (event) => {
-          const target = event.target;
-          if (!target.classList.contains('perm-check')) {
-            return;
-          }
-          const roleId = Number(target.dataset.roleId);
-          const code = target.dataset.permCode;
-          if (!rolePermissions.has(roleId)) {
-            rolePermissions.set(roleId, new Set());
-          }
-          const set = rolePermissions.get(roleId);
-          if (target.checked) {
-            set.add(code);
-          } else {
-            set.delete(code);
-          }
-          markDirty(roleId, true);
-        });
-
-        const saveRole = async (roleId) => {
-          const codes = Array.from(rolePermissions.get(roleId) || []);
-          const response = await fetch(`/admin/role-permissions/${roleId}`, {
-            method: 'PUT',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: JSON.stringify({ permission_codes: codes }),
-          });
-
-          const contentType = response.headers.get('content-type') || '';
-          if (response.redirected && !contentType.includes('application/json')) {
-            window.location.href = response.url;
-            return;
-          }
-
-          const data = contentType.includes('application/json') ? await response.json() : {};
-          if (!response.ok) {
-            throw new Error(data.message || 'Failed to update role permissions.');
-          }
-
-          if (data.role && Array.isArray(data.role.permissions)) {
-            rolePermissions.set(roleId, new Set(data.role.permissions));
-          }
-          markDirty(roleId, false);
-        };
-
-        if (saveButton) {
-          saveButton.addEventListener('click', async () => {
-            if (!canUpdate || dirtyRoles.size === 0) {
-              return;
-            }
-            saveButton.disabled = true;
-            saveButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
-            try {
-              for (const roleId of Array.from(dirtyRoles)) {
-                await saveRole(roleId);
-              }
-              setStatus('Permissions updated successfully.', 'success');
-            } catch (err) {
-              setStatus(err.message || 'Failed to update permissions.', 'danger');
-            } finally {
-              saveButton.innerHTML = '<i class="bi bi-check2-square me-2"></i>Save Changes';
-              saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
-            }
-          });
-        }
-        root.addEventListener('click', (event) => {
-          const target = event.target;
-          if (!target.classList.contains('perm-check') || !target.disabled) {
-            return;
-          }
-          event.preventDefault();
-        });
+        markDirty(roleId, true);
       });
-    </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+      const saveRole = async (roleId) => {
+        const codes = Array.from(rolePermissions.get(roleId) || []);
+        const response = await fetch(`/admin/role-permissions/${roleId}`, {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ permission_codes: codes }),
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (response.redirected && !contentType.includes('application/json')) {
+          window.location.href = response.url;
+          return;
+        }
+
+        const data = contentType.includes('application/json') ? await response.json() : {};
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to update role permissions.');
+        }
+
+        if (data.role && Array.isArray(data.role.permissions)) {
+          rolePermissions.set(roleId, new Set(data.role.permissions));
+        }
+        markDirty(roleId, false);
+      };
+
+      if (saveButton) {
+        saveButton.addEventListener('click', async () => {
+          if (!canUpdate || dirtyRoles.size === 0) {
+            return;
+          }
+          saveButton.disabled = true;
+          saveButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
+          try {
+            for (const roleId of Array.from(dirtyRoles)) {
+              await saveRole(roleId);
+            }
+            setStatus('Permissions updated successfully.', 'success');
+          } catch (err) {
+            setStatus(err.message || 'Failed to update permissions.', 'danger');
+          } finally {
+            saveButton.innerHTML = '<i class="bi bi-check2-square me-2"></i>Save Changes';
+            saveButton.disabled = !canUpdate || dirtyRoles.size === 0;
+          }
+        });
+      }
+      root.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!target.classList.contains('perm-check') || !target.disabled) {
+          return;
+        }
+        event.preventDefault();
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
 </body>
+
 </html>

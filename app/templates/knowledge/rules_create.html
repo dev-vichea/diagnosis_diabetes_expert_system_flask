@@ -206,6 +206,17 @@
                                     </div>
                                 </div>
 
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="rule-diagnosis-code">Diagnosis Code (optional)</label>
+                                        <input type="text" class="form-control" id="rule-diagnosis-code" placeholder="DIABETES_RISK">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="rule-risk-level">Risk Level (optional)</label>
+                                        <input type="text" class="form-control" id="rule-risk-level" placeholder="LOW / MODERATE / HIGH / VERY_HIGH">
+                                    </div>
+                                </div>
+
                                 <hr class="my-4">
                                 <div
                                     class="rule-conditions-section d-flex justify-content-between align-items-center mb-2">
@@ -294,10 +305,11 @@
         });
 
         const operatorOptions = {
-            BOOLEAN: ['=='],
-            NUMBER: ['==', '>=', '<='],
-            CHOICE: ['==', 'IN'],
-            DEFAULT: ['=='],
+            BOOLEAN: ['PRESENT', 'ABSENT', '==', '!='],
+            NUMBER: ['==', '!=', '>=', '<=', '>', '<'],
+            TEXT: ['==', '!='],
+            SINGLE: ['==', '!='],
+            DEFAULT: ['==', '!='],
         };
 
         const showAlert = (message, type = 'danger') => {
@@ -340,7 +352,7 @@
             const input = document.createElement('input');
             input.className = 'form-control form-control-sm condition-value';
             input.type = inputType === 'NUMBER' ? 'number' : 'text';
-            input.placeholder = inputType === 'CHOICE' ? '["A", "B"]' : 'Value';
+            input.placeholder = inputType === 'SINGLE' ? 'Option value' : 'Value';
             if (value !== undefined && value !== null) {
                 input.value = value;
             }
@@ -397,19 +409,6 @@
             }
             if (inputType === 'NUMBER') {
                 return valueRaw;
-            }
-            if (inputType === 'CHOICE') {
-                const trimmed = valueRaw.trim();
-                if (!trimmed) {
-                    return '';
-                }
-                if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                    try {
-                        return JSON.parse(trimmed);
-                    } catch (error) {
-                        return valueRaw;
-                    }
-                }
             }
             return valueRaw;
         };
@@ -499,11 +498,20 @@
                 rule_code: document.getElementById('rule-code').value.trim(),
                 title: document.getElementById('rule-title').value.trim(),
                 diagnosis: diagnosisSelect.value,
+                diagnosis_code: document.getElementById('rule-diagnosis-code').value.trim(),
+                risk_level: document.getElementById('rule-risk-level').value.trim(),
                 priority: document.getElementById('rule-priority').value,
                 confidence: document.getElementById('rule-confidence').value,
                 is_active: document.getElementById('rule-active').checked,
                 explanation_text: getExplanationHtml(),
             };
+
+            if (!payload.diagnosis_code) {
+                delete payload.diagnosis_code;
+            }
+            if (!payload.risk_level) {
+                delete payload.risk_level;
+            }
 
             if (!payload.rule_code || !payload.diagnosis) {
                 showAlert('Rule code and diagnosis are required.');

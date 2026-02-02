@@ -350,6 +350,17 @@
                             </div>
                         </div>
 
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label class="form-label" for="rule-diagnosis-code">Diagnosis Code (optional)</label>
+                                <input type="text" class="form-control" id="rule-diagnosis-code" placeholder="DIABETES_RISK">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="rule-risk-level">Risk Level (optional)</label>
+                                <input type="text" class="form-control" id="rule-risk-level" placeholder="LOW / MODERATE / HIGH / VERY_HIGH">
+                            </div>
+                        </div>
+
                         <hr class="my-4">
                         <div class="rule-conditions-section d-flex justify-content-between align-items-center mb-2">
                             <div>
@@ -440,6 +451,8 @@
             priority: document.getElementById('rule-priority'),
             confidence: document.getElementById('rule-confidence'),
             active: document.getElementById('rule-active'),
+            diagnosisCode: document.getElementById('rule-diagnosis-code'),
+            riskLevel: document.getElementById('rule-risk-level'),
         };
 
         const explanationEditor = new Quill('#rule-explanation-editor', {
@@ -633,15 +646,18 @@
             formFields.priority.value = '0';
             formFields.confidence.value = '';
             formFields.active.checked = true;
+            formFields.diagnosisCode.value = '';
+            formFields.riskLevel.value = '';
             conditionsTable.innerHTML = '';
             setExplanationHtml('');
         };
 
         const operatorOptions = {
-            BOOLEAN: ['=='],
-            NUMBER: ['==', '>=', '<='],
-            CHOICE: ['==', 'IN'],
-            DEFAULT: ['=='],
+            BOOLEAN: ['PRESENT', 'ABSENT', '==', '!='],
+            NUMBER: ['==', '!=', '>=', '<=', '>', '<'],
+            TEXT: ['==', '!='],
+            SINGLE: ['==', '!='],
+            DEFAULT: ['==', '!='],
         };
 
         const buildValueField = (row, inputType, value) => {
@@ -665,7 +681,7 @@
             const input = document.createElement('input');
             input.className = 'form-control form-control-sm condition-value';
             input.type = inputType === 'NUMBER' ? 'number' : 'text';
-            input.placeholder = inputType === 'CHOICE' ? '["A", "B"]' : 'Value';
+            input.placeholder = inputType === 'SINGLE' ? 'Option value' : 'Value';
             if (value !== undefined && value !== null) {
                 input.value = value;
             }
@@ -762,6 +778,8 @@
                 formFields.priority.value = data.priority ?? 0;
                 formFields.confidence.value = data.confidence ?? '';
                 formFields.active.checked = !!data.is_active;
+                formFields.diagnosisCode.value = data.diagnosis_code || '';
+                formFields.riskLevel.value = data.risk_level || '';
                 setExplanationHtml(data.explanation_text || '');
 
                 conditionsTable.innerHTML = '';
@@ -785,19 +803,6 @@
             }
             if (inputType === 'NUMBER') {
                 return valueRaw;
-            }
-            if (inputType === 'CHOICE') {
-                const trimmed = valueRaw.trim();
-                if (!trimmed) {
-                    return '';
-                }
-                if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                    try {
-                        return JSON.parse(trimmed);
-                    } catch (error) {
-                        return valueRaw;
-                    }
-                }
             }
             return valueRaw;
         };
@@ -843,11 +848,20 @@
                 rule_code: formFields.code.value.trim(),
                 title: formFields.title.value.trim(),
                 diagnosis: formFields.diagnosis.value,
+                diagnosis_code: formFields.diagnosisCode.value.trim(),
+                risk_level: formFields.riskLevel.value.trim(),
                 priority: formFields.priority.value,
                 confidence: formFields.confidence.value,
                 is_active: formFields.active.checked,
                 explanation_text: getExplanationHtml(),
             };
+
+            if (!payload.diagnosis_code) {
+                delete payload.diagnosis_code;
+            }
+            if (!payload.risk_level) {
+                delete payload.risk_level;
+            }
 
             if (!payload.rule_code || !payload.diagnosis) {
                 showAlert(modalAlert, 'Rule code and diagnosis are required.');

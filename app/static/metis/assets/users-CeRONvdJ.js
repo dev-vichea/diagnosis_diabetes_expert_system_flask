@@ -264,9 +264,24 @@ document.addEventListener("alpine:init", () => {
         this.currentPage = page;
       }
     },
+    toggleUser(userId, checked) {
+      const id = Number(userId);
+      if (Number.isNaN(id)) {
+        return;
+      }
+      if (checked) {
+        if (!this.selectedUsers.includes(id)) {
+          this.selectedUsers = [...this.selectedUsers, id];
+        }
+        return;
+      }
+      this.selectedUsers = this.selectedUsers.filter((item) => Number(item) !== id);
+    },
     toggleAll(checked) {
       if (checked) {
-        this.selectedUsers = this.paginatedUsers.map((user) => Number(user.id));
+        this.selectedUsers = this.paginatedUsers
+          .map((user) => Number(user.id))
+          .filter((value) => !Number.isNaN(value));
       } else {
         this.selectedUsers = [];
       }

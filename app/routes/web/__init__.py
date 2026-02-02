@@ -11,6 +11,4 @@ from .admin import users_routes as admin_users_routes  # noqa: F401
 from .admin import roles_routes as admin_roles_routes  # noqa: F401
 from .admin import reports_routes as admin_reports_routes  # noqa: F401
 from .kb import symptoms_routes as kb_symptoms_routes  # noqa: F401
-from .kb import questions_routes as kb_questions_routes  # noqa: F401
 from .kb import rules_routes as kb_rules_routes  # noqa: F401
-from .kb import advices_routes as kb_advices_routes  # noqa: F401
