@@ -80,14 +80,13 @@
         }
 
         .logo {
-            width: 30px;
-            height: 30px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, var(--blue), #1b72e8);
-            color: #fff;
-            display: grid;
-            place-items: center;
-            font-weight: 800;
+            height: 32px;
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #5b66f2;
         }
 
         .pillbtn {
@@ -546,38 +545,6 @@
             border-color: rgba(220, 38, 38, .25);
         }
 
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, .45);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 50;
-        }
-
-        .modal {
-            max-width: 520px;
-            width: 100%;
-            background: #fff;
-            border-radius: 22px;
-            padding: 24px;
-            box-shadow: 0 30px 80px rgba(15, 23, 42, .3);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
-
-        .modal-backdrop.show {
-            display: flex;
-        }
-
         .btn-wide {
             width: 100%;
             justify-content: center;
@@ -617,8 +584,8 @@
     <header class="topbar">
         <div class="wrap">
             <div class="brand">
-                <span class="logo">+</span>
-                Diabetes Expert
+                <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" class="logo">
+                <span class="brand-title">Diabetes Expert</span>
             </div>
             <div class="top-actions">
                 <a class="pillbtn" href="{{ url_for('web.patient_diagnosis') }}">
@@ -734,11 +701,14 @@
                         </select>
                         {% endif %}
 
-                        {% if symptom.input_type != 'BOOLEAN' %}
                         <div class="actions">
+                            {% if can_go_back %}
+                            <button class="btn" type="submit" name="action" value="back" formnovalidate>Back</button>
+                            {% endif %}
+                            {% if symptom.input_type != 'BOOLEAN' %}
                             <button class="btn primary" type="submit">Continue</button>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </form>
                 </div>
 
@@ -959,37 +929,37 @@
     </main>
 
     {% if assessment %}
-    <div class="modal-backdrop" data-restart-modal>
-        <div class="modal">
-            <h2>Start new assessment?</h2>
-            <p class="subtitle">You will have to answer the questions again.</p>
-            <div class="modal-actions">
-                <button class="btn" type="button" data-close-restart>Cancel</button>
-                <form method="post" style="margin:0;">
-                    <button class="btn primary" type="submit" name="action" value="restart">Yes, start new assessment</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    <form id="restart-form" method="post">
+        <input type="hidden" name="action" value="restart" />
+    </form>
     {% endif %}
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const modal = document.querySelector('[data-restart-modal]');
-        const openButtons = document.querySelectorAll('[data-open-restart]');
-        const closeBtn = document.querySelector('[data-close-restart]');
-        openButtons.forEach((btn) => {
-            btn.addEventListener('click', () => modal?.classList.add('show'));
-        });
-        if (closeBtn && modal) {
-            closeBtn.addEventListener('click', () => modal.classList.remove('show'));
-        }
-        if (modal) {
-            modal.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.classList.remove('show');
+        const restartForm = document.getElementById('restart-form');
+        const restartButtons = document.querySelectorAll('[data-open-restart]');
+        const handleRestart = async () => {
+            if (window.Swal) {
+                const result = await window.Swal.fire({
+                    title: 'Start new assessment?',
+                    text: 'You will have to answer the questions again.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, start new assessment',
+                    cancelButtonText: 'Cancel',
+                });
+                if (result.isConfirmed) {
+                    restartForm?.submit();
                 }
-            });
-        }
+                return;
+            }
+            if (confirm('Start new assessment? You will have to answer the questions again.')) {
+                restartForm?.submit();
+            }
+        };
+        restartButtons.forEach((btn) => {
+            btn.addEventListener('click', handleRestart);
+        });
 
         const answerInput = document.querySelector('[data-answer-input]');
         document.querySelectorAll('[data-answer]').forEach((btn) => {

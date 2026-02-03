@@ -250,6 +250,7 @@ def _answers_summary(assessment_id: int) -> list:
     symptom_ids = [row.symptom_id for row in rows if row.symptom_id]
     symptoms = Symptom.query.filter(Symptom.id.in_(symptom_ids)).all() if symptom_ids else []
     fact_map = {row.symptom_id: row for row in rows}
+    code_map = {s.code: s for s in symptoms}
 
     grouped: dict[str, list[dict]] = {}
     section_order: list[str] = []
@@ -266,6 +267,28 @@ def _answers_summary(assessment_id: int) -> list:
             "label": symptom.name or symptom.question_text or symptom.code,
             "value": _format_value(symptom, row),
         })
+
+    # Derived BMI display if height + weight are present
+    height_symptom = code_map.get("height_cm")
+    weight_symptom = code_map.get("weight_kg")
+    height_row = fact_map.get(height_symptom.id) if height_symptom else None
+    weight_row = fact_map.get(weight_symptom.id) if weight_symptom else None
+    if height_row and weight_row and height_row.value_number and weight_row.value_number:
+        try:
+            height_m = float(height_row.value_number) / 100.0
+            weight_kg = float(weight_row.value_number)
+            if height_m > 0:
+                bmi = weight_kg / (height_m ** 2)
+                section = (height_symptom.ui_section or height_symptom.category or "Risk").strip() or "Risk"
+                if section not in grouped:
+                    grouped[section] = []
+                    section_order.append(section)
+                grouped[section].append({
+                    "label": "BMI (kg/m²)",
+                    "value": f"{bmi:.1f}",
+                })
+        except (TypeError, ValueError, ZeroDivisionError):
+            pass
 
     has_labs_defined = (
         Symptom.query.filter(Symptom.is_active.is_(True))
@@ -636,11 +659,16 @@ def patient_assessment():
         return redirect(url_for("web.login_page"))
 
     if request.method == "POST":
-        action = request.form.get("action") or ""
+        actions = request.form.getlist("action")
+        action = actions[0] if actions else ""
+        if "back" in actions:
+            action = "back"
         if action == "restart":
             session.pop("active_assessment_id", None)
             session.pop("last_answered_symptom_id", None)
             session.pop("finish_snooze", None)
+            session.pop("answer_history", None)
+            session.pop("back_symptom_id", None)
             return redirect(url_for("web.patient_assessment"))
 
         if action == "start_assessment":
@@ -650,6 +678,8 @@ def patient_assessment():
             session["active_assessment_id"] = assessment.id
             session.pop("last_answered_symptom_id", None)
             session.pop("finish_snooze", None)
+            session.pop("answer_history", None)
+            session.pop("back_symptom_id", None)
             return redirect(url_for("web.patient_assessment"))
 
         assessment = _load_assessment(user_id, False) or _get_or_create_assessment(user_id)
@@ -694,6 +724,11 @@ def patient_assessment():
 
             db.session.commit()
             session["last_answered_symptom_id"] = symptom.id
+            history = session.get("answer_history") or []
+            if not isinstance(history, list):
+                history = []
+            history.append(symptom.id)
+            session["answer_history"] = history
             session.pop("finish_snooze", None)
             return redirect(url_for("web.patient_assessment"))
 
@@ -703,6 +738,19 @@ def patient_assessment():
 
         if action == "continue_interview":
             session["finish_snooze"] = True
+            return redirect(url_for("web.patient_assessment"))
+
+        if action == "back":
+            history = session.get("answer_history") or []
+            if not isinstance(history, list) or not history:
+                return redirect(url_for("web.patient_assessment"))
+            back_id = history.pop()  # last answered symptom
+            CaseFact.query.filter_by(assessment_id=assessment.id, symptom_id=back_id).delete()
+            db.session.commit()
+            session["answer_history"] = history
+            session["back_symptom_id"] = back_id
+            session["last_answered_symptom_id"] = history[-1] if history else None
+            session.pop("finish_snooze", None)
             return redirect(url_for("web.patient_assessment"))
 
     assessment = _load_assessment(user_id, bool(request.args.get("start")))
@@ -767,7 +815,12 @@ def patient_assessment():
             candidate=inference.get("best_row"),
         )
 
-    next_symptom = _next_symptom(assessment.id, session.get("last_answered_symptom_id"))
+    back_symptom_id = session.pop("back_symptom_id", None)
+    next_symptom = None
+    if back_symptom_id:
+        next_symptom = Symptom.query.get(back_symptom_id)
+    if not next_symptom:
+        next_symptom = _next_symptom(assessment.id, session.get("last_answered_symptom_id"))
     if not next_symptom:
         run_diagnosis_now(assessment)
         return redirect(url_for("web.patient_assessment", view="results"))
@@ -786,6 +839,7 @@ def patient_assessment():
         symptom=next_symptom,
         error_message=error_message,
         answers_summary=_answers_summary(assessment.id),
+        can_go_back=bool(session.get("answer_history")),
     )
 
 

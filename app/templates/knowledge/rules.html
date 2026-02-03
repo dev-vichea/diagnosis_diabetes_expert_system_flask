@@ -477,6 +477,22 @@
             element.classList.remove('d-none');
         };
 
+        const confirmDialog = async (message, options = {}) => {
+            if (window.Swal) {
+                const result = await window.Swal.fire({
+                    title: options.title || 'Are you sure?',
+                    text: message,
+                    icon: options.icon || 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: options.confirmText || 'Yes',
+                    cancelButtonText: options.cancelText || 'Cancel',
+                    confirmButtonColor: options.confirmColor || undefined,
+                });
+                return result.isConfirmed;
+            }
+            return confirm(message);
+        };
+
         const hideAlert = (element) => {
             element.classList.add('d-none');
             element.textContent = '';
@@ -922,7 +938,12 @@
         };
 
         const deleteRule = async (ruleId) => {
-            if (!confirm('Delete this rule? This cannot be undone.')) {
+            const shouldDelete = await confirmDialog('Delete this rule? This cannot be undone.', {
+                title: 'Delete rule?',
+                confirmText: 'Yes, delete',
+                icon: 'warning',
+            });
+            if (!shouldDelete) {
                 return;
             }
             try {
