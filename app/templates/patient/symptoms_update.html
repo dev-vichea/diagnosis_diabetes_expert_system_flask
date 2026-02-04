@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Symptoms</title>
+    <title>Update Symptoms - Diabetes Expert</title>
     <meta name="description" content="Update your symptoms and refresh clinical inputs.">
 
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
@@ -95,6 +95,18 @@
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+        }
+
+        .symptom-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .symptom-options .btn {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 6px 16px;
         }
     </style>
 </head>
@@ -196,14 +208,31 @@
                                 </div>
                                 <div>
                                     {% for symptom in items %}
+                                    {% set answer = answers_map.get(symptom.id) %}
                                     <div class="symptom-item">
                                         <div>
                                             <h6>{{ symptom.name or symptom.code }}</h6>
                                             <p>{{ symptom.question_text }}</p>
                                         </div>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" name="symptom_ids"
-                                                value="{{ symptom.id }}" id="symptom-{{ symptom.id }}">
+                                        <div class="symptom-options">
+                                            <input type="hidden" name="symptom_ids" value="{{ symptom.id }}">
+                                            <input class="btn-check" type="radio" name="symptom_{{ symptom.id }}"
+                                                id="symptom-{{ symptom.id }}-yes" value="yes" {% if answer == "yes" %}checked{% endif %}>
+                                            <label class="btn btn-outline-success btn-sm" for="symptom-{{ symptom.id }}-yes">
+                                                <i class="bi bi-check2-circle me-1"></i>Yes
+                                            </label>
+
+                                            <input class="btn-check" type="radio" name="symptom_{{ symptom.id }}"
+                                                id="symptom-{{ symptom.id }}-no" value="no" {% if answer == "no" %}checked{% endif %}>
+                                            <label class="btn btn-outline-danger btn-sm" for="symptom-{{ symptom.id }}-no">
+                                                <i class="bi bi-x-circle me-1"></i>No
+                                            </label>
+
+                                            <input class="btn-check" type="radio" name="symptom_{{ symptom.id }}"
+                                                id="symptom-{{ symptom.id }}-unknown" value="unknown" {% if answer == "unknown" %}checked{% endif %}>
+                                            <label class="btn btn-outline-secondary btn-sm" for="symptom-{{ symptom.id }}-unknown">
+                                                <i class="bi bi-question-circle me-1"></i>Don't know
+                                            </label>
                                         </div>
                                     </div>
                                     {% endfor %}

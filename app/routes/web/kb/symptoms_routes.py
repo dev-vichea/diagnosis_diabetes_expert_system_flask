@@ -108,4 +108,4 @@ def kb_symptoms_create():
     guard = require_permissions("KB_CREATE")
     if guard:
         return guard
-    return render_template("knowledge/symptoms_create.html")
+    return render_template("knowledge/symptoms_create.html", symptoms=list_symptoms_payloads())

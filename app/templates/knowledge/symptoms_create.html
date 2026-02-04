@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Symptom</title>
+    <title>Create Symptom - Diabetes Expert</title>
     <meta name="description" content="Create a new symptom question for the knowledge base.">
 
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
@@ -44,6 +44,9 @@
 </head>
 
 <body data-page="symptoms-create" class="kb-symptoms-page">
+    <script>
+        window.__symptomsData = {{ symptoms|tojson }};
+    </script>
     <div class="admin-app">
         <div class="admin-wrapper" id="admin-wrapper">
             <header class="admin-header">
@@ -141,15 +144,19 @@
                                         </div>
 
                                         <div class="row g-3 mt-1">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label class="form-label" for="create-unit">Unit</label>
                                                 <input type="text" class="form-control" id="create-unit" placeholder="mg/dL">
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label class="form-label" for="create-category">Category</label>
                                                 <input type="text" class="form-control" id="create-category" placeholder="Blood Test">
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
+                                                <label class="form-label" for="create-ui-section">UI Section</label>
+                                                <input type="text" class="form-control" id="create-ui-section" placeholder="Labs">
+                                            </div>
+                                            <div class="col-md-3">
                                                 <label class="form-label" for="create-priority">Priority</label>
                                                 <input type="number" class="form-control" id="create-priority" value="0" min="0">
                                             </div>
@@ -161,14 +168,26 @@
                                             <div class="kb-note mt-1">Required when Input Type is SINGLE.</div>
                                         </div>
 
+                                        <div class="row g-3 mt-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="create-parent-symptom">Parent Symptom (optional)</label>
+                                                <select class="form-select" id="create-parent-symptom"></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label" for="create-show-if-operator">Show If</label>
+                                                <select class="form-select" id="create-show-if-operator"></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label" for="create-show-if-value">Show If Value</label>
+                                                <input type="text" class="form-control" id="create-show-if-value" placeholder="true / 1 / 140">
+                                            </div>
+                                        </div>
+                                        <div class="kb-note mt-1">Question shows only when the parent condition matches.</div>
+
                                         <div class="d-flex flex-wrap gap-4 mt-3">
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="create-is-active" checked>
                                                 <label class="form-check-label" for="create-is-active">Active</label>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="create-is-derived">
-                                                <label class="form-check-label" for="create-is-derived">Derived (computed)</label>
                                             </div>
                                         </div>
 
@@ -212,10 +231,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
     <script>
+        const symptoms = Array.isArray(window.__symptomsData) ? window.__symptomsData : [];
+
         const form = document.getElementById('create-symptom-form');
         const alertBox = document.getElementById('create-alert');
         const inputType = document.getElementById('create-input-type');
         const optionsWrapper = document.getElementById('create-options-wrapper');
+        const parentSelect = document.getElementById('create-parent-symptom');
+        const showIfOperator = document.getElementById('create-show-if-operator');
+        const showIfValue = document.getElementById('create-show-if-value');
+
+        const showIfOperators = ['==', '!=', '>=', '<=', '>', '<', 'PRESENT', 'ABSENT'];
 
         const showAlert = (message, type = 'danger') => {
             alertBox.textContent = message;
@@ -226,6 +252,47 @@
         const hideAlert = () => {
             alertBox.classList.add('d-none');
             alertBox.textContent = '';
+        };
+
+        const buildParentOptions = () => {
+            parentSelect.innerHTML = '<option value="">None</option>';
+            symptoms.forEach((symptom) => {
+                const option = document.createElement('option');
+                option.value = symptom.id;
+                option.textContent = `${symptom.code} - ${symptom.name || symptom.question_text}`;
+                parentSelect.appendChild(option);
+            });
+        };
+
+        const buildShowIfOptions = () => {
+            showIfOperator.innerHTML = '<option value="">Select</option>';
+            showIfOperators.forEach((op) => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = op;
+                showIfOperator.appendChild(option);
+            });
+        };
+
+        const updateShowIfState = () => {
+            const hasParent = Boolean(parentSelect.value);
+            const op = (showIfOperator.value || '').toUpperCase();
+            const hideValue = op === 'PRESENT' || op === 'ABSENT';
+
+            showIfOperator.disabled = !hasParent;
+            showIfValue.disabled = !hasParent || hideValue;
+
+            if (!hasParent) {
+                showIfOperator.value = '';
+                showIfValue.value = '';
+                return;
+            }
+            if (!showIfOperator.value) {
+                showIfOperator.value = '==';
+            }
+            if (hideValue) {
+                showIfValue.value = '';
+            }
         };
 
         const toggleOptions = () => {
@@ -254,6 +321,8 @@
         };
 
         inputType.addEventListener('change', toggleOptions);
+        parentSelect.addEventListener('change', updateShowIfState);
+        showIfOperator.addEventListener('change', updateShowIfState);
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -266,9 +335,9 @@
                 input_type: inputType.value,
                 unit: document.getElementById('create-unit').value.trim(),
                 category: document.getElementById('create-category').value.trim(),
+                ui_section: document.getElementById('create-ui-section').value.trim(),
                 priority_order: document.getElementById('create-priority').value,
                 is_active: document.getElementById('create-is-active').checked,
-                is_derived: document.getElementById('create-is-derived').checked,
             };
 
             if (!payload.code || !payload.question_text) {
@@ -287,6 +356,29 @@
                     return;
                 }
                 payload.options_json = parsed.value;
+            }
+
+            if (parentSelect.value) {
+                payload.parent_symptom_id = Number(parentSelect.value);
+                payload.show_if_operator = (showIfOperator.value || '').toUpperCase();
+                payload.show_if_value = showIfValue.value.trim();
+                if (!payload.show_if_operator) {
+                    showAlert('Show-if operator is required when a parent symptom is selected.');
+                    return;
+                }
+                if (!['PRESENT', 'ABSENT'].includes(payload.show_if_operator) && !payload.show_if_value) {
+                    showAlert('Show-if value is required for the selected operator.');
+                    return;
+                }
+                if (['PRESENT', 'ABSENT'].includes(payload.show_if_operator)) {
+                    delete payload.show_if_value;
+                }
+            }
+
+            if (!payload.parent_symptom_id) {
+                delete payload.parent_symptom_id;
+                delete payload.show_if_operator;
+                delete payload.show_if_value;
             }
 
             try {
@@ -311,6 +403,9 @@
         });
 
         toggleOptions();
+        buildParentOptions();
+        buildShowIfOptions();
+        updateShowIfState();
     </script>
 </body>
 </html>

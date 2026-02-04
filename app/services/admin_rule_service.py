@@ -84,14 +84,26 @@ def _ensure_action(rule: Rule, diagnosis_code: Optional[str], risk_level: Option
 
 def rule_payload(rule: Rule, include_conditions: bool = False) -> Dict[str, Any]:
     actions = []
+    primary_action = None
+    primary_disease = None
+    best_confidence = None
     for action in rule.actions:
         disease = action.disease
+        confidence_raw = float(action.confidence) if action.confidence is not None else None
+        confidence_norm = None
+        if confidence_raw is not None:
+            confidence_norm = confidence_raw / 100.0 if confidence_raw > 1 else confidence_raw
         actions.append({
             "disease_code": disease.code if disease else None,
             "disease_name": disease.name if disease else None,
             "risk_level": disease.urgency if disease else None,
-            "confidence": action.confidence,
+            "confidence": confidence_raw,
         })
+        score = confidence_norm if confidence_norm is not None else -1
+        if best_confidence is None or score > best_confidence:
+            best_confidence = score
+            primary_action = action
+            primary_disease = disease
 
     payload = {
         "id": rule.id,
@@ -105,6 +117,19 @@ def rule_payload(rule: Rule, include_conditions: bool = False) -> Dict[str, Any]
         "explanation_text": rule.explanation_text,
         "actions": actions,
     }
+
+    if primary_action:
+        raw_confidence = float(primary_action.confidence) if primary_action.confidence is not None else None
+        confidence_pct = None
+        if raw_confidence is not None:
+            normalized = raw_confidence / 100.0 if raw_confidence > 1 else raw_confidence
+            confidence_pct = round(normalized * 100.0, 2)
+        payload.update({
+            "diagnosis": primary_disease.name if primary_disease and primary_disease.name else (primary_disease.code if primary_disease else None),
+            "diagnosis_code": primary_disease.code if primary_disease else None,
+            "risk_level": primary_disease.urgency if primary_disease else None,
+            "confidence": confidence_pct,
+        })
 
     if include_conditions:
         symptom_ids = [c.symptom_id for c in rule.conditions]

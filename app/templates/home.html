@@ -3,24 +3,367 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Diabetes Expert System</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
-  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+  <title>Diabetes Expert - Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #2f6df6;
+      --brand-dark: #1d4ed8;
+      --surface: #ffffff;
+      --line: rgba(148, 163, 184, 0.2);
+      --bg: #eef2f6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 15%, #dbe7ff 0%, transparent 48%),
+        radial-gradient(circle at 80% 10%, #e5fbf2 0%, transparent 42%),
+        #f5f7fb;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand img {
+      height: 34px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 26px;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .nav-cta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(47, 109, 246, 0.25);
+    }
+
+    .btn.ghost {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 28px;
+      padding: 20px 48px 64px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .hero-content {
+      grid-column: span 6;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6rem, 3.2vw, 3.6rem);
+      margin: 0 0 12px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-card {
+      grid-column: span 6;
+      background: var(--surface);
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      min-height: 380px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(47, 109, 246, 0.2), rgba(12, 181, 132, 0.08));
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .hero-card-content {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .hero-card h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .hero-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #0f172a;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.2rem;
+    }
+
+    .section {
+      padding: 0 48px 60px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 160px;
+    }
+
+    .feature i {
+      font-size: 1.4rem;
+      color: var(--brand);
+    }
+
+    .feature h4 {
+      margin: 10px 0 6px;
+    }
+
+    .footer {
+      padding: 24px 48px 40px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .hero-content,
+      .hero-card {
+        grid-column: span 1;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav {
+        flex-direction: column;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
 </head>
-<body class="p-4">
-  <div class="container" style="max-width: 920px;">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h1 class="h3 mb-2">Diabetes Expert System</h1>
-        <p class="text-muted mb-4">Welcome. Please log in to continue.</p>
-        <div class="d-flex gap-2">
-          <a class="btn btn-primary" href="{{ url_for('web.login_page') }}">Login</a>
-          <a class="btn btn-outline-primary" href="{{ url_for('web.register_page') }}">Register</a>
+<body>
+  <div class="page">
+    <header class="nav">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Diabetes Expert">
+        <span>Diabetes Expert</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn ghost" href="{{ url_for('web.login_page') }}">Login</a>
+        <a class="btn primary" href="{{ url_for('web.register_page') }}">Get started</a>
+      </div>
+    </header>
+
+    <section class="hero" id="about">
+      <div class="hero-content">
+        <h1>Your health, our priority.</h1>
+        <p>
+          A smart clinical assistant for diabetes screening. Capture symptoms, collect lab data,
+          and generate an explainable assessment within minutes.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="{{ url_for('web.register_page') }}">
+            Start assessment <i class="bi bi-arrow-right"></i>
+          </a>
+          <a class="btn ghost" href="{{ url_for('web.login_page') }}">
+            Doctor login
+          </a>
+        </div>
+        <div class="hero-meta">
+          <span><i class="bi bi-shield-check"></i> Evidence-driven rules</span>
+          <span><i class="bi bi-clipboard2-check"></i> Structured clinical facts</span>
+          <span><i class="bi bi-activity"></i> Risk-level clarity</span>
         </div>
       </div>
-    </div>
+
+      <div class="hero-card">
+        <div class="hero-card-content">
+          <h3>Assessment highlights</h3>
+          <p class="subtitle">Built for speed, clarity, and explainability.</p>
+          <ul>
+            <li>Collect symptoms with conditional follow-ups.</li>
+            <li>Capture lab values only when available.</li>
+            <li>See matched rules and missing data instantly.</li>
+          </ul>
+          <div class="stat-grid">
+            <div class="stat">
+              <strong>3 min</strong>
+              Avg assessment
+            </div>
+            <div class="stat">
+              <strong>+40</strong>
+              Symptoms tracked
+            </div>
+            <div class="stat">
+              <strong>90%</strong>
+              Rule match clarity
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="services">
+      <div class="feature-grid">
+        <div class="feature">
+          <i class="bi bi-clipboard-pulse"></i>
+          <h4>Structured interviews</h4>
+          <p>Collect facts in a step-by-step interview designed for clinical workflows.</p>
+        </div>
+        <div class="feature">
+          <i class="bi bi-diagram-3"></i>
+          <h4>Rule explainability</h4>
+          <p>Show matched rules, confidence, and missing data for transparent decisions.</p>
+        </div>
+        <div class="feature">
+          <i class="bi bi-journal-medical"></i>
+          <h4>Case history</h4>
+          <p>Track assessments over time for comparison and follow-up care.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="feature-grid">
+        <div class="feature">
+          <h4>Is this a medical diagnosis?</h4>
+          <p>This is a screening assistant. Always confirm with clinical tests and providers.</p>
+        </div>
+        <div class="feature">
+          <h4>Can I skip lab inputs?</h4>
+          <p>Yes. The system adapts to available data and will highlight missing labs.</p>
+        </div>
+        <div class="feature">
+          <h4>Who can use it?</h4>
+          <p>Clinicians, researchers, and patients for guided screening workflows.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer" id="contact">
+      <div>Need help? Reach our care team: support@diabetesexpert.local</div>
+      <div>© 2026 Diabetes Expert. All rights reserved.</div>
+    </footer>
   </div>
 </body>
 </html>

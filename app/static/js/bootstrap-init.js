@@ -1,4 +1,55 @@
 (() => {
+  const buildSearchItems = () => {
+    const seen = new Set();
+    const items = [];
+    const containers = ['.admin-sidebar', '.navbar', '.topbar'];
+    const selector = containers.map((c) => `${c} a[href]`).join(',');
+    document.querySelectorAll(selector).forEach((link) => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+        return;
+      }
+      const title = (link.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!title) {
+        return;
+      }
+      const key = `${title}|${href}`;
+      if (seen.has(key)) {
+        return;
+      }
+      seen.add(key);
+      items.push({ title, url: href, type: 'page' });
+    });
+    return items;
+  };
+
+  const registerSearchComponent = () => {
+    if (!window.Alpine) {
+      return;
+    }
+    window.Alpine.data('searchComponent', () => ({
+      query: '',
+      results: [],
+      items: buildSearchItems(),
+      search() {
+        const q = this.query.trim().toLowerCase();
+        const filtered = this.items.filter((item) => item.title.toLowerCase().includes(q));
+        this.results = q ? filtered.slice(0, 8) : this.items.slice(0, 6);
+      },
+    }));
+
+    document.querySelectorAll('[x-data="searchComponent"]').forEach((el) => {
+      try {
+        window.Alpine.initTree(el);
+      } catch (err) {
+        console.warn('Search init skipped:', err);
+      }
+    });
+  };
+
+  document.addEventListener('alpine:init', registerSearchComponent);
+  document.addEventListener('DOMContentLoaded', registerSearchComponent);
+
   const findDropdownMenu = (toggle) => {
     if (!toggle) {
       return null;

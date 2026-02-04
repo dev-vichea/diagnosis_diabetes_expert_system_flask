@@ -1,5 +1,6 @@
 from flask import jsonify, render_template, request
 
+from app.extensions import db
 from app.routes.web import web_bp
 from app.routes.web.utils import (
     current_permissions,
@@ -87,3 +88,31 @@ def admin_role_permissions_update(role_id: int):
     if error:
         return jsonify({"message": error}), status
     return jsonify({"message": "updated", "role": payload}), status
+
+
+@web_bp.post("/admin/role-permissions/roles")
+def admin_role_permissions_create():
+    guard = require_login()
+    if guard:
+        return jsonify({"message": "Unauthorized"}), 401
+    guard = require_permissions("RBAC_UPDATE")
+    if guard:
+        return jsonify({"message": "Forbidden", "missing_permission": "RBAC_UPDATE"}), 403
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip().upper()
+    if not name:
+        return jsonify({"message": "name is required"}), 400
+
+    if Role.query.filter_by(name=name).first():
+        return jsonify({"message": "role already exists"}), 409
+
+    role = Role(name=name)
+    db.session.add(role)
+    db.session.commit()
+
+    permission_codes = data.get("permission_codes") or []
+    payload, error, status = update_role_permissions(role, permission_codes)
+    if error:
+        return jsonify({"message": error}), status
+    return jsonify({"message": "created", "role": payload}), 201

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnosis Rules</title>
+    <title>Diagnosis Rules - Diabetes Expert</title>
     <meta name="description" content="Build and manage diagnosis rules and conditions.">
 
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
@@ -328,8 +328,8 @@
                                 <input type="text" class="form-control" id="rule-title" placeholder="High Risk Pattern">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label" for="rule-diagnosis">Diagnosis</label>
-                                <select class="form-select" id="rule-diagnosis"></select>
+                                <label class="form-label" for="rule-diagnosis">Disease Name (optional)</label>
+                                <input type="text" class="form-control" id="rule-diagnosis" placeholder="Type 2 Diabetes">
                             </div>
                         </div>
 
@@ -352,12 +352,17 @@
 
                         <div class="row g-3 mt-1">
                             <div class="col-md-6">
-                                <label class="form-label" for="rule-diagnosis-code">Diagnosis Code (optional)</label>
-                                <input type="text" class="form-control" id="rule-diagnosis-code" placeholder="DIABETES_RISK">
+                                <label class="form-label" for="rule-diagnosis-code">Disease Code (optional)</label>
+                                <input type="text" class="form-control" id="rule-diagnosis-code" placeholder="DIABETES_TYPE_2">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="rule-risk-level">Risk Level (optional)</label>
-                                <input type="text" class="form-control" id="rule-risk-level" placeholder="LOW / MODERATE / HIGH / VERY_HIGH">
+                                <select class="form-select" id="rule-risk-level">
+                                    <option value="">Select level</option>
+                                    <option value="LOW">LOW</option>
+                                    <option value="MEDIUM">MEDIUM</option>
+                                    <option value="HIGH">HIGH</option>
+                                </select>
                             </div>
                         </div>
 
@@ -365,7 +370,7 @@
                         <div class="rule-conditions-section d-flex justify-content-between align-items-center mb-2">
                             <div>
                                 <h6 class="mb-0">Rule Conditions</h6>
-                                <p class="kb-meta mb-0">All conditions must be satisfied for the rule to fire.</p>
+                                <p class="kb-meta mb-0">Required conditions must be satisfied; optional conditions add evidence.</p>
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="add-condition">
                                 <i class="bi bi-plus-lg me-1"></i>Add Condition
@@ -379,7 +384,8 @@
                                         <th>Symptom</th>
                                         <th>Operator</th>
                                         <th>Value</th>
-                                        <th>Logic Group</th>
+                                        <th>Required</th>
+                                        <th>Weight</th>
                                         <th class="text-end">Remove</th>
                                     </tr>
                                 </thead>
@@ -415,17 +421,6 @@
 
         const symptoms = Array.isArray(window.__symptomsData) ? window.__symptomsData : [];
         const symptomMap = new Map(symptoms.map((symptom) => [symptom.id, symptom]));
-
-        const diagnosisOptions = [
-            'Normal',
-            'Low Risk',
-            'Monitor',
-            'Prediabetes',
-            'Moderate Risk',
-            'Type 2 Diabetes Risk',
-            'High Risk Type 2 Diabetes',
-            'Very High Type 2 Diabetes Risk',
-        ];
 
         const statTotal = document.getElementById('stat-total');
         const statActive = document.getElementById('stat-active');
@@ -527,8 +522,9 @@
         const refreshDiagnosisFilter = () => {
             const existing = new Set(['ALL']);
             ruleState.items.forEach((item) => {
-                if (item.diagnosis) {
-                    existing.add(item.diagnosis);
+                const label = item.diagnosis || item.diagnosis_code;
+                if (label) {
+                    existing.add(label);
                 }
             });
             diagnosisFilter.innerHTML = '';
@@ -560,11 +556,12 @@
             const status = statusFilter.value;
 
             ruleState.filtered = ruleState.items.filter((rule) => {
+                const diagnosisLabel = rule.diagnosis || rule.diagnosis_code || '';
                 const matchesQuery =
                     (rule.rule_code || '').toLowerCase().includes(query) ||
                     (rule.title || '').toLowerCase().includes(query) ||
-                    (rule.diagnosis || '').toLowerCase().includes(query);
-                const matchesDiagnosis = diagnosis === 'ALL' || rule.diagnosis === diagnosis;
+                    diagnosisLabel.toLowerCase().includes(query);
+                const matchesDiagnosis = diagnosis === 'ALL' || diagnosisLabel === diagnosis;
                 const matchesStatus = status === 'ALL' || (status === 'ACTIVE' ? rule.is_active : !rule.is_active);
                 return matchesQuery && matchesDiagnosis && matchesStatus;
             });
@@ -590,6 +587,7 @@
             }
 
             ruleState.filtered.forEach((rule) => {
+                const diagnosisLabel = rule.diagnosis || rule.diagnosis_code || '-';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -598,7 +596,7 @@
                     </td>
                     <td>${rule.title || '-'}</td>
                     <td>
-                        <span class="badge kb-badge bg-primary bg-opacity-10 text-primary">${rule.diagnosis || '-'}</span>
+                        <span class="badge kb-badge bg-primary bg-opacity-10 text-primary">${diagnosisLabel}</span>
                     </td>
                     <td>${rule.priority ?? 0}</td>
                     <td>${Number.isFinite(rule.confidence) ? `${rule.confidence}%` : '-'}</td>
@@ -651,14 +649,7 @@
             formFields.id.value = '';
             formFields.code.value = '';
             formFields.title.value = '';
-            formFields.diagnosis.innerHTML = '';
-            diagnosisOptions.forEach((optionValue) => {
-                const option = document.createElement('option');
-                option.value = optionValue;
-                option.textContent = optionValue;
-                formFields.diagnosis.appendChild(option);
-            });
-            formFields.diagnosis.value = diagnosisOptions[0];
+            formFields.diagnosis.value = '';
             formFields.priority.value = '0';
             formFields.confidence.value = '';
             formFields.active.checked = true;
@@ -676,9 +667,22 @@
             DEFAULT: ['==', '!='],
         };
 
-        const buildValueField = (row, inputType, value) => {
+        const buildValueField = (row, inputType, value, operator) => {
             const cell = row.querySelector('.condition-value-cell');
             cell.innerHTML = '';
+            const op = (operator || '==').toUpperCase();
+            if (op === 'PRESENT' || op === 'ABSENT') {
+                const placeholder = document.createElement('span');
+                placeholder.className = 'text-muted small';
+                placeholder.textContent = '—';
+                cell.appendChild(placeholder);
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.className = 'condition-value';
+                hidden.value = '';
+                cell.appendChild(hidden);
+                return;
+            }
             if (inputType === 'BOOLEAN') {
                 const select = document.createElement('select');
                 select.className = 'form-select form-select-sm condition-value';
@@ -715,7 +719,10 @@
                 </td>
                 <td class="condition-value-cell"></td>
                 <td>
-                    <input type="text" class="form-control form-control-sm condition-group" placeholder="Group A">
+                    <input type="checkbox" class="form-check-input condition-required">
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm condition-weight" min="0" step="0.1" value="1">
                 </td>
                 <td class="text-end">
                     <button type="button" class="btn btn-sm btn-outline-danger" data-action="remove">
@@ -750,8 +757,10 @@
             });
             operatorSelect.value = condition.operator || availableOperators[0];
 
-            buildValueField(row, inputType, condition.value ?? (condition.expected_value ? 'true' : 'false'));
-            row.querySelector('.condition-group').value = condition.logic_group || '';
+            buildValueField(row, inputType, condition.value ?? (condition.expected_value ? 'true' : 'false'), operatorSelect.value);
+            const requiredField = row.querySelector('.condition-required');
+            requiredField.checked = condition.is_required !== undefined ? Boolean(condition.is_required) : true;
+            row.querySelector('.condition-weight').value = condition.weight ?? 1;
             return row;
         };
 
@@ -784,13 +793,7 @@
                 formFields.id.value = data.id;
                 formFields.code.value = data.rule_code || '';
                 formFields.title.value = data.title || '';
-                if (!diagnosisOptions.includes(data.diagnosis)) {
-                    const option = document.createElement('option');
-                    option.value = data.diagnosis;
-                    option.textContent = data.diagnosis;
-                    formFields.diagnosis.appendChild(option);
-                }
-                formFields.diagnosis.value = data.diagnosis || diagnosisOptions[0];
+                formFields.diagnosis.value = data.diagnosis || '';
                 formFields.priority.value = data.priority ?? 0;
                 formFields.confidence.value = data.confidence ?? '';
                 formFields.active.checked = !!data.is_active;
@@ -830,16 +833,26 @@
                 const symptomId = row.querySelector('.condition-symptom').value;
                 const operator = row.querySelector('.condition-operator').value;
                 const valueField = row.querySelector('.condition-value');
-                const group = row.querySelector('.condition-group').value.trim();
+                const required = row.querySelector('.condition-required').checked;
+                const weightRaw = row.querySelector('.condition-weight').value;
                 const symptomOption = row.querySelector('.condition-symptom').selectedOptions[0];
                 const inputType = symptomOption ? symptomOption.dataset.inputType : 'BOOLEAN';
-                const value = parseConditionValue(inputType, valueField.value);
+                const op = (operator || '==').toUpperCase();
+                const value = (op === 'PRESENT' || op === 'ABSENT')
+                    ? null
+                    : parseConditionValue(inputType, valueField.value);
+                const weight = weightRaw === '' ? 1 : Number(weightRaw);
 
                 if (!symptomId) {
                     continue;
                 }
 
-                if (inputType !== 'BOOLEAN' && !String(value).trim()) {
+                if (Number.isNaN(weight) || weight < 0) {
+                    showAlert(modalAlert, 'Weight must be a number greater than or equal to 0.');
+                    return null;
+                }
+
+                if (op !== 'PRESENT' && op !== 'ABSENT' && inputType !== 'BOOLEAN' && !String(value).trim()) {
                     showAlert(modalAlert, 'All non-boolean conditions require a value.');
                     return null;
                 }
@@ -848,7 +861,8 @@
                     symptom_id: Number(symptomId),
                     operator,
                     value,
-                    logic_group: group || null,
+                    is_required: required,
+                    weight,
                 });
             }
             if (!conditions.length) {
@@ -863,7 +877,7 @@
             const payload = {
                 rule_code: formFields.code.value.trim(),
                 title: formFields.title.value.trim(),
-                diagnosis: formFields.diagnosis.value,
+                diagnosis: formFields.diagnosis.value.trim(),
                 diagnosis_code: formFields.diagnosisCode.value.trim(),
                 risk_level: formFields.riskLevel.value.trim(),
                 priority: formFields.priority.value,
@@ -872,6 +886,20 @@
                 explanation_text: getExplanationHtml(),
             };
 
+            if (payload.diagnosis && !payload.diagnosis_code) {
+                showAlert(modalAlert, 'Provide a disease code when using a disease name.');
+                return;
+            }
+            if (payload.risk_level && !payload.diagnosis_code) {
+                showAlert(modalAlert, 'Risk level requires a disease code.');
+                return;
+            }
+            if (payload.diagnosis_code && !payload.risk_level) {
+                payload.risk_level = 'LOW';
+            }
+            if (!payload.diagnosis) {
+                delete payload.diagnosis;
+            }
             if (!payload.diagnosis_code) {
                 delete payload.diagnosis_code;
             }
@@ -879,8 +907,8 @@
                 delete payload.risk_level;
             }
 
-            if (!payload.rule_code || !payload.diagnosis) {
-                showAlert(modalAlert, 'Rule code and diagnosis are required.');
+            if (!payload.rule_code) {
+                showAlert(modalAlert, 'Rule code is required.');
                 return;
             }
 
@@ -1006,23 +1034,26 @@
         });
 
         conditionsTable.addEventListener('change', (event) => {
-            const select = event.target.closest('.condition-symptom');
-            if (!select) {
+            const symptomSelect = event.target.closest('.condition-symptom');
+            const operatorSelect = event.target.closest('.condition-operator');
+            if (!symptomSelect && !operatorSelect) {
                 return;
             }
-            const row = select.closest('tr');
-            const selectedOption = select.options[select.selectedIndex];
+            const row = event.target.closest('tr');
+            const selectedOption = row.querySelector('.condition-symptom').selectedOptions[0];
             const inputType = selectedOption ? selectedOption.dataset.inputType : 'BOOLEAN';
-            const operatorSelect = row.querySelector('.condition-operator');
-            const available = operatorOptions[inputType] || operatorOptions.DEFAULT;
-            operatorSelect.innerHTML = '';
-            available.forEach((op) => {
-                const option = document.createElement('option');
-                option.value = op;
-                option.textContent = op;
-                operatorSelect.appendChild(option);
-            });
-            buildValueField(row, inputType, null);
+            if (symptomSelect) {
+                const operatorField = row.querySelector('.condition-operator');
+                const available = operatorOptions[inputType] || operatorOptions.DEFAULT;
+                operatorField.innerHTML = '';
+                available.forEach((op) => {
+                    const option = document.createElement('option');
+                    option.value = op;
+                    option.textContent = op;
+                    operatorField.appendChild(option);
+                });
+            }
+            buildValueField(row, inputType, null, row.querySelector('.condition-operator').value);
         });
 
         refreshDiagnosisFilter();

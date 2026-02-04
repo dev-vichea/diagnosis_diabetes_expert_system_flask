@@ -309,7 +309,7 @@ def _condition_labels(items: list, symptom_map: dict) -> list[str]:
         sid = item.get("symptom_id")
         symptom = symptom_map.get(sid)
         if symptom:
-            labels.append(symptom.question_text or symptom.name or symptom.code)
+            labels.append(symptom.name or symptom.question_text or symptom.code)
         else:
             labels.append(item.get("symptom_code") or f"Symptom {sid}")
     return labels
@@ -361,7 +361,7 @@ def _format_condition(detail: dict, symptom_map: dict) -> dict:
     symptom = symptom_map.get(sid)
     label = None
     if symptom:
-        label = symptom.question_text or symptom.name or symptom.code
+        label = symptom.name or symptom.question_text or symptom.code
     if not label:
         label = detail.get("symptom_code") or f"Symptom {sid}"
 
@@ -888,6 +888,12 @@ def patient_update_symptoms():
     if not user_id:
         return redirect(url_for("web.login_page"))
 
+    latest_assessment = (
+        Assessment.query
+        .filter_by(user_id=user_id)
+        .order_by(Assessment.started_at.desc(), Assessment.id.desc())
+        .first()
+    )
     saved = False
     if request.method == "POST":
         symptom_ids = request.form.getlist("symptom_ids")
@@ -898,22 +904,37 @@ def patient_update_symptoms():
             except (TypeError, ValueError):
                 continue
 
-        assessment = _get_or_create_assessment(user_id)
+        assessment = latest_assessment or _get_or_create_assessment(user_id)
         session["active_assessment_id"] = assessment.id
         existing = {a.symptom_id: a for a in CaseFact.query.filter_by(assessment_id=assessment.id).all()}
         for sid in ids:
+            answer = request.form.get(f"symptom_{sid}")
+            if answer is None:
+                continue
+            value_bool = _parse_bool_value(answer)
             if sid in existing:
-                existing[sid].value_bool = True
+                existing[sid].value_bool = value_bool
                 existing[sid].value_text = None
                 existing[sid].value_number = None
-            else:
+            elif value_bool is not None:
                 db.session.add(CaseFact(
                     assessment_id=assessment.id,
                     symptom_id=sid,
-                    value_bool=True,
+                    value_bool=value_bool,
                 ))
         db.session.commit()
         saved = True
+
+    answers_map = {}
+    if latest_assessment:
+        facts = CaseFact.query.filter_by(assessment_id=latest_assessment.id).all()
+        for fact in facts:
+            if fact.value_bool is True:
+                answers_map[fact.symptom_id] = "yes"
+            elif fact.value_bool is False:
+                answers_map[fact.symptom_id] = "no"
+            else:
+                answers_map[fact.symptom_id] = "unknown"
 
     symptoms = (
         Symptom.query
@@ -930,6 +951,7 @@ def patient_update_symptoms():
         "patient/symptoms_update.html",
         symptom_groups=symptom_groups,
         saved=saved,
+        answers_map=answers_map,
     )
 
 
