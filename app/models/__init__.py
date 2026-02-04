@@ -1,27 +1,30 @@
+from app.extensions import db
+
 from .user import User
 from .role import Role
 from .permission import Permission
 from .rbac import UserRole, RolePermission
 
 from .symptom import Symptom
-from .rule import Rule, RuleCondition
-from .advice import Advice
-
-from .assessment import Assessment, AssessmentAnswer, AssessmentResult
-from .audit_log import AuditLog
+from .assessment import Assessment, CaseFact
+from .rule import Rule, RuleCondition, RuleAction
+from .diagnosis import Disease, DiagnosisRun
+from .audit import AuditLog
 
 __all__ = [
+    "db",
     "User",
     "Role",
     "Permission",
     "UserRole",
     "RolePermission",
     "Symptom",
+    "Assessment",
+    "CaseFact",
     "Rule",
     "RuleCondition",
-    "Advice",
-    "Assessment",
-    "AssessmentAnswer",
-    "AssessmentResult",
+    "RuleAction",
+    "Disease",
+    "DiagnosisRun",
     "AuditLog",
 ]

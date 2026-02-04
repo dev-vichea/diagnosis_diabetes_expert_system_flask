@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles - Diabetes Expert</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Application settings and user preferences configuration">
+    <meta name="keywords" content="bootstrap, admin, dashboard, settings, preferences, configuration">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+  <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/settings-BCjS9tje.js') }}"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+
+<body data-page="settings" class="settings-page">
+    <!-- Admin App Container -->
+    <div class="admin-app">
+        <div class="admin-wrapper" id="admin-wrapper">
+            
+            <!-- Header -->
+            <header class="admin-header">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <!-- Logo/Brand -->
+                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
+                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+                        </a>
+
+                        <!-- Search Bar with Alpine.js -->
+                        <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
+                            <div class="position-relative">
+                                <input type="search" 
+                                       class="form-control" 
+                                       placeholder="Search... (Ctrl+K)"
+                                       x-model="query"
+                                       @input="search()"
+                                       data-search-input
+                                       aria-label="Search">
+                                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+                                
+                                <!-- Search Results Dropdown -->
+                                <div x-show="results.length > 0" 
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
+                                    <template x-for="result in results" :key="result.title">
+                                        <a :href="result.url" class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-text me-2 text-muted"></i>
+                                                <span x-text="result.title"></span>
+                                                <small class="ms-auto text-muted" x-text="result.type"></small>
+                                            </div>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side Icons -->
+                        <div class="navbar-nav flex-row">
+                            <!-- Theme Toggle with Alpine.js -->
+                            <div x-data="themeSwitch">
+                                <button class="btn btn-outline-secondary me-2" 
+                                        type="button" 
+                                        @click="toggle()"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        title="Toggle theme">
+                                    <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
+                                    <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
+                                </button>
+                            </div>
+
+                            <!-- Fullscreen Toggle -->
+                            <button class="btn btn-outline-secondary me-2" 
+                                    type="button" 
+                                    data-fullscreen-toggle
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    title="Toggle fullscreen">
+                                <i class="bi bi-arrows-fullscreen icon-hover"></i>
+                            </button>
+
+                            <!-- Notifications -->
+                            <div class="dropdown me-2">
+                                <button class="btn btn-outline-secondary position-relative" 
+                                        type="button" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                    <i class="bi bi-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        3
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                                    <li><a class="dropdown-item" href="#">New user registered</a></li>
+                                    <li><a class="dropdown-item" href="#">Server status update</a></li>
+                                    <li><a class="dropdown-item" href="#">New message received</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- User Menu -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary d-flex align-items-center" 
+                                        type="button" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e" 
+                                         alt="User Avatar" 
+                                         width="24" 
+                                         height="24" 
+                                         class="rounded-circle me-2">
+                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or session.get('me', {}).get('email') or 'User') }}</span>
+                                    <i class="bi bi-chevron-down ms-1"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <!-- Sidebar -->
+{% include 'shared/_sidebar.html' %}
+
+            <!-- Floating Hamburger Menu -->
+            <button class="hamburger-menu" 
+                    type="button" 
+                    data-sidebar-toggle
+                    aria-label="Toggle sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Main Content -->
+            <main class="admin-main">
+                <div class="container-fluid p-4 p-lg-4">
+                    
+                    <!-- Page Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="h3 mb-0">Settings</h1>
+                            <p class="text-muted mb-0">Manage your application preferences and configuration</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary" @click="resetSettings()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset to Defaults
+                            </button>
+                            <button type="button" class="btn btn-primary" @click="saveSettings()">
+                                <i class="bi bi-check-lg me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Settings Container -->
+                    <div x-data="settingsComponent" x-init="init()" class="settings-layout">
+                        <div class="row g-6">
+                            
+                            <!-- Settings Navigation Sidebar -->
+                            <div class="col-lg-3 settings-sidebar" :class="{ 'show': sidebarVisible }">
+                                <nav class="settings-nav nav nav-pills flex-column">
+                                    <template x-for="section in sections" :key="section.id">
+                                        <a class="nav-link" 
+                                           :class="{ 'active': activeSection === section.id }"
+                                           href="#"
+                                           @click="setActiveSection(section.id)">
+                                            <i :class="section.icon" class="me-2"></i>
+                                            <span x-text="section.name"></span>
+                                        </a>
+                                    </template>
+                                </nav>
+                            </div>
+
+                            <!-- Settings Content -->
+                            <div class="col-lg-9 settings-content">
+                                
+                                <!-- General Settings -->
+                                <div x-show="activeSection === 'general'" class="settings-section">
+                                    <h5>General Settings</h5>
+                                    <p>Configure basic application preferences and behavior</p>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Application Language</h6>
+                                            <small>Choose your preferred language for the interface</small>
+                                        </div>
+                                        <select class="form-select" style="width: auto;" x-model="settings.language">
+                                            <option value="en">English</option>
+                                            <option value="es">Español</option>
+                                            <option value="fr">Français</option>
+                                            <option value="de">Deutsch</option>
+                                            <option value="it">Italiano</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Timezone</h6>
+                                            <small>Set your local timezone for accurate timestamps</small>
+                                        </div>
+                                        <select class="form-select timezone-select" style="width: auto;" x-model="settings.timezone">
+                                            <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                            <option value="America/New_York">Eastern Time (ET)</option>
+                                            <option value="America/Chicago">Central Time (CT)</option>
+                                            <option value="America/Denver">Mountain Time (MT)</option>
+                                            <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                            <option value="Europe/London">London (GMT)</option>
+                                            <option value="Europe/Paris">Paris (CET)</option>
+                                            <option value="Asia/Tokyo">Tokyo (JST)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Date Format</h6>
+                                            <small>Choose how dates are displayed throughout the application</small>
+                                        </div>
+                                        <select class="form-select" style="width: auto;" x-model="settings.dateFormat">
+                                            <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                                            <option value="DD/MM/YYYY">DD/MM/YYYY (UK)</option>
+                                            <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                                            <option value="DD.MM.YYYY">DD.MM.YYYY (DE)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Auto-save</h6>
+                                            <small>Automatically save changes as you work</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.autoSave">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Appearance Settings -->
+                                <div x-show="activeSection === 'appearance'" class="settings-section">
+                                    <h5>Appearance & Theme</h5>
+                                    <p>Customize the look and feel of your dashboard</p>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Theme Mode</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <div class="theme-option" :class="{ 'active': settings.theme === 'light' }" @click="setTheme('light')">
+                                                    <div class="theme-preview light"></div>
+                                                    <strong>Light</strong>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="theme-option" :class="{ 'active': settings.theme === 'dark' }" @click="setTheme('dark')">
+                                                    <div class="theme-preview dark"></div>
+                                                    <strong>Dark</strong>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="theme-option" :class="{ 'active': settings.theme === 'auto' }" @click="setTheme('auto')">
+                                                    <div class="theme-preview auto"></div>
+                                                    <strong>Auto</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Sidebar Collapsed by Default</h6>
+                                            <small>Start with a collapsed sidebar for more screen space</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.collapsedSidebar">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Animations</h6>
+                                            <small>Enable smooth transitions and animations</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.animations">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>High Contrast Mode</h6>
+                                            <small>Improve accessibility with higher contrast colors</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.highContrast">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Notifications Settings -->
+                                <div x-show="activeSection === 'notifications'" class="settings-section">
+                                    <h5>Notifications</h5>
+                                    <p>Control how and when you receive notifications</p>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Desktop Notifications</h6>
+                                            <small>Show notifications on your desktop</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.notifications.desktop">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Email Notifications</h6>
+                                            <small>Receive important updates via email</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.notifications.email">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Sound Alerts</h6>
+                                            <small>Play sounds for important notifications</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.notifications.sound">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Marketing Updates</h6>
+                                            <small>Receive updates about new features and promotions</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.notifications.marketing">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Privacy Settings -->
+                                <div x-show="activeSection === 'privacy'" class="settings-section">
+                                    <h5>Privacy & Data</h5>
+                                    <p>Control your data and privacy preferences</p>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Analytics Tracking</h6>
+                                            <small>Help improve the application by sharing usage data</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.privacy.analytics">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Performance Monitoring</h6>
+                                            <small>Allow monitoring to help us improve performance</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.privacy.performance">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Activity History</h6>
+                                            <small>Keep a log of your recent activity</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.privacy.activityHistory">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6>Data Export</h6>
+                                        <p class="small text-muted">Download your data in various formats</p>
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <div class="export-format" @click="exportData('json')">
+                                                    <i class="bi bi-file-code fs-3 text-primary mb-2"></i>
+                                                    <div><strong>JSON</strong></div>
+                                                    <small class="text-muted">Machine readable</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="export-format" @click="exportData('csv')">
+                                                    <i class="bi bi-file-spreadsheet fs-3 text-success mb-2"></i>
+                                                    <div><strong>CSV</strong></div>
+                                                    <small class="text-muted">Spreadsheet format</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="export-format" @click="exportData('pdf')">
+                                                    <i class="bi bi-file-pdf fs-3 text-danger mb-2"></i>
+                                                    <div><strong>PDF</strong></div>
+                                                    <small class="text-muted">Printable format</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="export-format" @click="exportData('xml')">
+                                                    <i class="bi bi-file-code fs-3 text-warning mb-2"></i>
+                                                    <div><strong>XML</strong></div>
+                                                    <small class="text-muted">Structured data</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Storage Settings -->
+                                <div x-show="activeSection === 'storage'" class="settings-section">
+                                    <h5>Storage & Performance</h5>
+                                    <p>Manage storage usage and performance settings</p>
+                                    
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6>Storage Usage</h6>
+                                            <span class="text-muted" x-text="`${storageUsed}GB of ${storageTotal}GB used`"></span>
+                                        </div>
+                                        <div class="storage-bar">
+                                            <div class="storage-progress" :style="`width: ${storagePercentage}%`"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-1">
+                                            <small class="text-muted">Free: <span x-text="`${storageRemaining}GB`"></span></small>
+                                            <small class="text-muted" x-text="`${storagePercentage}% used`"></small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Auto-cleanup Cache</h6>
+                                            <small>Automatically clear temporary files older than 30 days</small>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" x-model="settings.storage.autoCleanup">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>Cache Size Limit</h6>
+                                            <small>Maximum cache size before automatic cleanup</small>
+                                        </div>
+                                        <select class="form-select" style="width: auto;" x-model="settings.storage.cacheLimit">
+                                            <option value="500">500 MB</option>
+                                            <option value="1000">1 GB</option>
+                                            <option value="2000">2 GB</option>
+                                            <option value="5000">5 GB</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-outline-primary" @click="clearCache()">
+                                                <i class="bi bi-arrow-clockwise me-2"></i>Clear Cache
+                                            </button>
+                                            <button class="btn btn-outline-secondary" @click="optimizeStorage()">
+                                                <i class="bi bi-speedometer2 me-2"></i>Optimize Storage
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="admin-footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-0 text-muted">© 2026 Diabetes Expert System</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-0 text-muted">Built with Flask and Bootstrap 5</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div> <!-- /.admin-wrapper -->
+    </div>
+
+    <!-- Page-specific Component -->
+
+    <!-- Main App Script -->
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.querySelector('[data-sidebar-toggle]');
+        const wrapper = document.getElementById('admin-wrapper');
+
+        if (toggleButton && wrapper) {
+          const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+          if (isCollapsed) {
+            wrapper.classList.add('sidebar-collapsed');
+            toggleButton.classList.add('is-active');
+          }
+
+          toggleButton.addEventListener('click', () => {
+            const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
+            
+            if (isCurrentlyCollapsed) {
+              wrapper.classList.remove('sidebar-collapsed');
+              toggleButton.classList.remove('is-active');
+              localStorage.setItem('sidebar-collapsed', 'false');
+            } else {
+              wrapper.classList.add('sidebar-collapsed');
+              toggleButton.classList.add('is-active');
+              localStorage.setItem('sidebar-collapsed', 'true');
+            }
+          });
+        }
+      });
+    </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
+</body>
+</html>

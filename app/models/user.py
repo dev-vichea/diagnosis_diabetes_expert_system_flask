@@ -12,7 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(160), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    status = db.Column(db.String(20), default="ACTIVE", nullable=False)  # ACTIVE, DISABLED
+    status = db.Column(db.Enum("ACTIVE", "DISABLED", name="user_status"), default="ACTIVE", nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     roles = relationship("Role", secondary="tbl_user_roles", back_populates="users")

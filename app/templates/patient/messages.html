@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Consultation - Diabetes Expert</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Patient consultation flow for health assessments">
+    <meta name="keywords" content="health, assessment, consultation, patient intake">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+    <script type="module" crossorigin
+        src="{{ url_for('static', filename='metis/assets/messages-D1c7ZWCG.js') }}"></script>
+    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body.assessment-page .admin-main {
+            min-height: 100vh;
+        }
+
+        body.assessment-page .admin-main .container-fluid {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .assessment-shell {
+            background: #e9f1ff;
+            border-radius: 28px;
+            padding: clamp(24px, 3vw, 40px);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            flex: 1;
+            min-height: 520px;
+        }
+
+        .assessment-shell::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(480px 320px at 85% 30%, rgba(255, 174, 120, 0.25), transparent 60%),
+                radial-gradient(360px 260px at 90% 80%, rgba(86, 124, 255, 0.15), transparent 60%);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .assessment-card {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: clamp(20px, 4vw, 48px);
+            grid-template-columns: minmax(280px, 1.15fr) minmax(220px, 0.85fr);
+            align-items: center;
+            min-height: 100%;
+        }
+
+        .assessment-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #1f2a44;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .assessment-title {
+            font-size: clamp(1.6rem, 3vw, 2.6rem);
+            font-weight: 700;
+            color: #172554;
+            margin: 14px 0 8px;
+        }
+
+        .assessment-subtitle {
+            color: #475569;
+            max-width: 520px;
+        }
+
+        .question-block {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+            align-items: start;
+            margin-top: 22px;
+        }
+
+        .question-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f08a3c;
+            color: #fff;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 10px 20px rgba(240, 138, 60, 0.25);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .question-hint {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .option-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .option-item {
+            position: relative;
+        }
+
+        .option-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option-item label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #cbd5f5;
+            background: #fff;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
+
+        .option-item input:checked+label {
+            border-color: #f08a3c;
+            background: #fff;
+            box-shadow: 0 12px 24px rgba(240, 138, 60, 0.18);
+        }
+
+        .option-item input:checked+label .option-box {
+            border-color: #f08a3c;
+            background: #f08a3c;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
+
+        .assessment-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .assessment-progress {
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .btn-accent {
+            background: #f08a3c;
+            border-color: #f08a3c;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .btn-accent:hover {
+            background: #e2792c;
+            border-color: #e2792c;
+            color: #fff;
+        }
+
+        .assessment-right {
+            display: flex;
+            justify-content: center;
+        }
+
+        .assessment-illustration {
+            width: min(340px, 100%);
+            padding: 24px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.12);
+        }
+
+        .assessment-footer {
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            margin-top: 16px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .result-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #64748b;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        .result-note {
+            margin-top: 12px;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .advice-card {
+            margin-top: 16px;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        }
+
+        .advice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .advice-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .advice-badge {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .advice-badge.info {
+            background: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+        }
+
+        .advice-badge.warning {
+            background: rgba(245, 158, 11, 0.16);
+            color: #b45309;
+        }
+
+        .advice-badge.alert {
+            background: rgba(239, 68, 68, 0.14);
+            color: #b91c1c;
+        }
+
+        .advice-body {
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .result-section {
+            margin-top: 18px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .result-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 8px;
+        }
+
+        .result-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .result-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .result-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .result-list li {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .result-list i {
+            color: #f08a3c;
+            margin-top: 2px;
+        }
+
+        .result-callout {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.08);
+            color: #065f46;
+        }
+
+        .result-warning {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.08);
+            color: #7f1d1d;
+        }
+
+        @media (max-width: 992px) {
+            .assessment-card {
+                grid-template-columns: 1fr;
+            }
+
+            .assessment-right {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+
+<body data-page="assessment" class="assessment-page">
+    <!-- Admin App Container -->
+    <div class="admin-app">
+        <div class="admin-wrapper" id="admin-wrapper">
+
+            <!-- Header -->
+            <header class="admin-header">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <!-- Logo/Brand -->
+                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32"
+                                class="d-inline-block align-text-top me-2">
+                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+                        </a>
+
+                        <!-- Search Bar with Alpine.js -->
+                        <div class="search-container flex-grow-1 mx-4" x-data="searchComponent">
+                            <div class="position-relative">
+                                <input type="search" class="form-control" placeholder="Search... (Ctrl+K)"
+                                    x-model="query" @input="search()" data-search-input aria-label="Search">
+                                <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+
+                                <!-- Search Results Dropdown -->
+                                <div x-show="results.length > 0" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="position-absolute top-100 start-0 w-100 bg-white border rounded-2 shadow-lg mt-1 z-3">
+                                    <template x-for="result in results" :key="result.title">
+                                        <a :href="result.url"
+                                            class="d-block px-3 py-2 text-decoration-none text-dark border-bottom">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-text me-2 text-muted"></i>
+                                                <span x-text="result.title"></span>
+                                                <small class="ms-auto text-muted" x-text="result.type"></small>
+                                            </div>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side Icons -->
+                        <div class="navbar-nav flex-row">
+                            <!-- Theme Toggle with Alpine.js -->
+                            <div x-data="themeSwitch">
+                                <button class="btn btn-outline-secondary me-2" type="button" @click="toggle()"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle theme">
+                                    <i class="bi bi-sun-fill" x-show="currentTheme === 'light'"></i>
+                                    <i class="bi bi-moon-fill" x-show="currentTheme === 'dark'"></i>
+                                </button>
+                            </div>
+
+                            <!-- Fullscreen Toggle -->
+                            <button class="btn btn-outline-secondary me-2" type="button" data-fullscreen-toggle
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle fullscreen">
+                                <i class="bi bi-arrows-fullscreen icon-hover"></i>
+                            </button>
+
+                            <!-- Notifications -->
+                            <div class="dropdown me-2">
+                                <button class="btn btn-outline-secondary position-relative" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-bell-fill"></i>
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        3
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <h6 class="dropdown-header">Notifications</h6>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">New user registered</a></li>
+                                    <li><a class="dropdown-item" href="#">Server status update</a></li>
+                                    <li><a class="dropdown-item" href="#">New message received</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- User Menu -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary d-flex align-items-center" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3c!--%20Background%20circle%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='16'%20fill='url(%23avatarGradient)'/%3e%3c!--%20Person%20silhouette%20--%3e%3cg%20fill='white'%20opacity='0.9'%3e%3c!--%20Head%20--%3e%3ccircle%20cx='16'%20cy='12'%20r='5'/%3e%3c!--%20Body%20--%3e%3cpath%20d='M16%2018c-5.5%200-10%202.5-10%207v1h20v-1c0-4.5-4.5-7-10-7z'/%3e%3c/g%3e%3c!--%20Subtle%20border%20--%3e%3ccircle%20cx='16'%20cy='16'%20r='15.5'%20fill='none'%20stroke='rgba(255,255,255,0.2)'%20stroke-width='1'/%3e%3c!--%20Gradient%20definition%20--%3e%3cdefs%3e%3clinearGradient%20id='avatarGradient'%20x1='0%25'%20y1='0%25'%20x2='100%25'%20y2='100%25'%3e%3cstop%20offset='0%25'%20style='stop-color:%236b7280;stop-opacity:1'%20/%3e%3cstop%20offset='100%25'%20style='stop-color:%234b5563;stop-opacity:1'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
+                                        alt="User Avatar" width="24" height="24" class="rounded-circle me-2">
+                                    <span class="d-none d-md-inline">{{ (session.get('me', {}).get('name') or
+                                        session.get('me', {}).get('email') or 'User') }}</span>
+                                    <i class="bi bi-chevron-down ms-1"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i
+                                                class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <!-- Sidebar -->
+            {% include 'shared/_sidebar.html' %}
+
+            <!-- Floating Hamburger Menu -->
+            <button class="hamburger-menu" type="button" data-sidebar-toggle aria-label="Toggle sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Main Content -->
+            <main class="admin-main">
+                <div class="container-fluid p-4 p-lg-4">
+                    <!-- Page Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                        <div>
+                            <h1 class="h3 mb-0">Consultation</h1>
+                            <p class="text-muted mb-0">Answer a short set of questions so the system can understand your
+                                current condition.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <form method="post">
+                                <input type="hidden" name="action" value="start">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-play-circle me-2"></i>Start
+                                </button>
+                            </form>
+                            {% if assessment %}
+                            <form method="post">
+                                <input type="hidden" name="action" value="reset">
+                                <button type="submit" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-repeat me-2"></i>Start New
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <section class="assessment-shell">
+                        <div class="assessment-card">
+                            <div class="assessment-left">
+                                <span class="assessment-tag">Health Intake</span>
+                                <h2 class="assessment-title">Personalized check-in</h2>
+                                <p class="assessment-subtitle">Pick the option that fits you best. This helps the system
+                                    tailor your assessment.</p>
+
+                                <div class="question-block">
+                                    <div class="question-badge">{{ question_index }}</div>
+                                    <div>
+                                        {% if current_step == "age" %}
+                                        <div class="question-text">Which age range best matches you?</div>
+                                        <div class="question-hint">Choose one option to continue.</div>
+                                        {% elif current_step == "symptom" and current_question %}
+                                        <div class="question-text">{{ current_question.question_text or
+                                            current_question.name or current_question.code }}</div>
+                                        <div class="question-hint">Select the response that feels accurate for you
+                                            today.</div>
+                                        {% elif current_step == "result" %}
+                                        <div class="question-text">Assessment complete</div>
+                                        <div class="question-hint">Review your summary and decide your next step.</div>
+                                        {% else %}
+                                        <div class="question-text">Ready to begin your consultation?</div>
+                                        <div class="question-hint">Press start when you are ready to continue.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if current_step == "age" and assessment %}
+                                <form method="post" class="assessment-form mt-2">
+                                    <input type="hidden" name="assessment_id" value="{{ assessment.id }}">
+                                    <input type="hidden" name="answer_type" value="age">
+                                    <div class="option-list">
+                                        {% for option in age_options %}
+                                        <div class="option-item">
+                                            <input type="radio" id="age-{{ loop.index }}" name="age_years"
+                                                value="{{ option.value }}" required>
+                                            <label for="age-{{ loop.index }}">
+                                                <span class="option-box"></span>
+                                                <span>{{ option.label }}</span>
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="assessment-actions">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            disabled>Previous</button>
+                                        <span class="assessment-progress">Question {{ question_index }} of {{
+                                            total_questions }}</span>
+                                        <button type="submit" class="btn btn-accent">Continue</button>
+                                    </div>
+                                </form>
+                                {% elif current_step == "symptom" and current_question and assessment %}
+                                <form method="post" class="assessment-form mt-2">
+                                    <input type="hidden" name="assessment_id" value="{{ assessment.id }}">
+                                    <input type="hidden" name="answer_type" value="symptom">
+                                    <input type="hidden" name="symptom_id" value="{{ current_question.id }}">
+                                    <div class="option-list">
+                                        <div class="option-item">
+                                            <input type="radio" id="symptom-yes" name="answer" value="yes" required>
+                                            <label for="symptom-yes">
+                                                <span class="option-box"></span>
+                                                <span>Yes, this applies to me</span>
+                                            </label>
+                                        </div>
+                                        <div class="option-item">
+                                            <input type="radio" id="symptom-no" name="answer" value="no" required>
+                                            <label for="symptom-no">
+                                                <span class="option-box"></span>
+                                                <span>No, this does not apply</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="assessment-actions">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            disabled>Previous</button>
+                                        <span class="assessment-progress">Question {{ question_index }} of {{
+                                            total_questions }}</span>
+                                        <button type="submit" class="btn btn-accent">Continue</button>
+                                    </div>
+                                </form>
+                                {% elif current_step == "result" and assessment %}
+                                <div class="result-grid">
+                                    <div class="result-card">
+                                        <div class="result-label">Assessment Status</div>
+                                        <div class="result-value">{{ assessment.status.replace("_", " ").title() }}
+                                        </div>
+                                    </div>
+                                    {% if report %}
+                                    <div class="result-card">
+                                        <div class="result-label">Diagnosis Code</div>
+                                        <div class="result-value">{{ report.risk_assessment.diagnosis_code }}</div>
+                                    </div>
+                                    <div class="result-card">
+                                        <div class="result-label">Risk Level</div>
+                                        <div class="result-value">{{ report.risk_assessment.risk_level }}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% if report and report.reasoning %}
+                                <div class="result-note">
+                                    {% for item in report.reasoning %}
+                                    <div class="mb-2">{{ item|safe }}</div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if report and report.advice %}
+                                {% set severity = (report.advice.severity or 'INFO')|lower %}
+                                <div class="advice-card">
+                                    <div class="advice-header">
+                                        <h4 class="advice-title">{{ report.advice.title }}</h4>
+                                        <span class="advice-badge {{ severity }}">{{ report.advice.severity or 'INFO'
+                                            }}</span>
+                                    </div>
+                                    <div class="advice-body">
+                                        {{ report.advice.content|replace('\n', '<br>')|safe }}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if report and report.top_candidates %}
+                                <div class="result-section">
+                                    <h3>Top 3 Outcomes</h3>
+                                    <div class="result-panels">
+                                        {% for cand in report.top_candidates %}
+                                        <div class="result-panel">
+                                            <h3>{{ cand.diagnosis_code or 'Outcome' }}</h3>
+                                            <div class="text-muted mb-2">
+                                                {{ cand.risk_level or 'N/A' }} • {{ cand.status or 'N/A' }}
+                                            </div>
+                                            {% if cand.est_confidence is not none %}
+                                            <div class="result-note">Confidence: {{ cand.est_confidence }}%</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    {% if report.next_best_questions %}
+                                    <div class="result-panel mt-3">
+                                        <h3>What Would Increase Certainty</h3>
+                                        <ul class="result-list">
+                                            {% for item in report.next_best_questions %}
+                                            <li><i class="bi bi-lightbulb"></i>{{ item.question_text or item.code }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="result-section">
+                                    <h3>Recommended Next Steps</h3>
+                                    {% set rec = report.advice.recommendations if report and report.advice and
+                                    report.advice.recommendations else None %}
+                                    {% if rec %}
+                                    <div class="result-panels">
+                                        {% if rec.screening_tests %}
+                                        <div class="result-panel">
+                                            <h3>Screening Tests (Optional)</h3>
+                                            <ul class="result-list">
+                                                {% for item in rec.screening_tests %}
+                                                <li><i class="bi bi-check-circle"></i>{{ item }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                        {% if rec.lifestyle %}
+                                        <div class="result-panel">
+                                            <h3>Lifestyle Improvements</h3>
+                                            <ul class="result-list">
+                                                {% for item in rec.lifestyle %}
+                                                <li><i class="bi bi-check-circle"></i>{{ item }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                        {% if rec.monitoring %}
+                                        <div class="result-panel">
+                                            <h3>Monitor Your Health</h3>
+                                            <ul class="result-list">
+                                                {% for item in rec.monitoring %}
+                                                <li><i class="bi bi-check-circle"></i>{{ item }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if rec.good_news %}
+                                    <div class="result-callout">
+                                        <strong>Good News</strong>
+                                        {% if rec.good_news is string %}
+                                        <div class="mt-2">{{ rec.good_news }}</div>
+                                        {% else %}
+                                        {% for item in rec.good_news %}
+                                        <div class="{% if loop.first %}mt-2{% endif %}">{{ item }}</div>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if rec.notice %}
+                                    <div class="result-warning">
+                                        <strong>Important Notice</strong>
+                                        {% if rec.notice is string %}
+                                        <div class="mt-2">{{ rec.notice }}</div>
+                                        {% else %}
+                                        {% for item in rec.notice %}
+                                        <div class="{% if loop.first %}mt-2{% endif %}">{{ item }}</div>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% else %}
+                                    <div class="result-note">Recommendations are added by the medical team.</div>
+                                    {% endif %}
+                                </div>
+
+                                <form method="post" class="assessment-actions">
+                                    <input type="hidden" name="action" value="reset">
+                                    <button type="submit" class="btn btn-accent">Start New Consultation</button>
+                                </form>
+                                {% else %}
+                                <div class="mt-3">
+                                    <form method="post">
+                                        <input type="hidden" name="action" value="start">
+                                        <button type="submit" class="btn btn-accent">Start consultation</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+
+                                {% if candidate_data and candidate_data.candidates and current_step != "result" %}
+                                <div class="result-section mt-3">
+                                    <h3>Top Likely Outcomes (So Far)</h3>
+                                    <div class="result-panels">
+                                        {% for cand in candidate_data.candidates %}
+                                        <div class="result-panel">
+                                            <h3>{{ cand.diagnosis_code or 'Outcome' }}</h3>
+                                            <div class="text-muted mb-2">
+                                                {{ cand.risk_level or 'N/A' }} • {{ cand.status or 'N/A' }}
+                                            </div>
+                                            {% if cand.est_confidence is not none %}
+                                            <div class="result-note">Confidence: {{ cand.est_confidence }}%</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    {% if candidate_data.next_best_questions %}
+                                    <div class="result-panel mt-3">
+                                        <h3>Questions That Would Increase Certainty</h3>
+                                        <ul class="result-list">
+                                            {% for item in candidate_data.next_best_questions %}
+                                            <li><i class="bi bi-lightbulb"></i>{{ item.question_text or item.code }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="assessment-right">
+                                <div class="assessment-illustration">
+                                    <svg viewBox="0 0 320 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img"
+                                        aria-label="Health assessment illustration">
+                                        <defs>
+                                            <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+                                                <stop offset="0%" stop-color="#ffffff" />
+                                                <stop offset="100%" stop-color="#f8fbff" />
+                                            </linearGradient>
+                                            <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+                                                <stop offset="0%" stop-color="#ffb47b" />
+                                                <stop offset="100%" stop-color="#f08a3c" />
+                                            </linearGradient>
+                                        </defs>
+                                        <rect x="20" y="28" width="220" height="120" rx="20" fill="url(#cardGrad)"
+                                            stroke="#e2e8f0" />
+                                        <rect x="40" y="56" width="180" height="12" rx="6" fill="#e2e8f0" />
+                                        <rect x="40" y="78" width="110" height="10" rx="5" fill="#c7d2fe" />
+                                        <rect x="40" y="98" width="150" height="10" rx="5" fill="#cbd5f5" />
+                                        <circle cx="260" cy="100" r="44" fill="url(#accentGrad)" opacity="0.9" />
+                                        <rect x="34" y="170" width="252" height="140" rx="28" fill="#ffffff"
+                                            stroke="#e2e8f0" />
+                                        <circle cx="90" cy="216" r="26" fill="#c7d2fe" />
+                                        <rect x="130" y="198" width="130" height="12" rx="6" fill="#e2e8f0" />
+                                        <rect x="130" y="220" width="100" height="10" rx="5" fill="#cbd5f5" />
+                                        <rect x="60" y="260" width="200" height="14" rx="7" fill="#fef3c7" />
+                                        <path d="M86 260h40" stroke="#f08a3c" stroke-width="6" stroke-linecap="round" />
+                                        <circle cx="250" cy="280" r="24" fill="#dbeafe" />
+                                        <path d="M244 278h12M250 272v12" stroke="#3b82f6" stroke-width="4"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="assessment-footer">
+                            <span>Responses are used to guide the assessment flow.</span>
+                            <span>Results are informational and not a medical diagnosis.</span>
+                        </div>
+                    </section>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="admin-footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-0 text-muted">© 2026 Diabetes Expert System</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-0 text-muted">Built with Flask and Bootstrap 5</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div> <!-- /.admin-wrapper -->
+    </div>
+
+    <!-- Page-specific Component -->
+
+    <!-- Main App Script -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.querySelector('[data-sidebar-toggle]');
+            const wrapper = document.getElementById('admin-wrapper');
+
+            if (toggleButton && wrapper) {
+                const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+                if (isCollapsed) {
+                    wrapper.classList.add('sidebar-collapsed');
+                    toggleButton.classList.add('is-active');
+                }
+
+                toggleButton.addEventListener('click', () => {
+                    const isCurrentlyCollapsed = wrapper.classList.contains('sidebar-collapsed');
+
+                    if (isCurrentlyCollapsed) {
+                        wrapper.classList.remove('sidebar-collapsed');
+                        toggleButton.classList.remove('is-active');
+                        localStorage.setItem('sidebar-collapsed', 'false');
+                    } else {
+                        wrapper.classList.add('sidebar-collapsed');
+                        toggleButton.classList.add('is-active');
+                        localStorage.setItem('sidebar-collapsed', 'true');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

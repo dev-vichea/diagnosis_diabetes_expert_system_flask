@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assessment - Diabetes Expert</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg: #f7f8fb;
+            --panel: #ffffff;
+            --soft: #eef2f7;
+            --line: #e1e7f2;
+            --text: #0b1220;
+            --muted: #52607a;
+            --blue: #1d4ed8;
+            --blue-700: #1e40af;
+            --blue-50: #e8f0ff;
+            --green: #16a34a;
+            --amber: #d97706;
+            --orange: #ea580c;
+            --red: #dc2626;
+            --shadow: 0 18px 40px rgba(15, 23, 42, .08);
+            --radius: 18px;
+            --font-sans: "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-display: "Space Grotesk", "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            color: var(--text);
+            background: radial-gradient(1200px 480px at 10% -10%, #e8f0ff 0%, transparent 60%),
+                radial-gradient(900px 380px at 90% 0%, #e6fffb 0%, transparent 55%),
+                var(--bg);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .topbar {
+            background: var(--blue-50);
+            border-bottom: 1px solid #d6e3ff;
+        }
+
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 22px;
+        }
+
+        .topbar .wrap {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-family: var(--font-display);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo {
+            height: 32px;
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #5b66f2;
+        }
+
+        .pillbtn {
+            border: 1px solid #cfe0ff;
+            background: #fff;
+            color: var(--text);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: .88rem;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+
+        .page {
+            padding: 22px 0 72px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        .stepper {
+            position: sticky;
+            top: 18px;
+            --stepper-padding: 18px;
+            --stepper-step-padding: 8px;
+            --stepper-bullet: 26px;
+            --stepper-track-x: calc(var(--stepper-padding) + var(--stepper-step-padding) + (var(--stepper-bullet) / 2));
+            background: #ffffff;
+            border: 1px solid #e1e7f2;
+            border-radius: var(--radius);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+            padding: var(--stepper-padding) var(--stepper-padding) 22px;
+        }
+
+        .stepper-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .stepper-title {
+            font-size: .85rem;
+            color: var(--muted);
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .progress-chip {
+            font-size: .75rem;
+            font-weight: 700;
+            color: #2952cc;
+            background: #f0f5ff;
+            border: 1px solid #d9e6ff;
+            border-radius: 999px;
+            padding: 4px 10px;
+        }
+
+        .step {
+            display: flex;
+            gap: 12px;
+            padding: var(--stepper-step-padding) 8px;
+            border-radius: 12px;
+            position: relative;
+            align-items: center;
+        }
+
+        .step.current {
+            background: #f2f6ff;
+            box-shadow: inset 0 0 0 1px #dbe6ff;
+        }
+
+        .bullet {
+            width: var(--stepper-bullet);
+            height: var(--stepper-bullet);
+            border-radius: 999px;
+            border: 1.5px solid #cad6ee;
+            display: grid;
+            place-items: center;
+            font-size: .7rem;
+            color: #2563eb;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        .bullet.done {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .bullet.current {
+            border-color: #9eb7f7;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+        }
+
+        .bullet .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #2563eb;
+        }
+
+        .bullet .dot.small {
+            width: 5px;
+            height: 5px;
+            background: #cbd7ef;
+        }
+
+        .stepper-track {
+            position: absolute;
+            left: var(--stepper-track-x);
+            top: 64px;
+            bottom: 26px;
+            width: 2px;
+            background: #e3eaf7;
+            border-radius: 999px;
+        }
+
+        .stepper-progress {
+            position: absolute;
+            left: var(--stepper-track-x);
+            top: 64px;
+            width: 2px;
+            background: #2563eb;
+            border-radius: 999px;
+            height: 0;
+            transition: height .55s ease;
+        }
+
+        .step-label {
+            font-weight: 700;
+        }
+
+        .step-state {
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        h1,
+        h2 {
+            margin: 0 0 6px;
+            font-family: var(--font-display);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0 0 16px;
+        }
+
+        .question-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .section-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 4px 10px;
+            background: #eef2ff;
+            color: #1e40af;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .option-card {
+            border: 1px solid #d9e1f1;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            background: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #9bb7f5;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, .12);
+        }
+
+        .option-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            margin: 0 auto 12px;
+            display: grid;
+            place-items: center;
+            font-size: 1.8rem;
+            color: #1d4ed8;
+            background: transparent;
+            border: none;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .opt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            margin-top: 12px;
+            font-size: .98rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 1px solid #cfe0ff;
+            background: #fff;
+            color: var(--text);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn.primary {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+        }
+
+        .hint {
+            font-size: .9rem;
+            color: var(--muted);
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .summary-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .summary-group {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            background: #fff;
+        }
+
+        .summary-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .summary-list-items {
+            display: grid;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .value-icon {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            font-size: .95rem;
+            color: #2563eb;
+        }
+
+        .value-yes {
+            color: #16a34a;
+        }
+
+        .value-no {
+            color: #dc2626;
+        }
+
+        .value-unknown {
+            color: #64748b;
+        }
+
+        .answer-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .98rem;
+            color: var(--text);
+        }
+
+        .answer-label {
+            font-weight: 500;
+        }
+
+        .answer-note {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .answers-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            border: none;
+            background: none;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .95rem;
+        }
+
+        .collapse-body {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .collapse-body.show {
+            display: block;
+        }
+
+        .mini {
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+        .result-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .risk-card {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+            border-radius: 20px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .risk-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .risk-panel {
+            border-radius: 16px;
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, .1), rgba(99, 102, 241, .1));
+            border: 1px solid rgba(37, 99, 235, .2);
+        }
+
+        .risk-panel.low {
+            background: linear-gradient(135deg, rgba(34, 197, 94, .15), rgba(16, 185, 129, .15));
+            border-color: rgba(34, 197, 94, .2);
+        }
+
+        .risk-panel.medium {
+            background: linear-gradient(135deg, rgba(250, 204, 21, .2), rgba(251, 191, 36, .2));
+            border-color: rgba(217, 119, 6, .25);
+        }
+
+        .risk-panel.high {
+            background: linear-gradient(135deg, rgba(251, 146, 60, .25), rgba(234, 88, 12, .2));
+            border-color: rgba(234, 88, 12, .25);
+        }
+
+        .risk-panel.danger {
+            background: linear-gradient(135deg, rgba(248, 113, 113, .22), rgba(220, 38, 38, .2));
+            border-color: rgba(220, 38, 38, .25);
+        }
+
+        .btn-wide {
+            width: 100%;
+        }
+
+        .btn-icon-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .icon-inline {
+            margin-right: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        .rule-box {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        ul.clean {
+            margin: 8px 0 0;
+            padding-left: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <a class="brand" href="{{ url_for('web.patient_diagnosis') }}">
+                <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" class="logo">
+                <span class="brand-title">Diabetes Expert</span>
+            </a>
+            <div class="top-actions">
+                <a class="pillbtn" href="{{ url_for('web.patient_diagnosis') }}">
+                    <i class="bi bi-arrow-left-short"></i> Return to dashboard
+                </a>
+                {% if assessment %}
+                <button class="pillbtn" type="button" data-open-restart>Restart assessment</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="wrap grid">
+            <aside class="stepper" data-progress="{{ progress_height }}">
+                {% set current_step = 1 %}
+                {% for step in steps %}
+                    {% if step.is_current %}{% set current_step = loop.index %}{% endif %}
+                {% endfor %}
+                <div class="stepper-header">
+                    <div class="stepper-title">Assessment Steps</div>
+                    <div class="progress-chip">Step {{ current_step }} / {{ steps|length }}</div>
+                </div>
+                <div class="stepper-track"></div>
+                {% set progress_idx = 0 %}
+                {% for step in steps %}
+                    {% if step.is_done %}{% set progress_idx = loop.index %}{% endif %}
+                {% endfor %}
+                {% if steps|length > 1 %}
+                {% set progress_height = ((progress_idx) / (steps|length - 1)) * 100 %}
+                {% else %}
+                {% set progress_height = 0 %}
+                {% endif %}
+                <div class="stepper-progress"></div>
+                {% for step in steps %}
+                <div class="step {% if step.is_current %}current{% endif %} {% if step.is_done %}done{% endif %}">
+                    <div class="bullet {% if step.is_done %}done{% elif step.is_current %}current{% endif %}">
+                        {% if step.is_done %}
+                        <i class="bi bi-check-lg"></i>
+                        {% elif step.is_current %}
+                        <span class="dot"></span>
+                        {% else %}
+                        <span class="dot small"></span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="step-label">{{ step.label }}</div>
+                        <div class="step-state">{% if step.is_current %}Current{% elif step.is_done %}Done{% else %}Next{% endif %}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </aside>
+
+            <section>
+                {% if view_state == "start" %}
+                <div class="card">
+                    <h1>Start new assessment</h1>
+                    <p class="subtitle">Create a new case to begin the interview and diagnosis.</p>
+                    <form method="post">
+                        <button class="btn primary" type="submit" name="action" value="start_assessment">Start new assessment</button>
+                    </form>
+                </div>
+                {% elif view_state == "question" %}
+                <div class="card">
+                    <div class="section-chip">Interview question</div>
+                    <div class="question-title">{{ symptom.question_text or symptom.name or symptom.code }}</div>
+                    {% if symptom.ui_section or symptom.category %}
+                    <div class="mini">Section: {{ symptom.ui_section or symptom.category }}</div>
+                    {% endif %}
+
+                    {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        <input type="hidden" name="action" value="submit_answer" />
+                        <input type="hidden" name="symptom_id" value="{{ symptom.id }}" />
+
+                        {% if symptom.input_type == 'BOOLEAN' %}
+                        <div class="option-grid">
+                            <button class="option-card" type="button" data-answer="1">
+                                <div class="option-icon"><i class="bi bi-check-lg"></i></div>
+                                Yes
+                            </button>
+                            <button class="option-card" type="button" data-answer="0">
+                                <div class="option-icon"><i class="bi bi-x-lg"></i></div>
+                                No
+                            </button>
+                            <button class="option-card" type="button" data-answer="unknown">
+                                <div class="option-icon"><i class="bi bi-question-lg"></i></div>
+                                Don't know
+                            </button>
+                        </div>
+                        <input type="hidden" name="answer" value="" data-answer-input />
+                        {% elif symptom.input_type == 'NUMBER' %}
+                        <input class="form-input" type="number" step="any" name="answer"
+                            placeholder="Enter a number{% if symptom.unit %} ({{ symptom.unit }}){% endif %}" />
+                        {% elif symptom.input_type == 'TEXT' %}
+                        <input class="form-input" type="text" name="answer" placeholder="Type your answer" />
+                        {% elif symptom.input_type == 'SINGLE' %}
+                        <select class="form-input" name="answer">
+                            <option value="">Select...</option>
+                            {% for opt in symptom.options_json or [] %}
+                            {% if opt is mapping %}
+                            {% set opt_label = opt.get('label') or opt.get('value') %}
+                            {% set opt_value = opt.get('value') or opt.get('label') %}
+                            {% else %}
+                            {% set opt_label = opt %}
+                            {% set opt_value = opt %}
+                            {% endif %}
+                            <option value="{{ opt_value }}">{{ opt_label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
+                        <div class="actions">
+                            {% if can_go_back %}
+                            <button class="btn" type="submit" name="action" value="back" formnovalidate>Back</button>
+                            {% endif %}
+                            {% if symptom.input_type != 'BOOLEAN' %}
+                            <button class="btn primary" type="submit">Continue</button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+
+                {% if answers_summary %}
+                <div class="card">
+                    <h2>Answers so far</h2>
+                        <div class="summary-list">
+                            {% for group in answers_summary %}
+                            <div class="summary-group">
+                                <div class="summary-title">{{ group.section }}</div>
+                                <ul class="summary-list-items">
+                                    {% for item in group['items'] %}
+                                    <li class="answer-row">
+                                        {% if item.value == 'Yes' %}
+                                        <span class="value-icon value-yes" aria-label="Yes"><i class="bi bi-check-lg"></i></span>
+                                        {% elif item.value == 'No' %}
+                                        <span class="value-icon value-no" aria-label="No"><i class="bi bi-x-lg"></i></span>
+                                        {% elif item.value == "Don't know" %}
+                                        <span class="value-icon value-unknown" aria-label="Don't know"><i class="bi bi-question-lg"></i></span>
+                                        {% else %}
+                                        <span class="value-icon value-unknown" aria-hidden="true"><i class="bi bi-dot"></i></span>
+                                        {% endif %}
+                                        <span class="answer-label">{{ item.label }}</span>
+                                        {% if item.value not in ['Yes', 'No', "Don't know"] %}
+                                        <span class="answer-note">— {{ item.value }}</span>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
+                </div>
+                {% endif %}
+                {% elif view_state == "confirm_finish" %}
+                <div class="card">
+                    <span class="badge">Ready to finish</span>
+                    <h1>We have enough information</h1>
+                    <p class="subtitle">A diagnosis can be generated now. Do you want to finish and see the result?</p>
+                    {% if candidate %}
+                    <div class="rule-box">
+                        <div class="mini">Top matching rule</div>
+                        <div style="font-weight:700;">{{ candidate.rule_name or candidate.rule_id }}</div>
+                        <div class="mini">Confidence score: {{ "%.0f"|format((candidate.confidence or 0) * 100) }}%</div>
+                    </div>
+                    {% endif %}
+                    <div class="actions">
+                        <form method="post">
+                            <button class="btn primary" type="submit" name="action" value="finish_now">Show result</button>
+                        </form>
+                        <form method="post">
+                            <button class="btn" type="submit" name="action" value="continue_interview">Ask more symptoms</button>
+                        </form>
+                    </div>
+                </div>
+                {% elif view_state == "results" %}
+                <div class="card">
+                    <h1>Result</h1>
+                    {% if report and report.risk_assessment %}
+                    {% set ra = report.risk_assessment %}
+                    {% set risk_key = (ra.risk_level or 'LOW')|lower %}
+                    {% if risk_key == 'high' %}
+                        {% set risk_class = 'high' %}
+                        {% set badge_class = 'risk-high' %}
+                    {% elif risk_key == 'medium' %}
+                        {% set risk_class = 'medium' %}
+                        {% set badge_class = 'risk-medium' %}
+                    {% elif risk_key == 'low' %}
+                        {% set risk_class = 'low' %}
+                        {% set badge_class = 'risk-low' %}
+                    {% else %}
+                        {% set risk_class = 'danger' %}
+                        {% set badge_class = 'risk-danger' %}
+                    {% endif %}
+                    <div class="risk-card">
+                        <div>
+                            <div class="risk-badge {{ badge_class }}">{{ ra.risk_level or 'RISK' }}</div>
+                            <h2 style="margin-top:12px;">{{ ra.diagnosis_name or ra.diagnosis_code or 'Undetermined' }}</h2>
+                            <p class="subtitle">Summary of your assessment outcome based on the reported facts.</p>
+                            <div class="result-grid">
+                                <div>
+                                    <div class="mini">Confidence</div>
+                                    <div style="font-weight:700;">{% if ra.confidence is not none %}{{ "%.0f"|format(ra.confidence * 100) }}%{% else %}N/A{% endif %}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="risk-panel {{ risk_class }}">
+                            <div class="mini">Risk level</div>
+                            <div style="font-weight:700; font-size:1.6rem; margin-top:8px;">{{ ra.risk_level or 'N/A' }}</div>
+                            {% if report.advice and report.advice.content %}
+                            <div class="mini" style="margin-top:12px;">{{ report.advice.content }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="subtitle">No diagnosis run found.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card" data-collapse>
+                    <div class="answers-header">
+                        <h2>Our answers</h2>
+                        <button class="toggle-btn" type="button" data-collapse-toggle>
+                            Show <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="collapse-body" data-collapse-body>
+                        {% if answers_summary %}
+                        <div class="summary-list">
+                            {% for group in answers_summary %}
+                            <div class="summary-group">
+                                <div class="summary-title">{{ group.section }}</div>
+                                <ul class="summary-list-items">
+                                    {% for item in group['items'] %}
+                                    <li class="answer-row">
+                                        {% if item.value == 'Yes' %}
+                                        <span class="value-icon value-yes" aria-label="Yes"><i class="bi bi-check-lg"></i></span>
+                                        {% elif item.value == 'No' %}
+                                        <span class="value-icon value-no" aria-label="No"><i class="bi bi-x-lg"></i></span>
+                                        {% elif item.value == "Don't know" %}
+                                        <span class="value-icon value-unknown" aria-label="Don't know"><i class="bi bi-question-lg"></i></span>
+                                        {% else %}
+                                        <span class="value-icon value-unknown" aria-hidden="true"><i class="bi bi-dot"></i></span>
+                                        {% endif %}
+                                        <span class="answer-label">{{ item.label }}</span>
+                                        {% if item.value not in ['Yes', 'No', "Don't know"] %}
+                                        <span class="answer-note">— {{ item.value }}</span>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="mini">No answers recorded.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if rule_summary %}
+                <div class="card">
+                    <h2>Matched rule</h2>
+                    <div class="rule-box">
+                        <div style="font-weight:700;">{{ rule_summary.rule_title or 'Rule' }}</div>
+                        <div class="mini" style="margin-top:6px;">Matched conditions</div>
+                        {% if rule_summary.matched %}
+                        <ul class="clean">
+                            {% for item in rule_summary.matched %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="mini">No matched conditions recorded.</div>
+                        {% endif %}
+                        <div class="mini" style="margin-top:10px;">Missing data</div>
+                        {% if missing_data %}
+                        <ul class="clean">
+                            {% for item in missing_data %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="mini">No missing data.</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                    <h2>What to do next</h2>
+                    {% if report and report.advice and report.advice.recommendations %}
+                        {% set rec = report.advice.recommendations %}
+                        {% if rec is mapping %}
+                            {% if rec.tests %}
+                            <div class="mini">Recommended tests</div>
+                            <ul class="clean">
+                                {% for item in rec.tests %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if rec.actions %}
+                            <div class="mini" style="margin-top:10px;">Actions</div>
+                            <ul class="clean">
+                                {% for item in rec.actions %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if rec.note %}
+                            <div class="mini" style="margin-top:10px;">{{ rec.note }}</div>
+                            {% endif %}
+                        {% else %}
+                            <ul class="clean">
+                                {% for item in rec %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% elif report and report.advice and report.advice.content %}
+                    <div>{{ report.advice.content }}</div>
+                    {% else %}
+                    <div class="mini">Follow up with a clinician for confirmation and next steps.</div>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <div class="actions">
+                        <a class="btn primary btn-wide btn-icon-center" href="{{ url_for('web.patient_report_pdf', assessment_id=assessment.id) }}">
+                            <i class="bi bi-download"></i>Download PDF report
+                        </a>
+                        <button class="btn btn-wide btn-icon-center" type="button" data-open-restart><i class="bi bi-arrow-repeat"></i>Restart assessment</button>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    {% if assessment %}
+    <form id="restart-form" method="post">
+        <input type="hidden" name="action" value="restart" />
+    </form>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const restartForm = document.getElementById('restart-form');
+        const restartButtons = document.querySelectorAll('[data-open-restart]');
+        const handleRestart = async () => {
+            if (window.Swal) {
+                const result = await window.Swal.fire({
+                    title: 'Start new assessment?',
+                    text: 'You will have to answer the questions again.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, start new assessment',
+                    cancelButtonText: 'Cancel',
+                });
+                if (result.isConfirmed) {
+                    restartForm?.submit();
+                }
+                return;
+            }
+            if (confirm('Start new assessment? You will have to answer the questions again.')) {
+                restartForm?.submit();
+            }
+        };
+        restartButtons.forEach((btn) => {
+            btn.addEventListener('click', handleRestart);
+        });
+
+        const answerInput = document.querySelector('[data-answer-input]');
+        document.querySelectorAll('[data-answer]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!answerInput) return;
+                answerInput.value = btn.getAttribute('data-answer') || '';
+                answerInput.form?.submit();
+            });
+        });
+
+        document.querySelectorAll('[data-collapse]').forEach((card) => {
+            const body = card.querySelector('[data-collapse-body]');
+            const toggle = card.querySelector('[data-collapse-toggle]');
+            if (!body || !toggle) return;
+            const setState = (open) => {
+                body.classList.toggle('show', open);
+                toggle.innerHTML = open ? 'Hide <i class="bi bi-chevron-up"></i>' : 'Show <i class="bi bi-chevron-down"></i>';
+            };
+            setState(false);
+            toggle.addEventListener('click', () => {
+                setState(!body.classList.contains('show'));
+            });
+        });
+
+        document.querySelectorAll('.stepper').forEach((stepper) => {
+            const progress = stepper.querySelector('.stepper-progress');
+            if (!progress) return;
+            const target = Number(stepper.getAttribute('data-progress') || 0);
+            requestAnimationFrame(() => {
+                progress.style.height = `${target}%`;
+            });
+        });
+
+    </script>
+</body>
+
+</html>

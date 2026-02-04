@@ -1,0 +1,188 @@
+{
+  "cases": [
+    {
+      "name": "Classic symptoms high risk",
+      "inputs": {
+        "symptoms": {
+          "polyuria": true,
+          "polydipsia": true,
+          "weight_loss": true
+        }
+      },
+      "expected": {
+        "diagnosis_code": "HIGH_RISK_TYPE_2_DIABETES",
+        "risk_level": "HIGH"
+      }
+    },
+    {
+      "name": "Metabolic risk",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "overweight": true,
+          "inactive": true,
+          "high_bp": true
+        }
+      },
+      "expected": {
+        "diagnosis_code": "MODERATE_RISK",
+        "risk_level": "MEDIUM"
+      }
+    },
+    {
+      "name": "Low risk lifestyle",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "overweight": false,
+          "inactive": false
+        },
+        "metrics": {
+          "age_years": 30,
+          "height_cm": 170,
+          "weight_kg": 60
+        }
+      },
+      "expected": {
+        "diagnosis_code": "LOW_RISK",
+        "risk_level": "LOW"
+      }
+    },
+    {
+      "name": "Age threshold risk",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "overweight": false
+        },
+        "metrics": {
+          "age_years": 50
+        }
+      },
+      "expected": {
+        "diagnosis_code": "AGE_OR_BMI_RISK",
+        "risk_level": "MEDIUM"
+      }
+    },
+    {
+      "name": "BMI threshold risk",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "high_bp": false
+        },
+        "metrics": {
+          "height_cm": 165,
+          "weight_kg": 90
+        }
+      },
+      "expected": {
+        "diagnosis_code": "AGE_OR_BMI_RISK",
+        "risk_level": "MEDIUM"
+      }
+    },
+    {
+      "name": "Symptom alert group A",
+      "inputs": {
+        "symptoms": {
+          "polyuria": true,
+          "polydipsia": true,
+          "weight_loss": false,
+          "overweight": false,
+          "inactive": false,
+          "high_bp": false
+        },
+        "metrics": {
+          "age_years": 30,
+          "height_cm": 170,
+          "weight_kg": 60
+        }
+      },
+      "expected": {
+        "diagnosis_code": "SYMPTOM_ALERT",
+        "risk_level": "HIGH"
+      }
+    },
+    {
+      "name": "Symptom alert group B",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "weight_loss": true,
+          "blurred_vision": true,
+          "overweight": false,
+          "inactive": false,
+          "high_bp": false
+        },
+        "metrics": {
+          "age_years": 30,
+          "height_cm": 170,
+          "weight_kg": 60
+        }
+      },
+      "expected": {
+        "diagnosis_code": "SYMPTOM_ALERT",
+        "risk_level": "HIGH"
+      }
+    },
+    {
+      "name": "Age beats metabolic",
+      "inputs": {
+        "symptoms": {
+          "polyuria": false,
+          "overweight": true,
+          "inactive": true,
+          "high_bp": true
+        },
+        "metrics": {
+          "age_years": 55
+        }
+      },
+      "expected": {
+        "diagnosis_code": "AGE_OR_BMI_RISK",
+        "risk_level": "MEDIUM"
+      }
+    },
+    {
+      "name": "Classic beats all",
+      "inputs": {
+        "symptoms": {
+          "polyuria": true,
+          "polydipsia": true,
+          "weight_loss": true,
+          "overweight": true,
+          "inactive": true,
+          "high_bp": true
+        },
+        "metrics": {
+          "age_years": 60
+        }
+      },
+      "expected": {
+        "diagnosis_code": "HIGH_RISK_TYPE_2_DIABETES",
+        "risk_level": "HIGH"
+      }
+    },
+    {
+      "name": "Alert beats BMI",
+      "inputs": {
+        "symptoms": {
+          "polyuria": true,
+          "polydipsia": true,
+          "weight_loss": false,
+          "high_bp": false,
+          "overweight": true,
+          "inactive": true
+        },
+        "metrics": {
+          "height_cm": 170,
+          "weight_kg": 95
+        }
+      },
+      "expected": {
+        "diagnosis_code": "SYMPTOM_ALERT",
+        "risk_level": "HIGH"
+      }
+    }
+  ]
+}
