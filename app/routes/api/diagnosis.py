@@ -8,6 +8,8 @@ from app.models import Assessment, DiagnosisRun, Symptom, User
 from app.services.assessment_service import (
     finalize_if_ready,
     ensure_fallback_result,
+    get_assessment_diagnosis_payload,
+    get_diagnosis_detail,
     get_next_symptom,
     get_ranked_candidates,
     submit_answer,
@@ -70,7 +72,7 @@ def start_assessment():
             **candidates,
         }, 200
 
-    a = Assessment(user_id=uid, status="IN_PROGRESS")
+    a = Assessment(user_id=uid, patient_id=uid, status="IN_PROGRESS")
     db.session.add(a)
     db.session.commit()
 
@@ -184,6 +186,41 @@ def report(assessment_id: int):
         return forbid
 
     return build_report(a.id), 200
+
+
+@diagnosis_bp.get("/assessments/<int:assessment_id>/results")
+@jwt_required()
+@require_permission("DIAGNOSIS_VIEW")
+def assessment_results(assessment_id: int):
+    a = Assessment.query.get_or_404(assessment_id)
+
+    forbid = _ensure_owner_or_perm(a, "CASE_VIEW_ALL")
+    if forbid:
+        return forbid
+
+    payload = get_assessment_diagnosis_payload(a)
+    return {
+        "assessment_id": a.id,
+        "status": a.status,
+        **payload,
+    }, 200
+
+
+@diagnosis_bp.get("/assessments/<int:assessment_id>/results/<int:disease_id>")
+@jwt_required()
+@require_permission("DIAGNOSIS_VIEW")
+def assessment_result_details(assessment_id: int, disease_id: int):
+    a = Assessment.query.get_or_404(assessment_id)
+
+    forbid = _ensure_owner_or_perm(a, "CASE_VIEW_ALL")
+    if forbid:
+        return forbid
+
+    detail = get_diagnosis_detail(a, disease_id)
+    if not detail:
+        return {"message": "candidate not found"}, 404
+
+    return detail, 200
 
 
 @diagnosis_bp.get("/history")

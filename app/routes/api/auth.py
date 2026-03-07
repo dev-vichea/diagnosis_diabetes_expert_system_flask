@@ -9,6 +9,7 @@ from app.services.rbac_service import get_user_permission_codes
 
 from app.extensions import db
 from app.models import Role, UserRole
+from app.services.audit_service import record_audit_event
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -55,6 +56,19 @@ def login():
         return {"message": "Invalid credentials"}, 401
 
     access_token = create_access_token(identity=str(user.id))
+
+    record_audit_event(
+        action="LOGIN",
+        entity="AUTH",
+        actor_user_id=user.id,
+        entity_id=user.id,
+        meta={
+            "details": "User logged in successfully.",
+            "ip": request.headers.get("X-Forwarded-For") or request.remote_addr or "",
+            "user_agent": request.headers.get("User-Agent", ""),
+        },
+    )
+
     return jsonify(
         {
             "access_token": access_token,
@@ -87,4 +101,17 @@ def register():
         db.session.commit()
 
     token = create_access_token(identity=str(user.id))
+
+    record_audit_event(
+        action="REGISTER",
+        entity="USER",
+        actor_user_id=user.id,
+        entity_id=user.id,
+        meta={
+            "target_user_name": user.name,
+            "target_user_email": user.email,
+            "details": "User self-registered an account.",
+        },
+    )
+
     return {"access_token": token, "user": {"id": user.id, "name": user.name, "email": user.email}}, 201

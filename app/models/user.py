@@ -11,12 +11,20 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(160), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    survey_for = db.Column(db.String(20), nullable=True)
+    sex_at_birth = db.Column(db.String(20), nullable=True)
+    age_years = db.Column(db.Integer, nullable=True)
 
     status = db.Column(db.Enum("ACTIVE", "DISABLED", name="user_status"), default="ACTIVE", nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     roles = relationship("Role", secondary="tbl_user_roles", back_populates="users")
-    assessments = relationship("Assessment", back_populates="user", cascade="all, delete-orphan")
+    assessments = relationship(
+        "Assessment",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="Assessment.user_id",
+    )
 
     def __repr__(self) -> str:
         return f"<User {self.id} {self.email}>"

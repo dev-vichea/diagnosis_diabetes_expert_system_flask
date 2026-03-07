@@ -98,6 +98,44 @@ function dateOnly(value) {
   return String(value).split("T")[0];
 }
 
+function formatRelativeTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "just now";
+  }
+
+  const diffMs = Date.now() - date.getTime();
+  const future = diffMs < 0;
+  const absMs = Math.abs(diffMs);
+  const minutes = Math.floor(absMs / (1000 * 60));
+  const hours = Math.floor(absMs / (1000 * 60 * 60));
+  const days = Math.floor(absMs / (1000 * 60 * 60 * 24));
+
+  const suffix = future ? "from now" : "ago";
+  if (minutes < 1) {
+    return "just now";
+  }
+  if (minutes < 60) {
+    return `${minutes} minute${minutes === 1 ? "" : "s"} ${suffix}`;
+  }
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ${suffix}`;
+  }
+  if (days < 7) {
+    return `${days} day${days === 1 ? "" : "s"} ${suffix}`;
+  }
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) {
+    return `${weeks} week${weeks === 1 ? "" : "s"} ${suffix}`;
+  }
+  const months = Math.floor(days / 30);
+  if (months < 12) {
+    return `${months} month${months === 1 ? "" : "s"} ${suffix}`;
+  }
+  const years = Math.floor(days / 365);
+  return `${years} year${years === 1 ? "" : "s"} ${suffix}`;
+}
+
 document.addEventListener("alpine:init", () => {
   Alpine.data("userTable", () => ({
     users: [],
@@ -115,8 +153,12 @@ document.addEventListener("alpine:init", () => {
     avatarUrl: getMetaContent("avatar-placeholder", DEFAULT_AVATAR),
     roleChart: null,
     hasLoadedInitial: false,
+    recentActivities: [],
+    activitiesLoading: false,
+    activityError: "",
     init() {
       this.loadUsers();
+      this.loadRecentActivities();
     },
     async apiFetch(url, options = {}) {
       const headers = Object.assign(
@@ -209,6 +251,36 @@ document.addEventListener("alpine:init", () => {
           this.initCharts();
         });
       }
+    },
+    normalizeActivity(activity) {
+      const createdAt = activity.created_at || activity.createdAt || null;
+      return {
+        id: activity.id,
+        user: activity.user || "Unknown user",
+        action: activity.action || "did activity",
+        type: activity.type || "update",
+        icon: activity.icon || "activity",
+        details: activity.details || "",
+        created_at: createdAt,
+        time: formatRelativeTime(createdAt),
+      };
+    },
+    async loadRecentActivities() {
+      this.activitiesLoading = true;
+      this.activityError = "";
+      try {
+        const data = await this.apiFetch("/admin/users/activity?limit=20");
+        const items = Array.isArray(data.items) ? data.items : [];
+        this.recentActivities = items.map((item) => this.normalizeActivity(item));
+      } catch (err) {
+        this.activityError = err.message || "Failed to load recent activity.";
+        this.recentActivities = [];
+      } finally {
+        this.activitiesLoading = false;
+      }
+    },
+    async refreshRecentActivities() {
+      await this.loadRecentActivities();
     },
     filterUsers() {
       const query = this.searchQuery.trim().toLowerCase();
@@ -350,7 +422,7 @@ document.addEventListener("alpine:init", () => {
         );
       }
 
-      await this.loadUsers();
+      await Promise.all([this.loadUsers(), this.loadRecentActivities()]);
     },
     async updateUser(userId, form) {
       const name = `${form.firstName} ${form.lastName}`.trim();
@@ -368,7 +440,7 @@ document.addEventListener("alpine:init", () => {
         }
       );
 
-      await this.loadUsers();
+      await Promise.all([this.loadUsers(), this.loadRecentActivities()]);
     },
     editUser(user) {
       const formData = Alpine.$data(
@@ -413,7 +485,7 @@ document.addEventListener("alpine:init", () => {
             body: JSON.stringify({ status: "DISABLED" }),
           }
         );
-        await this.loadUsers();
+        await Promise.all([this.loadUsers(), this.loadRecentActivities()]);
       } catch (err) {
         showAlert(err.message || "Failed to update user.", "error", "Update Failed");
       }
@@ -456,7 +528,7 @@ document.addEventListener("alpine:init", () => {
             }
           );
         }
-        await this.loadUsers();
+        await Promise.all([this.loadUsers(), this.loadRecentActivities()]);
       } catch (err) {
         showAlert(err.message || "Bulk update failed.", "error", "Bulk Update Failed");
       } finally {
@@ -558,55 +630,6 @@ document.addEventListener("alpine:init", () => {
         percentage: this.users.length > 0 ? Math.round((count / this.users.length) * 100) : 0,
         color: colors[index % colors.length],
       }));
-    },
-    get recentActivities() {
-      return [
-        {
-          id: 1,
-          user: "John Doe",
-          action: "logged in",
-          time: "2 minutes ago",
-          type: "login",
-          icon: "bi-box-arrow-in-right",
-          details: "User logged in from Chrome on Windows",
-        },
-        {
-          id: 2,
-          user: "Jane Smith",
-          action: "updated profile",
-          time: "1 hour ago",
-          type: "update",
-          icon: "bi-person-gear",
-          details: "Updated contact information and preferences",
-        },
-        {
-          id: 3,
-          user: "Mike Johnson",
-          action: "created account",
-          time: "1 day ago",
-          type: "create",
-          icon: "bi-person-plus",
-          details: "New user account created and activated",
-        },
-        {
-          id: 4,
-          user: "Sarah Wilson",
-          action: "changed password",
-          time: "2 days ago",
-          type: "security",
-          icon: "bi-shield-lock",
-          details: "Password changed for security reasons",
-        },
-        {
-          id: 5,
-          user: "Bob Brown",
-          action: "logged out",
-          time: "1 week ago",
-          type: "logout",
-          icon: "bi-box-arrow-right",
-          details: "User logged out from all devices",
-        },
-      ];
     },
     get systemAlerts() {
       return [

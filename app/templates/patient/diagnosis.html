@@ -55,6 +55,16 @@
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
         }
 
+        .diagnosis-page .diag-status.is-info {
+            background: #0ea5e9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+        }
+
+        .diagnosis-page .diag-status.is-neutral {
+            background: #64748b;
+            box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.2);
+        }
+
         .diagnosis-page .diag-pill {
             display: inline-flex;
             align-items: center;
@@ -120,6 +130,13 @@
             box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
         }
 
+        .diagnosis-page .diag-action-card.disabled {
+            opacity: 0.62;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
+        }
+
         .diagnosis-page .diag-action-icon {
             width: 44px;
             height: 44px;
@@ -147,13 +164,17 @@
 
         .diagnosis-page .diag-calendar-date {
             height: 34px;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 10px;
+            border: 0;
             background: var(--bs-light);
             color: var(--bs-body-color);
             font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .diagnosis-page .diag-calendar-date.is-muted {
@@ -370,31 +391,29 @@
                                     <img src="{{ url_for('static', filename='metis/assets/images/avatar-placeholder.svg') }}"
                                         alt="Patient Avatar" class="diag-avatar">
                                     <div>
-                                        <p class="text-uppercase small text-muted mb-1">Good afternoon</p>
-                                        <h2 class="h4 mb-1">Patient #1024</h2>
+                                        <p class="text-uppercase small text-muted mb-1">{{ diagnosis_hero.greeting }}</p>
+                                        <h2 class="h4 mb-1">{{ diagnosis_hero.patient_heading }}</h2>
                                         <div class="text-muted small d-flex flex-wrap gap-2">
-                                            <span>ID: DX-2026-014</span>
-                                            <span>•</span>
-                                            <span>Program: Diabetes Screening</span>
-                                            <span>•</span>
-                                            <span>Ward: Outpatient</span>
+                                            {% for item in diagnosis_hero.meta_items %}
+                                            <span>{{ item }}</span>
+                                            {% if not loop.last %}<span>•</span>{% endif %}
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="ms-auto d-flex flex-column align-items-start align-items-lg-end gap-2">
-                                    <span class="badge bg-primary rounded-pill">Clinical Cycle 2025-2026</span>
-                                    <span class="badge bg-light text-dark border rounded-pill">Phase: Q1 Review</span>
+                                    <span class="badge bg-primary rounded-pill">{{ diagnosis_hero.cycle_label }}</span>
+                                    <span class="badge bg-light text-dark border rounded-pill">{{ diagnosis_hero.phase_label }}</span>
                                     <div class="d-flex align-items-center gap-2 text-muted small">
-                                        <span class="diag-status"></span>
-                                        <span>Active monitoring</span>
+                                        <span class="diag-status{% if diagnosis_hero.monitoring_tone == 'info' %} is-info{% elif diagnosis_hero.monitoring_tone == 'neutral' %} is-neutral{% endif %}"></span>
+                                        <span>{{ diagnosis_hero.monitoring_label }}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="d-flex flex-wrap gap-2 mt-3">
-                                <span class="diag-pill"><i class="bi bi-calendar-event"></i>Wednesday, Jan 21,
-                                    2026</span>
-                                <span class="diag-pill"><i class="bi bi-clock"></i>Morning shift (08:00 - 13:00)</span>
-                                <span class="diag-pill"><i class="bi bi-geo-alt"></i>Outpatient Clinic</span>
+                                <span class="diag-pill"><i class="bi bi-calendar-event"></i><span id="diag-current-date">-</span></span>
+                                <span class="diag-pill"><i class="bi bi-clock"></i>{{ diagnosis_hero.shift_label }}</span>
+                                <span class="diag-pill"><i class="bi bi-geo-alt"></i>{{ diagnosis_hero.workspace_label }}</span>
                             </div>
                         </div>
                     </div>
@@ -405,8 +424,8 @@
                                 <div class="d-flex align-items-start justify-content-between">
                                     <div>
                                         <p class="text-uppercase small text-muted mb-1">Today's Consultations</p>
-                                        <h3 class="mb-1">12</h3>
-                                        <small class="text-muted"><i class="bi bi-arrow-up"></i> +3 vs last week</small>
+                                        <h3 class="mb-1">{{ diagnosis_stats.today_consultations }}</h3>
+                                        <small class="text-muted">{{ diagnosis_stats.today_consultations_note }}</small>
                                     </div>
                                     <div class="diag-stat-icon text-primary">
                                         <i class="bi bi-clipboard2-pulse"></i>
@@ -419,8 +438,8 @@
                                 <div class="d-flex align-items-start justify-content-between">
                                     <div>
                                         <p class="text-uppercase small text-muted mb-1">Active Cases</p>
-                                        <h3 class="mb-1">38</h3>
-                                        <small class="text-muted">14 awaiting follow-up</small>
+                                        <h3 class="mb-1">{{ diagnosis_stats.active_cases }}</h3>
+                                        <small class="text-muted">{{ diagnosis_stats.active_cases_note }}</small>
                                     </div>
                                     <div class="diag-stat-icon text-success">
                                         <i class="bi bi-people"></i>
@@ -433,8 +452,8 @@
                                 <div class="d-flex align-items-start justify-content-between">
                                     <div>
                                         <p class="text-uppercase small text-muted mb-1">Pending Reviews</p>
-                                        <h3 class="mb-1">6</h3>
-                                        <small class="text-muted">Results to validate</small>
+                                        <h3 class="mb-1">{{ diagnosis_stats.pending_reviews }}</h3>
+                                        <small class="text-muted">{{ diagnosis_stats.pending_reviews_note }}</small>
                                     </div>
                                     <div class="diag-stat-icon text-warning">
                                         <i class="bi bi-hourglass-split"></i>
@@ -447,8 +466,8 @@
                                 <div class="d-flex align-items-start justify-content-between">
                                     <div>
                                         <p class="text-uppercase small text-muted mb-1">High Risk Alerts</p>
-                                        <h3 class="mb-1">4</h3>
-                                        <small class="text-muted">Escalate within 24h</small>
+                                        <h3 class="mb-1">{{ diagnosis_stats.high_risk_alerts }}</h3>
+                                        <small class="text-muted">{{ diagnosis_stats.high_risk_alerts_note }}</small>
                                     </div>
                                     <div class="diag-stat-icon text-primary">
                                         <i class="bi bi-exclamation-triangle"></i>
@@ -488,7 +507,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <a class="diag-action-card"
-                                                href="{{ url_for('web.patient_update_symptoms') }}">
+                                                href="{{ url_for('web.patient_history', risk='high') }}">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div class="diag-action-icon"
                                                         style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
@@ -503,7 +522,7 @@
                                             </a>
                                         </div>
                                         <div class="col-md-6">
-                                            <a class="diag-action-card" href="#">
+                                            <a class="diag-action-card" href="{{ url_for('web.patient_update_symptoms') }}">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div class="diag-action-icon"
                                                         style="background: rgba(245, 158, 11, 0.16); color: #f59e0b;">
@@ -518,15 +537,19 @@
                                             </a>
                                         </div>
                                         <div class="col-md-6">
-                                            <a class="diag-action-card" href="#">
+                                            <a
+                                                class="diag-action-card{% if not latest_overview_url %} disabled{% endif %}"
+                                                href="{{ latest_overview_url or '#' }}"
+                                                {% if not latest_overview_url %}aria-disabled="true"{% endif %}
+                                            >
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div class="diag-action-icon"
                                                         style="background: rgba(14, 165, 233, 0.16); color: #0ea5e9;">
-                                                        <i class="bi bi-graph-up"></i>
+                                                        <i class="bi bi-person-bounding-box"></i>
                                                     </div>
                                                     <div>
-                                                        <div class="fw-semibold">Diagnostics Trend</div>
-                                                        <div class="text-muted small">View weekly insights</div>
+                                                        <div class="fw-semibold">Patient Overview V2</div>
+                                                        <div class="text-muted small">Open new visual result page</div>
                                                     </div>
                                                 </div>
                                                 <i class="bi bi-chevron-right text-muted"></i>
@@ -547,19 +570,21 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0">Calendar</h6>
-                                                <small class="text-muted">January 2026</small>
+                                                <small class="text-muted" id="diag-calendar-month">-</small>
                                             </div>
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" id="diag-calendar-prev"
+                                                aria-label="Previous month">
                                                 <i class="bi bi-chevron-left"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" id="diag-calendar-next"
+                                                aria-label="Next month">
                                                 <i class="bi bi-chevron-right"></i>
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="diag-calendar-grid mb-3">
+                                    <div class="diag-calendar-grid mb-3" id="diag-calendar-grid">
                                         <div class="diag-calendar-day">M</div>
                                         <div class="diag-calendar-day">T</div>
                                         <div class="diag-calendar-day">W</div>
@@ -567,46 +592,6 @@
                                         <div class="diag-calendar-day">F</div>
                                         <div class="diag-calendar-day">S</div>
                                         <div class="diag-calendar-day">S</div>
-
-                                        <div class="diag-calendar-date is-muted">29</div>
-                                        <div class="diag-calendar-date is-muted">30</div>
-                                        <div class="diag-calendar-date is-muted">31</div>
-                                        <div class="diag-calendar-date">1</div>
-                                        <div class="diag-calendar-date">2</div>
-                                        <div class="diag-calendar-date">3</div>
-                                        <div class="diag-calendar-date">4</div>
-
-                                        <div class="diag-calendar-date">5</div>
-                                        <div class="diag-calendar-date">6</div>
-                                        <div class="diag-calendar-date is-today">7</div>
-                                        <div class="diag-calendar-date">8</div>
-                                        <div class="diag-calendar-date">9</div>
-                                        <div class="diag-calendar-date">10</div>
-                                        <div class="diag-calendar-date">11</div>
-
-                                        <div class="diag-calendar-date">12</div>
-                                        <div class="diag-calendar-date">13</div>
-                                        <div class="diag-calendar-date">14</div>
-                                        <div class="diag-calendar-date">15</div>
-                                        <div class="diag-calendar-date">16</div>
-                                        <div class="diag-calendar-date">17</div>
-                                        <div class="diag-calendar-date">18</div>
-
-                                        <div class="diag-calendar-date">19</div>
-                                        <div class="diag-calendar-date">20</div>
-                                        <div class="diag-calendar-date is-selected">21</div>
-                                        <div class="diag-calendar-date">22</div>
-                                        <div class="diag-calendar-date">23</div>
-                                        <div class="diag-calendar-date">24</div>
-                                        <div class="diag-calendar-date">25</div>
-
-                                        <div class="diag-calendar-date">26</div>
-                                        <div class="diag-calendar-date">27</div>
-                                        <div class="diag-calendar-date">28</div>
-                                        <div class="diag-calendar-date">29</div>
-                                        <div class="diag-calendar-date">30</div>
-                                        <div class="diag-calendar-date">31</div>
-                                        <div class="diag-calendar-date is-muted">1</div>
                                     </div>
                                     <div>
                                         <h6 class="mb-2">Clinical Reminders</h6>
@@ -639,50 +624,29 @@
                                                 All</button>
                                         </div>
                                     </div>
+                                    {% if today_schedule %}
+                                    {% for item in today_schedule %}
                                     <div class="diag-schedule-item">
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center"
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center {{ item.icon_wrap_class }}"
                                                 style="width: 44px; height: 44px;">
-                                                <i class="bi bi-heart-pulse"></i>
+                                                <i class="bi {{ item.icon }}"></i>
                                             </div>
                                             <div>
-                                                <div class="diag-time">08:30 AM</div>
-                                                <div class="fw-semibold">Initial screening - Patient #1024</div>
-                                                <div class="text-muted small">Room A1 • 35 mins • New case</div>
+                                                <div class="diag-time">{{ item.time }}</div>
+                                                <div class="fw-semibold">{{ item.title }}</div>
+                                                <div class="text-muted small">{{ item.detail }}</div>
                                             </div>
                                         </div>
-                                        <span class="badge bg-primary-subtle text-primary">Consultation</span>
+                                        <span class="badge {{ item.badge_class }}">{{ item.badge_label }}</span>
                                     </div>
-                                    <div class="diag-schedule-item">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center"
-                                                style="width: 44px; height: 44px;">
-                                                <i class="bi bi-clipboard2-check"></i>
-                                            </div>
-                                            <div>
-                                                <div class="diag-time">10:15 AM</div>
-                                                <div class="fw-semibold">Follow-up review - Patient #0967</div>
-                                                <div class="text-muted small">Room B2 • 20 mins • Risk score update
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success">Follow-up</span>
+                                    {% endfor %}
+                                    {% else %}
+                                    <div class="diag-note">
+                                        <div class="fw-semibold">No consultations started today</div>
+                                        <div class="text-muted small">Start an assessment to populate today's schedule.</div>
                                     </div>
-                                    <div class="diag-schedule-item">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center"
-                                                style="width: 44px; height: 44px;">
-                                                <i class="bi bi-shield-exclamation"></i>
-                                            </div>
-                                            <div>
-                                                <div class="diag-time">12:00 PM</div>
-                                                <div class="fw-semibold">High risk validation - Patient #1103</div>
-                                                <div class="text-muted small">Room C1 • 25 mins • Escalation review
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="badge bg-warning-subtle text-warning">Review</span>
-                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -743,6 +707,117 @@
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.querySelector('[data-sidebar-toggle]');
             const wrapper = document.getElementById('admin-wrapper');
+            const currentDatePill = document.getElementById('diag-current-date');
+            const calendarMonthLabel = document.getElementById('diag-calendar-month');
+            const calendarGrid = document.getElementById('diag-calendar-grid');
+            const calendarPrevButton = document.getElementById('diag-calendar-prev');
+            const calendarNextButton = document.getElementById('diag-calendar-next');
+
+            if (currentDatePill) {
+                currentDatePill.textContent = new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            if (calendarMonthLabel && calendarGrid && calendarPrevButton && calendarNextButton) {
+                const weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                const today = new Date();
+                let activeMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                let selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                const isSameDay = (a, b) => (
+                    a.getFullYear() === b.getFullYear()
+                    && a.getMonth() === b.getMonth()
+                    && a.getDate() === b.getDate()
+                );
+
+                const buildCalendar = () => {
+                    calendarMonthLabel.textContent = activeMonth.toLocaleDateString('en-US', {
+                        month: 'long',
+                        year: 'numeric'
+                    });
+
+                    calendarGrid.innerHTML = '';
+                    for (const label of weekdayLabels) {
+                        const dayEl = document.createElement('div');
+                        dayEl.className = 'diag-calendar-day';
+                        dayEl.textContent = label;
+                        calendarGrid.appendChild(dayEl);
+                    }
+
+                    const year = activeMonth.getFullYear();
+                    const month = activeMonth.getMonth();
+                    const firstDay = new Date(year, month, 1);
+                    const startOffset = (firstDay.getDay() + 6) % 7; // Monday-first grid
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    const daysInPreviousMonth = new Date(year, month, 0).getDate();
+
+                    for (let index = 0; index < 42; index += 1) {
+                        let dateValue;
+                        let inCurrentMonth = true;
+
+                        if (index < startOffset) {
+                            const day = daysInPreviousMonth - startOffset + index + 1;
+                            dateValue = new Date(year, month - 1, day);
+                            inCurrentMonth = false;
+                        } else if (index >= startOffset + daysInMonth) {
+                            const day = index - (startOffset + daysInMonth) + 1;
+                            dateValue = new Date(year, month + 1, day);
+                            inCurrentMonth = false;
+                        } else {
+                            const day = index - startOffset + 1;
+                            dateValue = new Date(year, month, day);
+                        }
+
+                        const dateButton = document.createElement('button');
+                        dateButton.type = 'button';
+                        dateButton.className = 'diag-calendar-date';
+                        dateButton.textContent = String(dateValue.getDate());
+
+                        if (!inCurrentMonth) {
+                            dateButton.classList.add('is-muted');
+                        }
+                        if (isSameDay(dateValue, today)) {
+                            dateButton.classList.add('is-today');
+                        }
+                        if (isSameDay(dateValue, selectedDate)) {
+                            dateButton.classList.add('is-selected');
+                        }
+
+                        dateButton.addEventListener('click', () => {
+                            selectedDate = new Date(
+                                dateValue.getFullYear(),
+                                dateValue.getMonth(),
+                                dateValue.getDate()
+                            );
+                            if (
+                                selectedDate.getFullYear() !== activeMonth.getFullYear()
+                                || selectedDate.getMonth() !== activeMonth.getMonth()
+                            ) {
+                                activeMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                            }
+                            buildCalendar();
+                        });
+
+                        calendarGrid.appendChild(dateButton);
+                    }
+                };
+
+                calendarPrevButton.addEventListener('click', () => {
+                    activeMonth = new Date(activeMonth.getFullYear(), activeMonth.getMonth() - 1, 1);
+                    buildCalendar();
+                });
+
+                calendarNextButton.addEventListener('click', () => {
+                    activeMonth = new Date(activeMonth.getFullYear(), activeMonth.getMonth() + 1, 1);
+                    buildCalendar();
+                });
+
+                buildCalendar();
+            }
 
             if (toggleButton && wrapper) {
                 const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';

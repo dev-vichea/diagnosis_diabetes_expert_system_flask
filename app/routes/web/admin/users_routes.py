@@ -1,13 +1,23 @@
-from flask import jsonify, render_template, request
+from flask import jsonify, render_template, request, session
 from app.models import User
 
 from app.routes.web import web_bp
 from app.routes.web.utils import require_login, require_permissions, wants_json
 from app.services.admin_user_service import (
     create_user_from_payload,
+    list_recent_user_activities,
     list_users_payloads,
     update_user_from_payload,
 )
+
+
+def _current_actor_user_id():
+    me = session.get("me") or {}
+    user_id = me.get("user_id")
+    try:
+        return int(user_id)
+    except (TypeError, ValueError):
+        return None
 
 
 @web_bp.get("/admin/users")
@@ -53,7 +63,10 @@ def admin_users_create_submit():
     if data is None:
         data = request.form.to_dict()
 
-    payload, error, status = create_user_from_payload(data)
+    payload, error, status = create_user_from_payload(
+        data,
+        actor_user_id=_current_actor_user_id(),
+    )
     if error:
         return jsonify({"message": error}), status
     return jsonify({"message": "user created", "user": payload}), status
@@ -75,10 +88,35 @@ def admin_users_update_submit(user_id: int):
     user = User.query.get_or_404(user_id)
     data = request.get_json(silent=True) or {}
 
-    payload, error, status = update_user_from_payload(user, data)
+    payload, error, status = update_user_from_payload(
+        user,
+        data,
+        actor_user_id=_current_actor_user_id(),
+    )
     if error:
         return jsonify({"message": error}), status
     return jsonify({"message": "updated", "user": payload}), status
+
+
+@web_bp.get("/admin/users/activity")
+def admin_users_activity():
+    guard = require_login()
+    if guard:
+        if wants_json():
+            return jsonify({"message": "Unauthorized"}), 401
+        return guard
+    guard = require_permissions("USER_VIEW")
+    if guard:
+        if wants_json():
+            return jsonify({"message": "Forbidden", "missing_permission": "USER_VIEW"}), 403
+        return guard
+
+    try:
+        limit = int(request.args.get("limit", 20))
+    except (TypeError, ValueError):
+        limit = 20
+
+    return jsonify({"items": list_recent_user_activities(limit=limit)})
 
 
 @web_bp.get("/admin/users/create")

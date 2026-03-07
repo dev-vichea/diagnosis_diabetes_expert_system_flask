@@ -113,135 +113,6 @@
             padding: 22px 0 72px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 260px minmax(0, 1fr);
-            gap: 28px;
-            align-items: start;
-        }
-
-        .stepper {
-            position: sticky;
-            top: 18px;
-            --stepper-padding: 18px;
-            --stepper-step-padding: 8px;
-            --stepper-bullet: 26px;
-            --stepper-track-x: calc(var(--stepper-padding) + var(--stepper-step-padding) + (var(--stepper-bullet) / 2));
-            background: #ffffff;
-            border: 1px solid #e1e7f2;
-            border-radius: var(--radius);
-            box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
-            padding: var(--stepper-padding) var(--stepper-padding) 22px;
-        }
-
-        .stepper-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .stepper-title {
-            font-size: .85rem;
-            color: var(--muted);
-            font-weight: 700;
-            letter-spacing: .02em;
-            text-transform: uppercase;
-            margin: 0;
-        }
-
-        .progress-chip {
-            font-size: .75rem;
-            font-weight: 700;
-            color: #2952cc;
-            background: #f0f5ff;
-            border: 1px solid #d9e6ff;
-            border-radius: 999px;
-            padding: 4px 10px;
-        }
-
-        .step {
-            display: flex;
-            gap: 12px;
-            padding: var(--stepper-step-padding) 8px;
-            border-radius: 12px;
-            position: relative;
-            align-items: center;
-        }
-
-        .step.current {
-            background: #f2f6ff;
-            box-shadow: inset 0 0 0 1px #dbe6ff;
-        }
-
-        .bullet {
-            width: var(--stepper-bullet);
-            height: var(--stepper-bullet);
-            border-radius: 999px;
-            border: 1.5px solid #cad6ee;
-            display: grid;
-            place-items: center;
-            font-size: .7rem;
-            color: #2563eb;
-            background: #fff;
-            flex-shrink: 0;
-        }
-
-        .bullet.done {
-            background: #2563eb;
-            color: #fff;
-            border-color: #2563eb;
-        }
-
-        .bullet.current {
-            border-color: #9eb7f7;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
-        }
-
-        .bullet .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 999px;
-            background: #2563eb;
-        }
-
-        .bullet .dot.small {
-            width: 5px;
-            height: 5px;
-            background: #cbd7ef;
-        }
-
-        .stepper-track {
-            position: absolute;
-            left: var(--stepper-track-x);
-            top: 64px;
-            bottom: 26px;
-            width: 2px;
-            background: #e3eaf7;
-            border-radius: 999px;
-        }
-
-        .stepper-progress {
-            position: absolute;
-            left: var(--stepper-track-x);
-            top: 64px;
-            width: 2px;
-            background: #2563eb;
-            border-radius: 999px;
-            height: 0;
-            transition: height .55s ease;
-        }
-
-        .step-label {
-            font-weight: 700;
-        }
-
-        .step-state {
-            font-size: .78rem;
-            color: var(--muted);
-        }
-
         .card {
             background: var(--panel);
             border: 1px solid var(--line);
@@ -266,6 +137,26 @@
             font-size: 1.35rem;
             font-weight: 700;
             margin-bottom: 4px;
+        }
+
+        .question-shell.checklist {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        }
+
+        .question-shell.detail {
+            background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
+            border-color: #ddd6fe;
+        }
+
+        .question-shell.lab {
+            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+            border-color: #bae6fd;
+        }
+
+        .style-note {
+            margin-top: 8px;
+            font-size: .88rem;
+            color: var(--muted);
         }
 
         .section-chip {
@@ -303,6 +194,94 @@
             transform: translateY(-2px);
             border-color: #9bb7f5;
             box-shadow: 0 10px 24px rgba(37, 99, 235, .12);
+        }
+
+        .option-card.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, .15);
+        }
+
+        .patient-intro-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .option-card.choice-card {
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .option-card.choice-card .option-icon {
+            margin: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            font-size: 1.2rem;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .choice-title {
+            display: block;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .choice-note {
+            display: block;
+            margin-top: 4px;
+            font-size: .94rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .patient-choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .patient-choice {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: #fff;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .patient-choice input {
+            margin-top: 3px;
+        }
+
+        .patient-choice-title {
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .patient-choice-note {
+            font-size: .86rem;
+            color: var(--muted);
+        }
+
+        .patient-form-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        }
+
+        .patient-field label {
+            display: block;
+            font-size: .9rem;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
         .option-icon {
@@ -550,6 +529,142 @@
             border-color: rgba(220, 38, 38, .25);
         }
 
+        .result-quality {
+            margin-top: 14px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            background: #ffffff;
+        }
+
+        .result-quality.provisional {
+            background: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .result-quality.review {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .result-quality.strong {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+        }
+
+        .quality-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .quality-title {
+            margin: 0;
+            font-size: 1rem;
+            font-family: var(--font-display);
+        }
+
+        .quality-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: .74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .quality-badge.provisional {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .quality-badge.review {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .quality-badge.strong {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .quality-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .metric-chip {
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: .78rem;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .advice-card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            background: #f8fbff;
+        }
+
+        .advice-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .advice-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-family: var(--font-display);
+        }
+
+        .advice-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .advice-badge.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .advice-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .advice-badge.alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .advice-content {
+            margin: 0;
+            color: var(--text);
+            line-height: 1.55;
+        }
+
         .btn-wide {
             width: 100%;
         }
@@ -589,6 +704,369 @@
             margin: 8px 0 0;
             padding-left: 18px;
         }
+
+        .rule-info-stack {
+            margin-top: 10px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .rule-info-card {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #ffffff;
+        }
+
+        .rule-info-card.tests {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .rule-info-card.missing {
+            background: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .rule-info-card.complete {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+        }
+
+        /* Assessment Survey V2 */
+        .page {
+            padding: 18px 0 56px;
+        }
+
+        .survey-layout {
+            display: grid;
+            gap: 18px;
+        }
+
+        .flow-banner {
+            border: 1px solid #d8e8e2;
+            border-radius: 22px;
+            background:
+                radial-gradient(460px 220px at 8% 0%, rgba(74, 222, 128, 0.22) 0%, transparent 70%),
+                radial-gradient(520px 240px at 100% 0%, rgba(45, 212, 191, 0.16) 0%, transparent 72%),
+                #ffffff;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .flow-title-wrap {
+            min-width: 240px;
+            flex: 1 1 300px;
+        }
+
+        .flow-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: .72rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #047857;
+            background: #d1fae5;
+            border: 1px solid #86efac;
+        }
+
+        .flow-title {
+            margin: 10px 0 4px;
+            font-family: var(--font-display);
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            letter-spacing: -0.02em;
+        }
+
+        .flow-sub {
+            margin: 0;
+            color: #4b5f78;
+            font-size: .95rem;
+        }
+
+        .flow-metric {
+            border: 1px solid #d7e5f7;
+            background: #f8fbff;
+            border-radius: 16px;
+            padding: 12px 14px;
+            min-width: 162px;
+        }
+
+        .flow-metric-label {
+            font-size: .72rem;
+            color: #5f6d82;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .flow-metric-value {
+            margin-top: 3px;
+            font-size: 1.5rem;
+            line-height: 1;
+            font-family: var(--font-display);
+            letter-spacing: -0.03em;
+        }
+
+        .stepper-v2 {
+            border: 1px solid #dce6f4;
+            border-radius: 22px;
+            background: #ffffff;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+            padding: 16px 16px 14px;
+            overflow-x: auto;
+        }
+
+        .stepper-v2-track {
+            min-width: 720px;
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+        }
+
+        .stepper-item {
+            width: 180px;
+            display: grid;
+            justify-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .stepper-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 999px;
+            border: 2px solid #d4dbe8;
+            background: #edf2f8;
+            color: #8a98ae;
+            display: grid;
+            place-items: center;
+            font-size: 1.24rem;
+            position: relative;
+            z-index: 2;
+            transition: all .25s ease;
+        }
+
+        .stepper-item.done .stepper-node {
+            border-color: #86efac;
+            color: #16a34a;
+            background: #dcfce7;
+            box-shadow: 0 10px 24px rgba(22, 163, 74, 0.2);
+        }
+
+        .stepper-item.current .stepper-node {
+            border-color: #4ade80;
+            color: #15803d;
+            background: #bbf7d0;
+            box-shadow: 0 12px 26px rgba(22, 163, 74, 0.3);
+        }
+
+        .stepper-item.current .stepper-node::after {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border-radius: 999px;
+            border: 2px dashed rgba(22, 163, 74, 0.55);
+            animation: pulseRing 1.9s linear infinite;
+        }
+
+        .stepper-label {
+            margin-top: 10px;
+            font-weight: 800;
+            font-family: var(--font-display);
+            font-size: .98rem;
+            line-height: 1.2;
+            color: #1b2434;
+        }
+
+        .stepper-state {
+            margin-top: 3px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #6b7b91;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+        .stepper-link {
+            flex: 1;
+            min-width: 50px;
+            height: 4px;
+            margin: 28px 8px 0;
+            border-radius: 999px;
+            background: #d9dee8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stepper-link.done {
+            background: linear-gradient(90deg, #86efac, #22c55e 40%, #34d399);
+            background-size: 180% 100%;
+            animation: progressFlow 2.8s linear infinite;
+        }
+
+        .flow-stage {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card {
+            border-radius: 20px;
+            border-color: #dbe4f4;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            animation: cardIn .35s ease both;
+        }
+
+        .question-title {
+            font-size: clamp(1.25rem, 2vw, 1.6rem);
+            letter-spacing: -0.01em;
+        }
+
+        .section-chip {
+            background: linear-gradient(90deg, #dbeafe, #e9d5ff);
+            color: #1d4ed8;
+            border: 1px solid #c7d2fe;
+            font-weight: 700;
+        }
+
+        .question-shell.lab .section-chip {
+            background: linear-gradient(90deg, #ccfbf1, #cffafe);
+            color: #0f766e;
+            border-color: #99f6e4;
+        }
+
+        .option-card {
+            border-radius: 18px;
+            min-height: 112px;
+            display: grid;
+            align-content: center;
+            justify-items: center;
+            border-color: #d4dff0;
+        }
+
+        .option-card.selected,
+        .option-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .form-input {
+            border-radius: 14px;
+            border-color: #cfd9ea;
+            background: #fff;
+            min-height: 48px;
+            font-size: 1rem;
+        }
+
+        .actions {
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px dashed #d9e2f1;
+        }
+
+        .btn {
+            border-radius: 999px;
+            font-weight: 700;
+            padding: 11px 18px;
+            transition: transform .18s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.1);
+        }
+
+        .btn.primary {
+            background: linear-gradient(100deg, #2563eb, #22c55e);
+            border-color: transparent;
+        }
+
+        .btn.primary:hover {
+            box-shadow: 0 14px 24px rgba(37, 99, 235, 0.28);
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: scale(0.95);
+                opacity: .95;
+            }
+            100% {
+                transform: scale(1.08);
+                opacity: .2;
+            }
+        }
+
+        @keyframes progressFlow {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 180% 0;
+            }
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .wrap {
+                padding: 0 14px;
+            }
+
+            .flow-banner {
+                padding: 15px;
+            }
+
+            .flow-metric {
+                min-width: 142px;
+            }
+
+            .stepper-v2 {
+                padding: 12px 12px 10px;
+            }
+
+            .stepper-item {
+                width: 146px;
+            }
+
+            .stepper-node {
+                width: 52px;
+                height: 52px;
+                font-size: 1.08rem;
+            }
+
+            .stepper-link {
+                margin-top: 24px;
+                min-width: 26px;
+            }
+
+            .stepper-label {
+                font-size: .84rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card,
+            .stepper-item.current .stepper-node::after,
+            .stepper-link.done {
+                animation: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -611,47 +1089,68 @@
     </header>
 
     <main class="page">
-        <div class="wrap grid">
-            <aside class="stepper" data-progress="{{ progress_height }}">
-                {% set current_step = 1 %}
-                {% for step in steps %}
-                    {% if step.is_current %}{% set current_step = loop.index %}{% endif %}
-                {% endfor %}
-                <div class="stepper-header">
-                    <div class="stepper-title">Assessment Steps</div>
-                    <div class="progress-chip">Step {{ current_step }} / {{ steps|length }}</div>
+        <div class="wrap survey-layout">
+            {% set stepper = namespace(current_step=1) %}
+            {% for step in steps %}
+                {% if step.is_current %}{% set stepper.current_step = loop.index %}{% endif %}
+            {% endfor %}
+            {% if steps|length > 0 %}
+            {% set progress_pct = (stepper.current_step / steps|length) * 100 %}
+            {% else %}
+            {% set progress_pct = 0 %}
+            {% endif %}
+
+            <section class="flow-banner">
+                <div class="flow-title-wrap">
+                    <span class="flow-kicker"><i class="bi bi-stars"></i> Survey V2</span>
+                    <h1 class="flow-title">Diabetes Assessment Flow</h1>
+                    <p class="flow-sub">Answer each step in sequence. The system updates diagnosis confidence as new evidence is provided.</p>
                 </div>
-                <div class="stepper-track"></div>
-                {% set progress_idx = 0 %}
-                {% for step in steps %}
-                    {% if step.is_done %}{% set progress_idx = loop.index %}{% endif %}
-                {% endfor %}
-                {% if steps|length > 1 %}
-                {% set progress_height = ((progress_idx) / (steps|length - 1)) * 100 %}
-                {% else %}
-                {% set progress_height = 0 %}
-                {% endif %}
-                <div class="stepper-progress"></div>
-                {% for step in steps %}
-                <div class="step {% if step.is_current %}current{% endif %} {% if step.is_done %}done{% endif %}">
-                    <div class="bullet {% if step.is_done %}done{% elif step.is_current %}current{% endif %}">
-                        {% if step.is_done %}
-                        <i class="bi bi-check-lg"></i>
-                        {% elif step.is_current %}
-                        <span class="dot"></span>
+                <div class="flow-metric">
+                    <div class="flow-metric-label">Progress</div>
+                    <div class="flow-metric-value">{{ "%.0f"|format(progress_pct) }}%</div>
+                </div>
+                <div class="flow-metric">
+                    <div class="flow-metric-label">Current Step</div>
+                    <div class="flow-metric-value">{{ stepper.current_step }}/{{ steps|length }}</div>
+                </div>
+            </section>
+
+            <aside class="stepper-v2" aria-label="Assessment progress">
+                <div class="stepper-v2-track">
+                    {% for step in steps %}
+                    <div class="stepper-item {% if step.is_done %}done{% elif step.is_current %}current{% endif %}">
+                        {% if step.key == "basic_info" %}
+                        {% set step_icon = "bi-person-vcard" %}
+                        {% elif step.key == "risk_factors" %}
+                        {% set step_icon = "bi-shield-check" %}
+                        {% elif step.key == "symptoms" %}
+                        {% set step_icon = "bi-clipboard2-pulse" %}
+                        {% elif step.key == "labs" %}
+                        {% set step_icon = "bi-activity" %}
+                        {% elif step.key == "results" %}
+                        {% set step_icon = "bi-graph-up-arrow" %}
                         {% else %}
-                        <span class="dot small"></span>
+                        {% set step_icon = "bi-circle" %}
                         {% endif %}
+                        <div class="stepper-node" aria-hidden="true">
+                            {% if step.is_done %}
+                            <i class="bi bi-check-lg"></i>
+                            {% else %}
+                            <i class="bi {{ step_icon }}"></i>
+                            {% endif %}
+                        </div>
+                        <div class="stepper-label">{{ step.label }}</div>
+                        <div class="stepper-state">{% if step.is_current %}In progress{% elif step.is_done %}Done{% else %}Up next{% endif %}</div>
                     </div>
-                    <div>
-                        <div class="step-label">{{ step.label }}</div>
-                        <div class="step-state">{% if step.is_current %}Current{% elif step.is_done %}Done{% else %}Next{% endif %}</div>
-                    </div>
+                    {% if not loop.last %}
+                    <div class="stepper-link {% if step.is_done %}done{% endif %}" aria-hidden="true"></div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </aside>
 
-            <section>
+            <section class="flow-stage">
                 {% if view_state == "start" %}
                 <div class="card">
                     <h1>Start new assessment</h1>
@@ -660,12 +1159,181 @@
                         <button class="btn primary" type="submit" name="action" value="start_assessment">Start new assessment</button>
                     </form>
                 </div>
-                {% elif view_state == "question" %}
+                {% elif view_state == "patient_intro" %}
+                <div class="card question-shell checklist">
+                    <div class="section-chip">Patient information</div>
+                    <div class="question-title">Who is the survey for?</div>
+                    <div class="style-note">Select one option to continue.</div>
+
+                    {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% set survey_value = (patient_profile.survey_for if patient_profile and patient_profile.survey_for else 'myself') %}
+                        <input type="hidden" name="action" value="save_patient_intro" />
+                        <input type="hidden" name="survey_for" value="{{ survey_value }}" data-survey-input />
+                        <div class="option-grid patient-intro-grid">
+                            <button class="option-card choice-card {% if survey_value == 'myself' %}selected{% endif %}" type="button" data-survey-option="myself">
+                                <span class="option-icon"><i class="bi bi-person-fill"></i></span>
+                                <span>
+                                    <span class="choice-title">Myself</span>
+                                    <span class="choice-note">I am answering for myself.</span>
+                                </span>
+                            </button>
+                            <button class="option-card choice-card {% if survey_value == 'someone_else' %}selected{% endif %}" type="button" data-survey-option="someone_else">
+                                <span class="option-icon"><i class="bi bi-people-fill"></i></span>
+                                <span>
+                                    <span class="choice-title">Someone else</span>
+                                    <span class="choice-note">I am answering for another patient.</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="actions">
+                            <button class="btn primary" type="submit">Continue</button>
+                        </div>
+                    </form>
+                </div>
+                {% elif view_state == "patient_sex" %}
+                <div class="card question-shell detail">
+                    <div class="section-chip">Patient information</div>
+                    <div class="question-title">What sex was originally listed on your birth certificate?</div>
+                    <div class="style-note">This helps route pregnancy and gestational rules correctly.</div>
+
+                    {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="patient-choice-grid">
+                            <label class="patient-choice">
+                                <input type="radio" name="sex_at_birth" value="female" {% if patient_profile and patient_profile.sex_at_birth == 'female' %}checked{% endif %} required />
+                                <div>
+                                    <div class="patient-choice-title">Female</div>
+                                </div>
+                            </label>
+                            <label class="patient-choice">
+                                <input type="radio" name="sex_at_birth" value="male" {% if patient_profile and patient_profile.sex_at_birth == 'male' %}checked{% endif %} required />
+                                <div>
+                                    <div class="patient-choice-title">Male</div>
+                                </div>
+                            </label>
+                            <label class="patient-choice">
+                                <input type="radio" name="sex_at_birth" value="intersex" {% if patient_profile and patient_profile.sex_at_birth == 'intersex' %}checked{% endif %} required />
+                                <div>
+                                    <div class="patient-choice-title">Intersex</div>
+                                </div>
+                            </label>
+                            <label class="patient-choice">
+                                <input type="radio" name="sex_at_birth" value="prefer_not" {% if patient_profile and patient_profile.sex_at_birth == 'prefer_not' %}checked{% endif %} required />
+                                <div>
+                                    <div class="patient-choice-title">Prefer not to say</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="actions">
+                            <button class="btn" type="submit" name="action" value="patient_back_to_intro" formnovalidate>Back</button>
+                            <button class="btn primary" type="submit" name="action" value="save_patient_sex">Continue</button>
+                        </div>
+                    </form>
+                </div>
+                {% elif view_state == "patient_age" %}
+                <div class="card question-shell detail">
+                    <div class="section-chip">Patient information</div>
+                    <div class="question-title">How old are you?</div>
+                    <div class="style-note">Use age in years.</div>
+
+                    {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        <input class="form-input" id="age_years" type="number" name="age_years" min="1" max="120"
+                            value="{{ patient_profile.age_years if patient_profile else '' }}" placeholder="Enter age (years)" required />
+                        <div class="actions">
+                            <button class="btn" type="submit" name="action" value="patient_back_to_sex" formnovalidate>Back</button>
+                            <button class="btn primary" type="submit" name="action" value="save_patient_age">Continue to interview</button>
+                        </div>
+                    </form>
+                </div>
+                {% elif view_state == "checklist_batch" %}
+                <div class="card question-shell checklist">
+                    <div class="section-chip">Symptoms checklist</div>
+                    <div class="question-title">Do you have any of the following symptoms?</div>
+                    <div class="style-note">Select all answers that apply.</div>
+
+                    {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="summary-group">
+                            <ul class="summary-list-items">
+                                {% for symptom in checklist_symptoms or [] %}
+                                <li class="answer-row">
+                                    <label class="opt" style="width:100%; margin:0;">
+                                        <span class="opt-left">
+                                            <input type="checkbox" name="symptom_ids" value="{{ symptom.id }}" {% if symptom.id in checklist_selected_ids %}checked{% endif %} />
+                                            <span>{{ symptom.question_text or symptom.name or symptom.code }}</span>
+                                        </span>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="actions">
+                            <button class="btn" type="submit" name="action" value="patient_back_to_age" formnovalidate>Back</button>
+                            <button class="btn primary" type="submit" name="action" value="save_classic_checklist">Next</button>
+                        </div>
+                    </form>
+                </div>
+
+                {% if answers_summary %}
                 <div class="card">
-                    <div class="section-chip">Interview question</div>
+                    <h2>Answers so far</h2>
+                    <div class="summary-list">
+                        {% for group in answers_summary %}
+                        <div class="summary-group">
+                            <div class="summary-title">{{ group.section }}</div>
+                            <ul class="summary-list-items">
+                                {% for item in group['items'] %}
+                                <li class="answer-row">
+                                    {% if item.value == 'Yes' %}
+                                    <span class="value-icon value-yes" aria-label="Yes"><i class="bi bi-check-lg"></i></span>
+                                    {% elif item.value == 'No' %}
+                                    <span class="value-icon value-no" aria-label="No"><i class="bi bi-x-lg"></i></span>
+                                    {% elif item.value == "Don't know" %}
+                                    <span class="value-icon value-unknown" aria-label="Don't know"><i class="bi bi-question-lg"></i></span>
+                                    {% else %}
+                                    <span class="value-icon value-unknown" aria-hidden="true"><i class="bi bi-dot"></i></span>
+                                    {% endif %}
+                                    <span class="answer-label">{{ item.label }}</span>
+                                    {% if item.value not in ['Yes', 'No', "Don't know"] %}
+                                    <span class="answer-note">— {{ item.value }}</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% elif view_state == "question" %}
+                {% set q_style = question_style or 'checklist' %}
+                {% set q_chip_map = {'checklist': 'Symptoms checklist', 'detail': 'Detail checklist', 'lab': 'Lab check'} %}
+                <div class="card question-shell {{ q_style }}">
+                    <div class="section-chip">{{ q_chip_map.get(q_style, 'Interview question') }}</div>
                     <div class="question-title">{{ symptom.question_text or symptom.name or symptom.code }}</div>
-                    {% if symptom.ui_section or symptom.category %}
-                    <div class="mini">Section: {{ symptom.ui_section or symptom.category }}</div>
+                    {% if symptom.category %}
+                    <div class="mini">Category: {{ symptom.category }}</div>
+                    {% endif %}
+                    {% if question_trigger_text %}
+                    <div class="style-note">{{ question_trigger_text }}</div>
+                    {% elif q_style == 'checklist' %}
+                    <div class="style-note">Mark whether this symptom applies to this case.</div>
+                    {% elif q_style == 'lab' %}
+                    <div class="style-note">Lab answers can be exact values or Don't know if unavailable.</div>
                     {% endif %}
 
                     {% if error_message %}
@@ -693,13 +1361,12 @@
                         </div>
                         <input type="hidden" name="answer" value="" data-answer-input />
                         {% elif symptom.input_type == 'NUMBER' %}
-                        <input class="form-input" type="number" step="any" name="answer"
+                        <input class="form-input" id="lab-number-answer" type="text" inputmode="decimal" name="answer"
                             placeholder="Enter a number{% if symptom.unit %} ({{ symptom.unit }}){% endif %}" />
                         {% elif symptom.input_type == 'TEXT' %}
                         <input class="form-input" type="text" name="answer" placeholder="Type your answer" />
                         {% elif symptom.input_type == 'SINGLE' %}
-                        <select class="form-input" name="answer">
-                            <option value="">Select...</option>
+                        <div class="option-grid">
                             {% for opt in symptom.options_json or [] %}
                             {% if opt is mapping %}
                             {% set opt_label = opt.get('label') or opt.get('value') %}
@@ -708,14 +1375,21 @@
                             {% set opt_label = opt %}
                             {% set opt_value = opt %}
                             {% endif %}
-                            <option value="{{ opt_value }}">{{ opt_label }}</option>
+                            <button class="option-card" type="button" data-answer="{{ opt_value }}">
+                                <div class="option-icon"><i class="bi bi-ui-checks-grid"></i></div>
+                                {{ opt_label }}
+                            </button>
                             {% endfor %}
-                        </select>
+                        </div>
+                        <input type="hidden" name="answer" value="" data-answer-input />
                         {% endif %}
 
                         <div class="actions">
                             {% if can_go_back %}
                             <button class="btn" type="submit" name="action" value="back" formnovalidate>Back</button>
+                            {% endif %}
+                            {% if symptom.input_type == 'NUMBER' %}
+                            <button class="btn" type="button" data-quick-answer="unknown" data-quick-target="lab-number-answer">Don't know</button>
                             {% endif %}
                             {% if symptom.input_type != 'BOOLEAN' %}
                             <button class="btn primary" type="submit">Continue</button>
@@ -799,7 +1473,12 @@
                         <div>
                             <div class="risk-badge {{ badge_class }}">{{ ra.risk_level or 'RISK' }}</div>
                             <h2 style="margin-top:12px;">{{ ra.diagnosis_name or ra.diagnosis_code or 'Undetermined' }}</h2>
-                            <p class="subtitle">Summary of your assessment outcome based on the reported facts.</p>
+                            <p class="subtitle">{{ ra.summary or 'Summary of your assessment outcome based on the reported facts.' }}</p>
+                            {% if report.explanation_trace and report.explanation_trace.prediction_mode == 'partial_match_prediction' %}
+                            <div class="mini">
+                                This is a provisional prediction from partial evidence (coverage: {{ "%.0f"|format((report.explanation_trace.match_coverage or 0) * 100) }}%).
+                            </div>
+                            {% endif %}
                             <div class="result-grid">
                                 <div>
                                     <div class="mini">Confidence</div>
@@ -815,8 +1494,108 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% if result_quality %}
+                    <div class="result-quality {{ result_quality.level or 'review' }}">
+                        <div class="quality-head">
+                            <h3 class="quality-title">{{ result_quality.title or 'Result quality' }}</h3>
+                            <span class="quality-badge {{ result_quality.level or 'review' }}">
+                                {{ (result_quality.level or 'review')|upper }}
+                            </span>
+                        </div>
+                        <div class="mini">{{ result_quality.message }}</div>
+
+                        <div class="quality-metrics">
+                            {% if result_quality.confidence_pct is not none %}
+                            <span class="metric-chip">Confidence: {{ "%.1f"|format(result_quality.confidence_pct) }}%</span>
+                            {% endif %}
+                            {% if result_quality.coverage_pct is not none %}
+                            <span class="metric-chip">Evidence coverage: {{ "%.1f"|format(result_quality.coverage_pct) }}%</span>
+                            {% endif %}
+                            {% if result_quality.recommended_tests_count %}
+                            <span class="metric-chip">{{ result_quality.recommended_tests_count }} recommended test(s)</span>
+                            {% endif %}
+                            {% if result_quality.missing_count %}
+                            <span class="metric-chip">{{ result_quality.missing_count }} missing data point(s)</span>
+                            {% endif %}
+                        </div>
+
+                        {% if result_quality.bullets %}
+                        <ul class="clean">
+                            {% for item in result_quality.bullets %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                     {% else %}
                     <p class="subtitle">No diagnosis run found.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card">
+                    <h2>Advice</h2>
+                    {% if report and report.advice %}
+                    {% set advice = report.advice %}
+                    {% set severity_key = (advice.severity or 'INFO')|lower %}
+                    {% if severity_key in ['alert', 'high', 'critical', 'danger'] %}
+                        {% set severity_class = 'alert' %}
+                    {% elif severity_key in ['warning', 'medium'] %}
+                        {% set severity_class = 'warning' %}
+                    {% else %}
+                        {% set severity_class = 'info' %}
+                    {% endif %}
+                    <div class="advice-card">
+                        <div class="advice-head">
+                            <h3 class="advice-title">{{ advice.title or 'Clinical advice' }}</h3>
+                            <span class="advice-badge {{ severity_class }}">{{ advice.severity or 'INFO' }}</span>
+                        </div>
+
+                        {% if advice.content %}
+                        <p class="advice-content">{{ advice.content|replace('\n', '<br>')|safe }}</p>
+                        {% else %}
+                        <div class="mini">No detailed advice text available for this result.</div>
+                        {% endif %}
+
+                        {% if advice.recommendations %}
+                            {% set rec = advice.recommendations %}
+                            {% if rec is mapping %}
+                                {% set rec_tests = rec.get('screening_tests') or rec.get('tests') or [] %}
+                                {% set rec_actions = rec.get('actions') or rec.get('next_steps') or [] %}
+                                {% set rec_note = rec.get('note') or rec.get('follow_up') or rec.get('followup') %}
+
+                                {% if rec_tests %}
+                                <div class="mini" style="margin-top:10px;">Recommended tests</div>
+                                <ul class="clean">
+                                    {% for item in rec_tests %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+
+                                {% if rec_actions %}
+                                <div class="mini" style="margin-top:10px;">Actions</div>
+                                <ul class="clean">
+                                    {% for item in rec_actions %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+
+                                {% if rec_note %}
+                                <div class="mini" style="margin-top:10px;">{{ rec_note }}</div>
+                                {% endif %}
+                            {% else %}
+                                <ul class="clean" style="margin-top:10px;">
+                                    {% for item in rec %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="mini">No specific advice was generated for this assessment yet.</div>
                     {% endif %}
                 </div>
 
@@ -876,16 +1655,38 @@
                         {% else %}
                         <div class="mini">No matched conditions recorded.</div>
                         {% endif %}
-                        <div class="mini" style="margin-top:10px;">Missing data</div>
-                        {% if missing_data %}
-                        <ul class="clean">
-                            {% for item in missing_data %}
-                            <li>{{ item }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <div class="mini">No missing data.</div>
-                        {% endif %}
+                        <div class="rule-info-stack">
+                            {% if recommended_tests %}
+                            <div class="rule-info-card tests">
+                                <div class="mini">Recommended tests (optional)</div>
+                                <ul class="clean">
+                                    {% for item in recommended_tests %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="mini" style="margin-top:6px;">
+                                    These tests help confirm the result and increase confidence.
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if missing_data %}
+                            <div class="rule-info-card missing">
+                                <div class="mini">Missing information</div>
+                                <ul class="clean">
+                                    {% for item in missing_data %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
+                            {% if not recommended_tests and not missing_data %}
+                            <div class="rule-info-card complete">
+                                <div class="mini">No additional information needed.</div>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endif %}
@@ -953,11 +1754,11 @@
         const handleRestart = async () => {
             if (window.Swal) {
                 const result = await window.Swal.fire({
-                    title: 'Start new assessment?',
-                    text: 'You will have to answer the questions again.',
+                    title: 'End current assessment and restart?',
+                    text: 'This will end the current assessment and start a new one from the beginning.',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, start new assessment',
+                    confirmButtonText: 'Yes, end and restart',
                     cancelButtonText: 'Cancel',
                 });
                 if (result.isConfirmed) {
@@ -965,7 +1766,7 @@
                 }
                 return;
             }
-            if (confirm('Start new assessment? You will have to answer the questions again.')) {
+            if (confirm('End current assessment and start a new one from the beginning?')) {
                 restartForm?.submit();
             }
         };
@@ -979,6 +1780,38 @@
                 if (!answerInput) return;
                 answerInput.value = btn.getAttribute('data-answer') || '';
                 answerInput.form?.submit();
+            });
+        });
+
+        const surveyInput = document.querySelector('[data-survey-input]');
+        const surveyOptions = document.querySelectorAll('[data-survey-option]');
+        if (surveyInput && surveyOptions.length) {
+            const setSurveySelection = (value) => {
+                surveyInput.value = value;
+                surveyOptions.forEach((option) => {
+                    option.classList.toggle('selected', (option.getAttribute('data-survey-option') || '') === value);
+                });
+            };
+
+            surveyOptions.forEach((option) => {
+                option.addEventListener('click', () => {
+                    setSurveySelection(option.getAttribute('data-survey-option') || '');
+                });
+            });
+
+            setSurveySelection(surveyInput.value || (surveyOptions[0].getAttribute('data-survey-option') || 'myself'));
+        }
+
+        document.querySelectorAll('[data-quick-answer]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const value = btn.getAttribute('data-quick-answer') || '';
+                const targetId = btn.getAttribute('data-quick-target') || '';
+                const target = targetId ? document.getElementById(targetId) : null;
+                if (!target) {
+                    return;
+                }
+                target.value = value;
+                target.form?.submit();
             });
         });
 
@@ -996,14 +1829,17 @@
             });
         });
 
-        document.querySelectorAll('.stepper').forEach((stepper) => {
-            const progress = stepper.querySelector('.stepper-progress');
-            if (!progress) return;
-            const target = Number(stepper.getAttribute('data-progress') || 0);
+        const stepperTrack = document.querySelector('.stepper-v2-track');
+        const currentStep = stepperTrack?.querySelector('.stepper-item.current');
+        if (stepperTrack && currentStep && window.matchMedia('(max-width: 900px)').matches) {
             requestAnimationFrame(() => {
-                progress.style.height = `${target}%`;
+                currentStep.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'center',
+                    block: 'nearest',
+                });
             });
-        });
+        }
 
     </script>
 </body>

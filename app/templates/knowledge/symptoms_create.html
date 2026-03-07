@@ -144,23 +144,20 @@
                                         </div>
 
                                         <div class="row g-3 mt-1">
-                                            <div class="col-md-3">
+                                            <div class="col-md-4">
                                                 <label class="form-label" for="create-unit">Unit</label>
                                                 <input type="text" class="form-control" id="create-unit" placeholder="mg/dL">
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-4">
                                                 <label class="form-label" for="create-category">Category</label>
                                                 <input type="text" class="form-control" id="create-category" placeholder="Blood Test">
                                             </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label" for="create-ui-section">UI Section</label>
-                                                <input type="text" class="form-control" id="create-ui-section" placeholder="Labs">
-                                            </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-4">
                                                 <label class="form-label" for="create-priority">Priority</label>
                                                 <input type="number" class="form-control" id="create-priority" value="0" min="0">
                                             </div>
                                         </div>
+                                        <div class="kb-note mt-1">UI style is inferred from category (for example: Classic, Detail, HAB_LAB).</div>
 
                                         <div class="mt-3" id="create-options-wrapper">
                                             <label class="form-label" for="create-options-json">Options JSON</label>
@@ -335,7 +332,6 @@
                 input_type: inputType.value,
                 unit: document.getElementById('create-unit').value.trim(),
                 category: document.getElementById('create-category').value.trim(),
-                ui_section: document.getElementById('create-ui-section').value.trim(),
                 priority_order: document.getElementById('create-priority').value,
                 is_active: document.getElementById('create-is-active').checked,
             };

@@ -101,6 +101,18 @@ def facts_for_assessment(assessment_id: int) -> Dict[str, Any]:
         if not symptom:
             continue
         value = _typed_value(row, symptom)
+        if value is None and (symptom.input_type or "").upper() == "NUMBER":
+            _set_fact_value(
+                raw_facts,
+                symptom.code,
+                {
+                    "value": None,
+                    "state": getattr(row, "state", None),
+                    "is_provided": bool(getattr(row, "is_provided", False)),
+                    "value_number": None,
+                },
+            )
+            continue
         if value is None:
             continue
         _set_fact_value(raw_facts, symptom.code, value)
@@ -111,6 +123,20 @@ def facts_for_assessment(assessment_id: int) -> Dict[str, Any]:
         if not symptom:
             continue
         value = _typed_value(row, symptom)
+        if value is None and (symptom.input_type or "").upper() == "NUMBER":
+            if not _is_symptom_active(symptom, raw_facts, symptom_map, set()):
+                continue
+            _set_fact_value(
+                facts,
+                symptom.code,
+                {
+                    "value": None,
+                    "state": getattr(row, "state", None),
+                    "is_provided": bool(getattr(row, "is_provided", False)),
+                    "value_number": None,
+                },
+            )
+            continue
         if value is None:
             continue
         if not _is_symptom_active(symptom, raw_facts, symptom_map, set()):

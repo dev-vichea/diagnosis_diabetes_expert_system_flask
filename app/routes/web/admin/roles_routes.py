@@ -14,7 +14,10 @@ from app.services.admin_rbac_service import (
     list_roles_payloads,
     update_role_permissions,
 )
-from app.models import Role
+from app.models import Role, RolePermission, UserRole
+
+
+PROTECTED_ROLE_NAMES = {"ADMIN", "USER", "KB_DOCTOR"}
 
 
 @web_bp.get("/admin/roles")
@@ -116,3 +119,73 @@ def admin_role_permissions_create():
     if error:
         return jsonify({"message": error}), status
     return jsonify({"message": "created", "role": payload}), 201
+
+
+@web_bp.put("/admin/role-permissions/roles/<int:role_id>")
+def admin_role_permissions_role_update(role_id: int):
+    guard = require_login()
+    if guard:
+        return jsonify({"message": "Unauthorized"}), 401
+    guard = require_permissions("RBAC_UPDATE")
+    if guard:
+        return jsonify({"message": "Forbidden", "missing_permission": "RBAC_UPDATE"}), 403
+
+    role = Role.query.get_or_404(role_id)
+    data = request.get_json(silent=True) or {}
+    raw_name = data.get("name")
+    if raw_name is None:
+        name = (role.name or "").strip().upper()
+    else:
+        name = str(raw_name).strip().upper()
+        if not name:
+            return jsonify({"message": "name is required"}), 400
+
+    if role.name in PROTECTED_ROLE_NAMES and name != role.name:
+        return jsonify({"message": f"{role.name} is a protected role and cannot be renamed"}), 403
+
+    if Role.query.filter(Role.name == name, Role.id != role.id).first():
+        return jsonify({"message": "role name already exists"}), 409
+
+    role.name = name
+    permission_codes = data.get("permission_codes")
+    if permission_codes is not None:
+        payload, error, status = update_role_permissions(role, permission_codes)
+        if error:
+            return jsonify({"message": error}), status
+        return jsonify({"message": "updated", "role": payload}), 200
+
+    db.session.commit()
+    return jsonify(
+        {
+            "message": "updated",
+            "role": {
+                "id": role.id,
+                "name": role.name,
+                "permissions": sorted([perm.code for perm in role.permissions]),
+            },
+        }
+    ), 200
+
+
+@web_bp.delete("/admin/role-permissions/roles/<int:role_id>")
+def admin_role_permissions_role_delete(role_id: int):
+    guard = require_login()
+    if guard:
+        return jsonify({"message": "Unauthorized"}), 401
+    guard = require_permissions("RBAC_UPDATE")
+    if guard:
+        return jsonify({"message": "Forbidden", "missing_permission": "RBAC_UPDATE"}), 403
+
+    role = Role.query.get_or_404(role_id)
+    role_name = (role.name or "").upper()
+    if role_name in PROTECTED_ROLE_NAMES:
+        return jsonify({"message": f"{role_name} is a protected role and cannot be deleted"}), 403
+
+    if role_name in current_roles():
+        return jsonify({"message": "Cannot delete a role currently assigned to your active account session"}), 409
+
+    UserRole.query.filter_by(role_id=role.id).delete()
+    RolePermission.query.filter_by(role_id=role.id).delete()
+    db.session.delete(role)
+    db.session.commit()
+    return jsonify({"message": "deleted", "role_id": role_id}), 200

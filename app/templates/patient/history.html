@@ -33,6 +33,56 @@
     <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
     <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        .action-menu-trigger {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: #ffffff;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-menu-trigger:hover,
+        .action-menu-trigger:focus {
+            border-color: #94a3b8;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .action-menu .dropdown-menu {
+            min-width: 220px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            padding: 0.4rem;
+        }
+
+        .action-menu .dropdown-item {
+            border-radius: 10px;
+            padding: 0.62rem 0.72rem;
+            font-weight: 500;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .action-menu .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .action-menu .dropdown-item:hover,
+        .action-menu .dropdown-item:focus {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+    </style>
 </head>
 
 <body data-page="history" class="history-page">
@@ -162,6 +212,12 @@
                         <div>
                             <h1 class="h3 mb-0">Assessment History</h1>
                             <p class="text-muted mb-0">Review assessment results and consultation history</p>
+                            {% if history_filter == 'high' %}
+                            <div class="mt-2">
+                                <span class="badge bg-danger">High-risk filter active</span>
+                                <a class="ms-2 small" href="{{ url_for('web.patient_history') }}">Show all</a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -265,8 +321,20 @@
                                                     <td><span class="badge {{ row.status_class }}">{{ row.status }}</span></td>
                                                     <td><span class="badge {{ row.result_class }}">{{ row.result }}</span></td>
                                                     <td>{{ row.date }}</td>
-                                                    <td>
-                                                        <a class="btn btn-sm btn-outline-primary" href="{{ row.view_url }}">View</a>
+                                                    <td class="text-end">
+                                                        <div class="dropdown action-menu">
+                                                            <button class="btn action-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                                <li>
+                                                                    <a class="dropdown-item" href="{{ row.view_url }}">
+                                                                        <i class="bi bi-eye text-primary"></i>
+                                                                        <span>View Consultation</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                                 {% endfor %}

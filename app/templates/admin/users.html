@@ -329,19 +329,29 @@
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">Recent Activity</h5>
-                                    <button class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-arrow-clockwise"></i>
+                                    <button class="btn btn-sm btn-outline-secondary" @click="refreshRecentActivities()"
+                                        :disabled="activitiesLoading" title="Refresh activity">
+                                        <template x-if="activitiesLoading">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </template>
+                                        <template x-if="!activitiesLoading">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </template>
                                     </button>
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="activity-feed" style="max-height: 350px; overflow-y: auto;">
+                                        <template x-if="activityError">
+                                            <div class="p-3 text-danger small" x-text="activityError"></div>
+                                        </template>
                                         <template x-for="activity in recentActivities" :key="activity.id">
-                                            <div class="d-flex p-3 border-bottom">
+                                            <div class="activity-item d-flex p-3 border-bottom">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="activity-icon"
-                                                        :class="`bg-${activity.type === 'login' ? 'success' : activity.type === 'logout' ? 'secondary' : activity.type === 'register' ? 'primary' : 'warning'} bg-opacity-10`">
+                                                        :class="`bg-${activity.type === 'login' ? 'success' : activity.type === 'logout' ? 'secondary' : activity.type === 'create' ? 'primary' : 'warning'} bg-opacity-10`">
                                                         <i
-                                                            :class="`bi bi-${activity.icon} text-${activity.type === 'login' ? 'success' : activity.type === 'logout' ? 'secondary' : activity.type === 'register' ? 'primary' : 'warning'}`"></i>
+                                                            :class="`bi bi-${activity.icon} text-${activity.type === 'login' ? 'success' : activity.type === 'logout' ? 'secondary' : activity.type === 'create' ? 'primary' : 'warning'}`"></i>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -355,6 +365,9 @@
                                                     <small class="text-muted" x-text="activity.details"></small>
                                                 </div>
                                             </div>
+                                        </template>
+                                        <template x-if="!activityError && !activitiesLoading && recentActivities.length === 0">
+                                            <div class="p-3 text-muted small">No recent activity yet.</div>
                                         </template>
                                     </div>
                                 </div>
@@ -613,27 +626,27 @@
                                                 </td>
                                                 <td x-text="user.lastActive"></td>
                                                 <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                            type="button" data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots"></i>
+                                                    <div class="dropdown table-action-menu">
+                                                        <button class="btn table-action-trigger"
+                                                            type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions">
+                                                            <i class="bi bi-three-dots-vertical"></i>
                                                         </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#"
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                            <li><button class="dropdown-item" type="button"
                                                                     @click="editUser(user)">
-                                                                    <i class="bi bi-pencil me-2"></i>Edit
-                                                                </a></li>
-                                                            <li><a class="dropdown-item" href="#"
+                                                                    <i class="bi bi-pencil text-primary"></i>Edit User
+                                                                </button></li>
+                                                            <li><button class="dropdown-item" type="button"
                                                                     @click="viewUser(user)">
-                                                                    <i class="bi bi-eye me-2"></i>View Profile
-                                                                </a></li>
+                                                                    <i class="bi bi-eye text-info"></i>View Profile
+                                                                </button></li>
                                                             <li>
                                                                 <hr class="dropdown-divider">
                                                             </li>
-                                                            <li><a class="dropdown-item text-danger" href="#"
+                                                            <li><button class="dropdown-item action-delete" type="button"
                                                                     @click="deleteUser(user)">
-                                                                    <i class="bi bi-trash me-2"></i>Deactivate
-                                                                </a></li>
+                                                                    <i class="bi bi-trash"></i>Deactivate User
+                                                                </button></li>
                                                         </ul>
                                                     </div>
                                                 </td>

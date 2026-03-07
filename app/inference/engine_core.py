@@ -8,11 +8,16 @@ from app.inference.rule_eval import evaluate_rule_status
 class Condition:
     symptom_id: int
     symptom_code: Optional[str] = None
+    finding_code: Optional[str] = None
     operator: str = "=="
     value: Optional[Any] = None
+    values: Optional[Any] = None
     logic_group: Optional[str] = None
     is_required: bool = True
     weight: float = 1.0
+    score_points: int = 0
+    negate: bool = False
+    input_type: Optional[str] = None
     parent_symptom_id: Optional[int] = None
     parent_symptom_code: Optional[str] = None
     parent_show_if_operator: Optional[str] = None
@@ -29,6 +34,11 @@ class RulePayload:
     name: str
     diagnosis_code: str
     risk_level: str
+    rule_type: str = "screening"
+    stop_on_match: bool = False
+    confidence_cap_if_unconfirmed: Optional[float] = None
+    confidence_bonus_max: Optional[float] = None
+    min_required_matches: Optional[int] = None
     priority: int = 0
     confidence: Optional[float] = None
     conditions: List[Condition] = field(default_factory=list)
@@ -81,6 +91,36 @@ def _score_rule(rule: RulePayload, status: str, matched: list, missing: list) ->
     return round(score, 4)
 
 
+def _safe_optional_fraction(value: Optional[float], default: float = 0.0) -> float:
+    if value is None:
+        return default
+    try:
+        value = float(value)
+    except Exception:
+        return default
+    if value > 1.0:
+        value = value / 100.0
+    return max(0.0, min(1.0, value))
+
+
+def _estimated_confidence(rule: RulePayload, status: str, eval_meta: Dict[str, Any], matched: list) -> float:
+    base = _safe_confidence(rule.confidence)
+    optional_total = float(eval_meta.get("optional_total_weight", 0.0) or 0.0)
+    optional_matched = float(eval_meta.get("optional_matched_weight", 0.0) or 0.0)
+    optional_ratio = (optional_matched / optional_total) if optional_total > 0 else 0.0
+
+    bonus_max = _safe_optional_fraction(rule.confidence_bonus_max, default=0.0)
+    est = base + (optional_ratio * bonus_max)
+    est = max(0.0, min(1.0, est))
+
+    # For unconfirmed screening results, cap confidence if policy is configured.
+    if status != "MATCHED" and (rule.rule_type or "screening").lower() == "screening":
+        cap = _safe_optional_fraction(rule.confidence_cap_if_unconfirmed, default=1.0)
+        est = min(est, cap)
+
+    return est
+
+
 def _evidence_level(optional_matched: float, optional_total: float, status: str) -> str:
     if optional_total <= 0:
         return "strong" if status == "MATCHED" else "weak"
@@ -102,15 +142,32 @@ def _build_eval_row(rule: RulePayload, status: str, matched: list, missing: list
         item for item in matched
         if not item.get("is_required", True) and float(item.get("weight") or 0) > 0
     ]
+    est_confidence = _estimated_confidence(rule, status, eval_meta, matched)
+
+    score_added = float(eval_meta.get("score_added", 0) or 0)
+    base_score = _score_rule(rule, status, matched, missing)
+    final_score = round(base_score + score_added, 4)
 
     return {
         "rule_id": rule.id,
         "rule_name": rule.name,
         "priority": rule.priority,
+        "rule_type": (rule.rule_type or "screening"),
+        "stop_on_match": bool(rule.stop_on_match),
         "diagnosis_code": rule.diagnosis_code,
         "risk_level": rule.risk_level,
-        "confidence": _safe_confidence(rule.confidence),
+        "confidence": est_confidence,
+        "base_confidence": _safe_confidence(rule.confidence),
+        "confidence_cap_if_unconfirmed": _safe_optional_fraction(rule.confidence_cap_if_unconfirmed, default=1.0),
+        "confidence_bonus_max": _safe_optional_fraction(rule.confidence_bonus_max, default=0.0),
+        "min_required_matches": rule.min_required_matches,
         "status": status,
+        "matched_state": eval_meta.get("matched_state"),
+        "score_added": score_added,
+        "missing_findings": eval_meta.get("missing_findings") or [],
+        "matched_required_count": int(eval_meta.get("matched_required_count") or 0),
+        "total_required_count": int(eval_meta.get("total_required_count") or 0),
+        "explain_text": eval_meta.get("explain_text"),
         "matched_count": len(matched),
         "total_conditions": len(rule.conditions),
         "matched_conditions": matched,
@@ -121,8 +178,8 @@ def _build_eval_row(rule: RulePayload, status: str, matched: list, missing: list
         "optional_matched_weight": optional_matched,
         "evidence_level": _evidence_level(optional_matched, optional_total, status),
         "evidence_details": evidence_details,
-        "est_confidence": round(_safe_confidence(rule.confidence) * 100.0, 1),
-        "score": _score_rule(rule, status, matched, missing),
+        "est_confidence": round(est_confidence * 100.0, 1),
+        "score": final_score,
     }
 
 
@@ -227,13 +284,22 @@ def run_inference(facts: Dict[str, Any], rules: List[RulePayload]) -> Dict[str, 
         status = eval_result.get("status", "IMPOSSIBLE")
         matched = eval_result.get("matched", [])
         missing = eval_result.get("missing", [])
-        evaluated.append(_build_eval_row(rule, status, matched, missing, eval_result))
+        row = _build_eval_row(rule, status, matched, missing, eval_result)
+        evaluated.append(row)
+        if row["status"] == "MATCHED" and row.get("stop_on_match"):
+            break
 
     matched_rows = [row for row in evaluated if row["status"] == "MATCHED"]
-    best_row = max(matched_rows, key=lambda x: x["score"]) if matched_rows else None
+    stop_rows = [row for row in matched_rows if row.get("stop_on_match")]
+    if stop_rows:
+        best_row = max(stop_rows, key=lambda x: x["score"])
+    else:
+        best_row = max(matched_rows, key=lambda x: x["score"]) if matched_rows else None
 
     finalizable = False
-    if best_row:
+    if best_row and best_row.get("stop_on_match"):
+        finalizable = True
+    elif best_row:
         for row in evaluated:
             if row["priority"] > best_row["priority"] and row["status"] == "POSSIBLE":
                 finalizable = False

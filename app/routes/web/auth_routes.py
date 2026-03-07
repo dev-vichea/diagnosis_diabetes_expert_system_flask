@@ -3,6 +3,7 @@ import requests
 
 from . import web_bp
 from .utils import api_base, wants_json, dashboard_redirect_target
+from app.services.audit_service import record_audit_event
 
 
 @web_bp.get("/login")
@@ -105,5 +106,25 @@ def login_submit():
 
 @web_bp.get("/logout")
 def logout():
+    me = session.get("me") or {}
+    user_id = me.get("user_id")
+    try:
+        actor_user_id = int(user_id)
+    except (TypeError, ValueError):
+        actor_user_id = None
+
+    if actor_user_id:
+        record_audit_event(
+            action="LOGOUT",
+            entity="AUTH",
+            actor_user_id=actor_user_id,
+            entity_id=actor_user_id,
+            meta={
+                "details": "User logged out from web session.",
+                "ip": request.headers.get("X-Forwarded-For") or request.remote_addr or "",
+                "user_agent": request.headers.get("User-Agent", ""),
+            },
+        )
+
     session.clear()
     return redirect(url_for("web.login_page"))

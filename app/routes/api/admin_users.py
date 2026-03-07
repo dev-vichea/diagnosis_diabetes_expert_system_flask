@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app.models import User
 from app.utils.decorators import require_permission
@@ -21,7 +21,13 @@ def admin_create_user():
     """
     data = request.get_json() or {}
 
-    payload, error, status = create_user_from_payload(data)
+    actor_user_id = None
+    try:
+        actor_user_id = int(get_jwt_identity())
+    except (TypeError, ValueError):
+        actor_user_id = None
+
+    payload, error, status = create_user_from_payload(data, actor_user_id=actor_user_id)
     if error:
         return {"message": error}, status
 
@@ -44,7 +50,17 @@ def admin_list_users():
 def admin_update_user(user_id: int):
     user = User.query.get_or_404(user_id)
     data = request.get_json() or {}
-    payload, error, status = update_user_from_payload(user, data)
+    actor_user_id = None
+    try:
+        actor_user_id = int(get_jwt_identity())
+    except (TypeError, ValueError):
+        actor_user_id = None
+
+    payload, error, status = update_user_from_payload(
+        user,
+        data,
+        actor_user_id=actor_user_id,
+    )
     if error:
         return {"message": error}, status
     return {"message": "updated", "user": payload}, status

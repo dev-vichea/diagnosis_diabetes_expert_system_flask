@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Preview - Diabetes Expert</title>
+    <meta name="description" content="Temporary rule preview to inspect matched, missing, and contradictory evidence.">
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='metis/assets/favicon-CvUZKS4z.svg') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='metis/assets/favicon-B_cwPWBd.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='metis/assets/manifest-DTaoG9pG.json') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-bootstrap-C9iorZI5.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-charts-DGwYAWel.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/vendor-ui-DjYv-mAO.js') }}"></script>
+    <script type="module" crossorigin src="{{ url_for('static', filename='metis/assets/main-BHbn44Op.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" crossorigin href="{{ url_for('static', filename='metis/assets/main-QD_VOj1Y.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        .preview-card {
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .preview-meta {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+
+        .result-pill {
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .result-pill.matched {
+            color: #166534;
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .result-pill.possible {
+            color: #92400e;
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        .result-pill.impossible {
+            color: #991b1b;
+            background: rgba(239, 68, 68, 0.18);
+        }
+
+        .evidence-list {
+            margin: 0;
+            padding-left: 1.1rem;
+        }
+
+        .evidence-list li {
+            margin-bottom: 0.35rem;
+        }
+    </style>
+</head>
+<body data-page="rule-preview" class="kb-rule-preview-page">
+    <div class="admin-app">
+        <div class="admin-wrapper" id="admin-wrapper">
+            <header class="admin-header">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.admin_dashboard') }}">
+                            <img src="{{ url_for('static', filename='assets/icons/care.png') }}" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
+                            <h1 class="h4 mb-0 fw-bold text-primary">Diabetes Expert</h1>
+                        </a>
+                        <div class="navbar-nav flex-row">
+                            <a class="btn btn-outline-secondary" href="{{ url_for('web.kb_rules') }}">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Rules
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            {% include 'shared/_sidebar.html' %}
+
+            <button class="hamburger-menu" data-sidebar-toggle>
+                <i class="bi bi-list"></i>
+            </button>
+
+            <main class="admin-main">
+                <div class="container-fluid p-4 p-lg-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <div>
+                            <h1 class="h3 mb-1">Rule Preview</h1>
+                            <p class="text-muted mb-0">Temporary simulation of one rule without saving patient data.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="card preview-card h-100">
+                                <div class="card-body">
+                                    <h5 class="mb-1">{{ rule.title or rule.rule_code }}</h5>
+                                    <div class="preview-meta mb-3">{{ rule.rule_code }}</div>
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge bg-primary-subtle text-primary">Priority {{ rule.priority or 0 }}</span>
+                                        <span class="badge {% if (rule.rule_type or 'screening') == 'diagnostic' %}bg-warning-subtle text-warning{% elif (rule.rule_type or 'screening') == 'red_flag' %}bg-danger-subtle text-danger{% else %}bg-info-subtle text-info{% endif %}">
+                                            {{ (rule.rule_type or 'screening')|replace('_', ' ')|title }}
+                                        </span>
+                                        <span class="badge {% if rule.is_active %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                            {{ 'Active' if rule.is_active else 'Inactive' }}
+                                        </span>
+                                    </div>
+                                    <div class="mb-2"><strong>Diagnosis:</strong> {{ rule.diagnosis or rule.diagnosis_code or '-' }}</div>
+                                    <div class="mb-2"><strong>Risk Level:</strong> {{ rule.risk_level or '-' }}</div>
+                                    <div class="mb-2"><strong>Rule Confidence:</strong> {% if rule.confidence is not none %}{{ rule.confidence }}%{% else %}-{% endif %}</div>
+                                    <div class="preview-meta mt-3">Conditions: {{ rule.conditions_count or 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card preview-card mb-4">
+                                <div class="card-body">
+                                    <h5 class="mb-2">Temporary Inputs</h5>
+                                    <p class="text-muted small mb-3">Fill any values you want to test this rule. Leaving a field blank counts as not provided.</p>
+
+                                    {% if errors %}
+                                    <div class="alert alert-danger">
+                                        {% for error in errors %}
+                                        <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    <form method="post">
+                                        <div class="row g-3">
+                                            {% for item in preview_inputs %}
+                                            {% set symptom = item["symptom"] %}
+                                            {% set condition = item["condition"] %}
+                                            {% set qtype = (symptom.input_type or 'BOOLEAN')|upper %}
+                                            {% set field_name = "symptom_" ~ symptom.id %}
+                                            {% set field_value = submitted_values.get(symptom.id, '') %}
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold" for="{{ field_name }}">{{ symptom.name or symptom.question_text or symptom.code }}</label>
+                                                {% if qtype == 'BOOLEAN' %}
+                                                <select class="form-select" name="{{ field_name }}" id="{{ field_name }}">
+                                                    <option value="" {% if not field_value %}selected{% endif %}>Not provided</option>
+                                                    <option value="yes" {% if field_value == 'yes' %}selected{% endif %}>Yes</option>
+                                                    <option value="no" {% if field_value == 'no' %}selected{% endif %}>No</option>
+                                                    <option value="unknown" {% if field_value == 'unknown' %}selected{% endif %}>Unknown</option>
+                                                </select>
+                                                {% elif qtype == 'NUMBER' %}
+                                                <input class="form-control" type="number" step="any" name="{{ field_name }}" id="{{ field_name }}" value="{{ field_value }}" placeholder="Enter number{% if symptom.unit %} ({{ symptom.unit }}){% endif %}">
+                                                {% elif qtype == 'SINGLE' %}
+                                                <select class="form-select" name="{{ field_name }}" id="{{ field_name }}">
+                                                    <option value="" {% if not field_value %}selected{% endif %}>Not provided</option>
+                                                    {% for opt in symptom.options_json or [] %}
+                                                    {% if opt is mapping %}
+                                                    {% set opt_label = opt.get('label') or opt.get('value') %}
+                                                    {% set opt_value = opt.get('value') or opt.get('label') %}
+                                                    {% else %}
+                                                    {% set opt_label = opt %}
+                                                    {% set opt_value = opt %}
+                                                    {% endif %}
+                                                    <option value="{{ opt_value }}" {% if field_value == opt_value %}selected{% endif %}>{{ opt_label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% else %}
+                                                <input class="form-control" type="text" name="{{ field_name }}" id="{{ field_name }}" value="{{ field_value }}" placeholder="Enter value">
+                                                {% endif %}
+                                                <div class="preview-meta mt-1">
+                                                    Expected: <strong>{{ condition.operator }}</strong>
+                                                    {% if condition.value is not none and condition.value != '' %}<strong>{{ condition.value }}</strong>{% endif %}
+                                                    {% if condition.is_required %} • Required{% else %} • Optional{% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="d-flex gap-2 mt-4">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="bi bi-play-fill me-1"></i>Run Rule Preview
+                                            </button>
+                                            <a class="btn btn-outline-secondary" href="{{ url_for('web.kb_rules_preview', rule_id=rule.id) }}">
+                                                Clear
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {% if preview_result %}
+                            {% set status_key = (preview_result.status or 'IMPOSSIBLE')|lower %}
+                            <div class="card preview-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                        <h5 class="mb-0">Preview Result</h5>
+                                        <span class="result-pill {% if status_key == 'matched' %}matched{% elif status_key == 'possible' %}possible{% else %}impossible{% endif %}">
+                                            {{ preview_result.status }}
+                                        </span>
+                                    </div>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <div class="preview-meta">Diagnosis</div>
+                                            <div class="fw-semibold">{{ preview_result.diagnosis_name or preview_result.diagnosis_code or '-' }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="preview-meta">Confidence (current inputs)</div>
+                                            <div class="fw-semibold">{{ preview_result.confidence_pct }}%</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="preview-meta">Evidence Coverage</div>
+                                            <div class="fw-semibold">{{ preview_result.required_coverage_pct }}%</div>
+                                        </div>
+                                    </div>
+
+                                    {% if status_key == 'possible' %}
+                                    <div class="alert alert-warning">
+                                        Partial rule match. This is a preliminary result and needs additional evidence to confirm.
+                                    </div>
+                                    {% endif %}
+
+                                    {% if preview_result.recommended_tests %}
+                                    <div class="mb-3">
+                                        <div class="fw-semibold">Recommended tests to confirm</div>
+                                        <ul class="evidence-list mt-2">
+                                            {% for item in preview_result.recommended_tests %}
+                                            <li>{{ item }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="fw-semibold">Matched Evidence</div>
+                                            {% if preview_result.matched %}
+                                            <ul class="evidence-list mt-2">
+                                                {% for item in preview_result.matched %}
+                                                <li><strong>{{ item.label }}</strong>: expected {{ item.expected }}, got {{ item.actual }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <div class="preview-meta mt-2">No matched evidence.</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="fw-semibold">Missing Evidence</div>
+                                            {% if preview_result.missing %}
+                                            <ul class="evidence-list mt-2">
+                                                {% for item in preview_result.missing %}
+                                                <li><strong>{{ item.label }}</strong>: expected {{ item.expected }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <div class="preview-meta mt-2">No missing evidence.</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="fw-semibold">Contradictions</div>
+                                            {% if preview_result.contradictions %}
+                                            <ul class="evidence-list mt-2">
+                                                {% for item in preview_result.contradictions %}
+                                                <li><strong>{{ item.label }}</strong>: expected {{ item.expected }}, got {{ item.actual }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <div class="preview-meta mt-2">No contradictions.</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-init.js') }}"></script>
+</body>
+</html>

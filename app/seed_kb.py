@@ -9,6 +9,15 @@ if __name__ == "__main__":
 from app.extensions import db
 from app.models import Symptom, Rule, RuleCondition, RuleAction, Disease
 
+
+def _risk_from_severity_level(level):
+    text = (level or "LOW").upper()
+    if text in {"HIGH", "URGENT"}:
+        return "HIGH"
+    if text == "MEDIUM":
+        return "MEDIUM"
+    return "LOW"
+
 def upsert_symptom(row):
     """
     row keys:
@@ -39,17 +48,19 @@ def upsert_symptom(row):
 
     return s
 
-def upsert_disease(code, name, urgency, advice, severity="INFO", rec=None):
+def upsert_disease(code, name, severity_level, description, rec=None):
     d = Disease.query.filter_by(code=code).first()
     if not d:
         d = Disease(code=code)
         db.session.add(d)
+    severity_level = (severity_level or "LOW").strip().lower()
+    if severity_level not in {"low", "medium", "high"}:
+        severity_level = "low"
     d.name = name
-    d.urgency = urgency
-    d.advice = advice
-    d.severity = severity
-    d.recommendations_json = rec or {}
-    d.is_active = True
+    d.severity_level = severity_level
+    d.description = description
+    d.default_recommendation = description
+    d.active = True
     return d
 
 def upsert_rule(rule_code, title, priority, explanation_text=None):
@@ -58,9 +69,13 @@ def upsert_rule(rule_code, title, priority, explanation_text=None):
         r = Rule(rule_code=rule_code)
         db.session.add(r)
     r.title = title
+    r.version = 1
+    r.rule_type = r.rule_type or "screening"
     r.priority = priority
     r.is_active = True
+    r.doctor_response_template = explanation_text
     r.explanation_text = explanation_text
+    r.stop_on_match = bool(r.stop_on_match)
     return r
 
 def set_rule_conditions(rule, conditions, symptoms_by_code):
@@ -89,10 +104,19 @@ def set_rule_action(rule, disease, confidence):
     # clear existing actions for simplicity
     RuleAction.query.filter_by(rule_id=rule.id).delete()
 
+    conf = float(confidence) if confidence is not None else 0.5
+    if conf > 1:
+        conf = conf / 100.0
+    conf = max(0.0, min(1.0, conf))
+
+    rule.disease_id = disease.id
+    rule.risk_level = _risk_from_severity_level(disease.severity_level)
+    rule.base_confidence = conf
+
     ra = RuleAction(
         rule_id=rule.id,
         disease_id=disease.id,
-        confidence=confidence,
+        confidence=conf,
         created_at=datetime.utcnow(),
     )
     db.session.add(ra)
@@ -344,31 +368,26 @@ def seed_full_kb():
     d_dm = upsert_disease(
         "DIABETES", "Diabetes likely", "HIGH",
         "Your results suggest diabetes. Please seek clinical confirmation and a management plan.",
-        severity="DANGER",
         rec={"tests": ["Fasting plasma glucose", "HbA1c"], "actions": ["Consult clinician", "Monitor glucose"]}
     )
     d_pre = upsert_disease(
         "PREDIABETES", "Prediabetes risk", "MEDIUM",
         "Your results suggest increased risk. Lifestyle changes and follow-up testing are advised.",
-        severity="WARN",
         rec={"actions": ["Diet improvements", "Exercise 150 min/week", "Repeat testing in 3-6 months"]}
     )
     d_low = upsert_disease(
         "LOW_RISK", "Low risk (screening)", "LOW",
         "Low risk based on your answers. Maintain healthy habits and recheck if symptoms change.",
-        severity="INFO",
         rec={"actions": ["Balanced diet", "Stay active", "Annual screening"]}
     )
     d_need = upsert_disease(
         "NEED_LABS", "Need lab tests", "MEDIUM",
         "Symptoms suggest you should do lab tests (FPG/HbA1c) to confirm.",
-        severity="WARN",
         rec={"tests": ["FPG", "HbA1c"], "note": "Screening only without labs"}
     )
     d_und = upsert_disease(
         "UNDETERMINED", "Undetermined", "LOW",
         "Not enough reliable data to decide. Answer more questions or consult a clinician.",
-        severity="INFO",
         rec={"actions": ["Provide more symptoms", "Add lab data if available"]}
     )
     db.session.commit()

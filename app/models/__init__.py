@@ -7,8 +7,8 @@ from .rbac import UserRole, RolePermission
 
 from .symptom import Symptom
 from .assessment import Assessment, CaseFact
-from .rule import Rule, RuleCondition, RuleAction
-from .diagnosis import Disease, DiagnosisRun
+from .rule import RuleSet, Rule, RuleCondition, RuleAction
+from .diagnosis import Disease, DiagnosisRun, AssessmentRuleResult, AssessmentDiagnosisResult
 from .audit import AuditLog
 
 __all__ = [
@@ -21,10 +21,13 @@ __all__ = [
     "Symptom",
     "Assessment",
     "CaseFact",
+    "RuleSet",
     "Rule",
     "RuleCondition",
     "RuleAction",
     "Disease",
     "DiagnosisRun",
+    "AssessmentRuleResult",
+    "AssessmentDiagnosisResult",
     "AuditLog",
 ]

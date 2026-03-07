@@ -47,6 +47,39 @@
             white-space: nowrap;
         }
 
+        .kb-sort-btn {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            font: inherit;
+            text-transform: inherit;
+            letter-spacing: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .kb-sort-btn:hover,
+        .kb-sort-btn:focus {
+            color: #0f172a;
+            outline: none;
+        }
+
+        .kb-sort-btn.is-active {
+            color: #0f172a;
+        }
+
+        .kb-sort-indicator {
+            font-size: 0.85rem;
+            line-height: 1;
+            color: #94a3b8;
+        }
+
+        .kb-sort-btn.is-active .kb-sort-indicator {
+            color: #0f172a;
+        }
+
         .kb-table td {
             vertical-align: middle;
         }
@@ -82,6 +115,35 @@
 
         .condition-table td {
             vertical-align: middle;
+        }
+
+        .condition-search-wrap {
+            position: relative;
+            width: 100%;
+            margin-bottom: 0.7rem;
+        }
+
+        .condition-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .condition-search-input {
+            width: 100%;
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid rgba(37, 99, 235, 0.45);
+            padding-left: 2rem;
+        }
+
+        .condition-search-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
         }
 
         .kb-editor {
@@ -127,6 +189,100 @@
         .rule-conditions-section {
             margin-top: 0.5rem;
         }
+
+        .rule-form-section {
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 14px;
+            background: #f8fafc;
+            padding: 0.95rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .rule-form-section-title {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .rule-form-section-subtitle {
+            margin: 0.2rem 0 0.75rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .action-menu-trigger {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: #ffffff;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-menu-trigger:hover,
+        .action-menu-trigger:focus {
+            border-color: #94a3b8;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .action-menu .dropdown-menu {
+            min-width: 220px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            padding: 0.4rem;
+        }
+
+        .action-menu .dropdown-item {
+            border-radius: 10px;
+            padding: 0.62rem 0.72rem;
+            font-weight: 500;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .action-menu .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .action-menu .dropdown-item:hover,
+        .action-menu .dropdown-item:focus {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .action-menu .dropdown-item.action-delete {
+            color: #dc2626;
+        }
+
+        .action-menu .dropdown-item.action-delete:hover,
+        .action-menu .dropdown-item.action-delete:focus {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .inline-actions {
+            display: inline-flex;
+            gap: 0.35rem;
+            justify-content: flex-end;
+        }
+
+        .inline-input {
+            min-width: 110px;
+        }
+
+        .inline-edit-row {
+            background: rgba(99, 102, 241, 0.05);
+        }
     </style>
 </head>
 
@@ -134,6 +290,7 @@
     <script>
         window.__rulesData = {{ rules|tojson }};
         window.__symptomsData = {{ symptoms|tojson }};
+        window.__diseasesData = {{ diseases|tojson }};
     </script>
 
     <div class="admin-app">
@@ -194,6 +351,9 @@
                             <p class="text-muted mb-0">Build rule headers and condition logic for automated diagnosis.</p>
                         </div>
                         <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" id="toggle-inline-edit">
+                                <i class="bi bi-pencil-square me-2"></i>Inline Edit: Off
+                            </button>
                             <button class="btn btn-outline-secondary" id="refresh-rules">
                                 <i class="bi bi-arrow-clockwise me-2"></i>Refresh
                             </button>
@@ -254,13 +414,13 @@
                                     <label class="form-label text-muted">Search</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-                                        <input type="text" class="form-control" id="rule-search" placeholder="Search by code, title, diagnosis">
+                                        <input type="text" class="form-control" id="rule-search" placeholder="Search by code, title, disease">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label text-muted">Diagnosis</label>
+                                    <label class="form-label text-muted">Disease</label>
                                     <select class="form-select" id="rule-diagnosis-filter">
-                                        <option value="ALL">All Diagnoses</option>
+                                        <option value="ALL">All Diseases</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -287,14 +447,66 @@
                             <table class="table align-middle kb-table mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Rule Code</th>
-                                        <th>Title</th>
-                                        <th>Diagnosis</th>
-                                        <th>Priority</th>
-                                        <th>Confidence</th>
-                                        <th>Conditions</th>
-                                        <th>Status</th>
-                                        <th>Updated</th>
+                                        <th data-sort-th="id">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="id">
+                                                No.
+                                                <span class="kb-sort-indicator" data-sort-indicator="id"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="rule_code">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="rule_code">
+                                                Rule Code
+                                                <span class="kb-sort-indicator" data-sort-indicator="rule_code"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="title">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="title">
+                                                Title
+                                                <span class="kb-sort-indicator" data-sort-indicator="title"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="diagnosis">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="diagnosis">
+                                                Disease
+                                                <span class="kb-sort-indicator" data-sort-indicator="diagnosis"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="rule_type">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="rule_type">
+                                                Type
+                                                <span class="kb-sort-indicator" data-sort-indicator="rule_type"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="priority">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="priority">
+                                                Priority
+                                                <span class="kb-sort-indicator" data-sort-indicator="priority"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="confidence">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="confidence">
+                                                Confidence
+                                                <span class="kb-sort-indicator" data-sort-indicator="confidence"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="conditions_count">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="conditions_count">
+                                                Conditions
+                                                <span class="kb-sort-indicator" data-sort-indicator="conditions_count"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="status">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="status">
+                                                Status
+                                                <span class="kb-sort-indicator" data-sort-indicator="status"></span>
+                                            </button>
+                                        </th>
+                                        <th data-sort-th="updated_at">
+                                            <button type="button" class="kb-sort-btn" data-sort-key="updated_at">
+                                                Updated
+                                                <span class="kb-sort-indicator" data-sort-indicator="updated_at"></span>
+                                            </button>
+                                        </th>
                                         <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
@@ -318,88 +530,143 @@
                     <div id="rule-modal-alert" class="alert kb-alert d-none" role="alert"></div>
                     <form id="rule-form">
                         <input type="hidden" id="rule-id">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label" for="rule-code">Rule Code</label>
-                                <input type="text" class="form-control" id="rule-code" placeholder="R_DIAB_001">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="rule-title">Title</label>
-                                <input type="text" class="form-control" id="rule-title" placeholder="High Risk Pattern">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="rule-diagnosis">Disease Name (optional)</label>
-                                <input type="text" class="form-control" id="rule-diagnosis" placeholder="Type 2 Diabetes">
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mt-1">
-                            <div class="col-md-4">
-                                <label class="form-label" for="rule-priority">Priority</label>
-                                <input type="number" class="form-control" id="rule-priority" value="0" min="0">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="rule-confidence">Confidence (%)</label>
-                                <input type="number" class="form-control" id="rule-confidence" placeholder="80" min="0" max="100">
-                            </div>
-                            <div class="col-md-4 d-flex align-items-center">
-                                <div class="form-check form-switch mt-4">
-                                    <input class="form-check-input" type="checkbox" id="rule-active" checked>
-                                    <label class="form-check-label" for="rule-active">Active</label>
+                        <section class="rule-form-section">
+                            <h6 class="rule-form-section-title">Rule Information</h6>
+                            <p class="rule-form-section-subtitle">Basic rule details and scoring setup.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-code">Rule Code</label>
+                                    <input type="text" class="form-control" id="rule-code" placeholder="R_DIAB_001">
+                                    <div class="form-text">Auto-generated for new rules (you can still edit).</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-title">Title</label>
+                                    <input type="text" class="form-control" id="rule-title" placeholder="High Risk Pattern">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-disease-id">Target Disease</label>
+                                    <select class="form-select" id="rule-disease-id">
+                                        <option value="">Select disease...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-type">Rule Type</label>
+                                    <select class="form-select" id="rule-type">
+                                        <option value="screening">Screening</option>
+                                        <option value="diagnostic">Diagnostic</option>
+                                        <option value="red_flag">Red Flag</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-priority">Priority</label>
+                                    <input type="number" class="form-control" id="rule-priority" value="0" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-confidence">Confidence (%)</label>
+                                    <input type="number" class="form-control" id="rule-confidence" placeholder="80" min="0" max="100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-risk-level">Rule Risk Level</label>
+                                    <select class="form-select" id="rule-risk-level">
+                                        <option value="LOW">LOW</option>
+                                        <option value="MEDIUM">MEDIUM</option>
+                                        <option value="HIGH">HIGH</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Disease Profile</label>
+                                    <div class="form-control bg-light">
+                                        <div class="small text-muted">Code: <span id="rule-disease-code-hint">-</span></div>
+                                        <div class="small text-muted">Severity level: <span id="rule-disease-severity-hint">-</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-version">Version</label>
+                                    <input type="number" class="form-control" id="rule-version" value="1" min="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-min-required">Min Required Matches</label>
+                                    <input type="number" class="form-control" id="rule-min-required" min="0" placeholder="optional">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-cap-unconfirmed">Cap If Unconfirmed (%)</label>
+                                    <input type="number" class="form-control" id="rule-cap-unconfirmed" placeholder="60" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-bonus-max">Confidence Bonus Max (%)</label>
+                                    <input type="number" class="form-control" id="rule-bonus-max" placeholder="30" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="rule-active" checked>
+                                        <label class="form-check-label" for="rule-active">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="rule-stop-on-match">
+                                        <label class="form-check-label" for="rule-stop-on-match">Stop engine on match</label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="row g-3 mt-1">
-                            <div class="col-md-6">
-                                <label class="form-label" for="rule-diagnosis-code">Disease Code (optional)</label>
-                                <input type="text" class="form-control" id="rule-diagnosis-code" placeholder="DIABETES_TYPE_2">
+                        <section class="rule-form-section">
+                            <h6 class="rule-form-section-title">Trigger Criteria</h6>
+                            <p class="rule-form-section-subtitle">Required conditions must be satisfied; optional conditions add evidence.</p>
+                            <div class="rule-conditions-section d-flex justify-content-end align-items-center mb-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="add-condition">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Condition
+                                </button>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="rule-risk-level">Risk Level (optional)</label>
-                                <select class="form-select" id="rule-risk-level">
-                                    <option value="">Select level</option>
-                                    <option value="LOW">LOW</option>
-                                    <option value="MEDIUM">MEDIUM</option>
-                                    <option value="HIGH">HIGH</option>
-                                </select>
-                            </div>
-                        </div>
 
-                        <hr class="my-4">
-                        <div class="rule-conditions-section d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <h6 class="mb-0">Rule Conditions</h6>
-                                <p class="kb-meta mb-0">Required conditions must be satisfied; optional conditions add evidence.</p>
+                            <div class="condition-search-wrap">
+                                <i class="bi bi-search condition-search-icon"></i>
+                                <input
+                                    type="search"
+                                    id="condition-symptom-search"
+                                    class="form-control form-control-sm condition-search-input"
+                                    placeholder="Search symptoms for all condition rows">
                             </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-condition">
-                                <i class="bi bi-plus-lg me-1"></i>Add Condition
-                            </button>
-                        </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-sm condition-table mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Symptom</th>
-                                        <th>Operator</th>
-                                        <th>Value</th>
-                                        <th>Required</th>
-                                        <th>Weight</th>
-                                        <th class="text-end">Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="conditions-table"></tbody>
-                            </table>
-                        </div>
-
-                        <div class="row g-3 mt-4 doctor-response-block">
-                            <div class="col-12">
-                                <label class="form-label" for="rule-explanation-editor">Doctor Response</label>
-                                <div id="rule-explanation-editor" class="kb-editor"></div>
-                                <div class="form-text">Shown in the diagnosis report when this rule matches.</div>
+                            <div class="table-responsive">
+                                <table class="table table-sm condition-table mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Symptom</th>
+                                            <th>Operator</th>
+                                            <th>Value</th>
+                                            <th>Required</th>
+                                            <th>Weight</th>
+                                            <th class="text-end">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="conditions-table"></tbody>
+                                </table>
                             </div>
-                        </div>
+                        </section>
+
+                        <section class="rule-form-section mb-0">
+                            <h6 class="rule-form-section-title">Response Templates</h6>
+                            <p class="rule-form-section-subtitle">Messages shown when the rule matches.</p>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="rule-patient-summary">Patient Summary Template</label>
+                                    <textarea class="form-control" id="rule-patient-summary" rows="2" placeholder="Short result shown to patient"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="rule-advice-template">Advice Template</label>
+                                    <textarea class="form-control" id="rule-advice-template" rows="2" placeholder="Next actions and safety notes"></textarea>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2 doctor-response-block">
+                                <div class="col-12">
+                                    <label class="form-label" for="rule-explanation-editor">Doctor Response Template</label>
+                                    <div id="rule-explanation-editor" class="kb-editor"></div>
+                                    <div class="form-text">Shown in the diagnosis report when this rule matches.</div>
+                                </div>
+                            </div>
+                        </section>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -417,9 +684,15 @@
         const ruleState = {
             items: Array.isArray(window.__rulesData) ? window.__rulesData : [],
             filtered: [],
+            sortKey: 'id',
+            sortDirection: 'asc',
+            inlineEditEnabled: false,
+            inlineDrafts: new Map(),
+            inlineDirtyIds: new Set(),
         };
 
         const symptoms = Array.isArray(window.__symptomsData) ? window.__symptomsData : [];
+        const diseases = Array.isArray(window.__diseasesData) ? window.__diseasesData : [];
         const symptomMap = new Map(symptoms.map((symptom) => [symptom.id, symptom]));
 
         const statTotal = document.getElementById('stat-total');
@@ -428,27 +701,43 @@
         const ruleCount = document.getElementById('rule-count');
         const rulesTable = document.getElementById('rules-table');
         const rulesAlert = document.getElementById('rules-alert');
+        const inlineToggleBtn = document.getElementById('toggle-inline-edit');
 
         const searchInput = document.getElementById('rule-search');
         const diagnosisFilter = document.getElementById('rule-diagnosis-filter');
         const statusFilter = document.getElementById('rule-status-filter');
+        const sortButtons = Array.from(document.querySelectorAll('[data-sort-key]'));
+        const sortIndicators = Array.from(document.querySelectorAll('[data-sort-indicator]'));
+        const sortHeaders = Array.from(document.querySelectorAll('[data-sort-th]'));
 
         const modalEl = document.getElementById('rule-modal');
         const modal = new bootstrap.Modal(modalEl);
         const modalTitle = document.getElementById('rule-modal-title');
         const modalAlert = document.getElementById('rule-modal-alert');
+        const conditionSearchField = document.getElementById('condition-symptom-search');
 
         const formFields = {
             id: document.getElementById('rule-id'),
             code: document.getElementById('rule-code'),
             title: document.getElementById('rule-title'),
-            diagnosis: document.getElementById('rule-diagnosis'),
+            diseaseId: document.getElementById('rule-disease-id'),
             priority: document.getElementById('rule-priority'),
             confidence: document.getElementById('rule-confidence'),
+            ruleType: document.getElementById('rule-type'),
+            version: document.getElementById('rule-version'),
             active: document.getElementById('rule-active'),
-            diagnosisCode: document.getElementById('rule-diagnosis-code'),
             riskLevel: document.getElementById('rule-risk-level'),
+            capUnconfirmed: document.getElementById('rule-cap-unconfirmed'),
+            bonusMax: document.getElementById('rule-bonus-max'),
+            minRequiredMatches: document.getElementById('rule-min-required'),
+            patientSummaryTemplate: document.getElementById('rule-patient-summary'),
+            adviceTemplate: document.getElementById('rule-advice-template'),
+            stopOnMatch: document.getElementById('rule-stop-on-match'),
         };
+        const diseaseCodeHint = document.getElementById('rule-disease-code-hint');
+        const diseaseSeverityHint = document.getElementById('rule-disease-severity-hint');
+        const hasLabsSymptomCode = 'has_labs';
+        const autoCodeState = { lastGenerated: '' };
 
         const explanationEditor = new Quill('#rule-explanation-editor', {
             theme: 'snow',
@@ -493,6 +782,253 @@
             element.textContent = '';
         };
 
+        const requestJson = async (url, options) => {
+            const response = await fetch(url, options);
+            const contentType = response.headers.get('content-type') || '';
+            const isJson = contentType.includes('application/json');
+            let data = {};
+            if (isJson) {
+                data = await response.json();
+            }
+            return { response, data, isJson };
+        };
+
+        const setInlineEditEnabled = (enabled) => {
+            ruleState.inlineEditEnabled = !!enabled;
+            if (!ruleState.inlineEditEnabled) {
+                ruleState.inlineDrafts.clear();
+                ruleState.inlineDirtyIds.clear();
+            }
+            inlineToggleBtn.classList.toggle('btn-primary', ruleState.inlineEditEnabled);
+            inlineToggleBtn.classList.toggle('btn-outline-primary', !ruleState.inlineEditEnabled);
+            inlineToggleBtn.innerHTML = ruleState.inlineEditEnabled
+                ? '<i class="bi bi-pencil-square me-2"></i>Inline Edit: On'
+                : '<i class="bi bi-pencil-square me-2"></i>Inline Edit: Off';
+            renderTable();
+        };
+
+        const buildInlineDraft = (rule) => ({
+            rule_code: rule.rule_code || '',
+            title: rule.title || '',
+            disease_id: rule.disease_id || '',
+            rule_type: normalizeRuleType(rule.rule_type),
+            priority: String(rule.priority ?? 0),
+            confidence: Number.isFinite(rule.confidence) ? String(rule.confidence) : '',
+            is_active: !!rule.is_active,
+        });
+
+        const draftMatchesRule = (draft, rule) => {
+            if (!draft || !rule) {
+                return true;
+            }
+            const ruleConfidence = Number.isFinite(rule.confidence) ? String(rule.confidence) : '';
+            return (
+                String(draft.rule_code || '').trim().toUpperCase() === String(rule.rule_code || '').trim().toUpperCase() &&
+                String(draft.title || '').trim() === String(rule.title || '').trim() &&
+                String(draft.rule_type || 'screening').trim().toLowerCase() === normalizeRuleType(rule.rule_type) &&
+                String(draft.priority || '0').trim() === String(rule.priority ?? 0) &&
+                String(draft.confidence || '').trim() === ruleConfidence &&
+                String(draft.disease_id || '') === String(rule.disease_id || '') &&
+                !!draft.is_active === !!rule.is_active
+            );
+        };
+
+        const updateInlineDraftField = (id, field, value) => {
+            if (!ruleState.inlineDrafts.has(id)) {
+                const rule = ruleState.items.find((entry) => entry.id === id);
+                if (!rule) {
+                    return;
+                }
+                ruleState.inlineDrafts.set(id, buildInlineDraft(rule));
+            }
+            const draft = ruleState.inlineDrafts.get(id);
+            draft[field] = value;
+            const rule = ruleState.items.find((entry) => entry.id === id);
+            if (draftMatchesRule(draft, rule)) {
+                ruleState.inlineDirtyIds.delete(id);
+            } else {
+                ruleState.inlineDirtyIds.add(id);
+            }
+        };
+
+        const hasInlineDraftChanges = () => ruleState.inlineDirtyIds.size > 0;
+
+        const promptInlineDraftDecision = async () => {
+            if (window.Swal) {
+                const result = await window.Swal.fire({
+                    title: 'Inline draft changes detected',
+                    text: `You have ${ruleState.inlineDirtyIds.size} unsaved inline draft(s).`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'Save drafts',
+                    denyButtonText: 'Discard drafts',
+                    cancelButtonText: 'Stay in edit mode',
+                });
+                if (result.isConfirmed) {
+                    return 'save';
+                }
+                if (result.isDenied) {
+                    return 'discard';
+                }
+                return 'cancel';
+            }
+
+            const save = confirm('You have unsaved inline drafts. Save drafts now?');
+            if (save) {
+                return 'save';
+            }
+            const discard = confirm('Discard inline drafts?');
+            return discard ? 'discard' : 'cancel';
+        };
+
+        const saveAllInlineDrafts = async () => {
+            const dirtyIds = Array.from(ruleState.inlineDirtyIds);
+            if (!dirtyIds.length) {
+                return true;
+            }
+
+            for (const id of dirtyIds) {
+                const draft = ruleState.inlineDrafts.get(id);
+                if (!draft) {
+                    ruleState.inlineDirtyIds.delete(id);
+                    continue;
+                }
+
+                const payload = {
+                    rule_code: String(draft.rule_code || '').trim().toUpperCase(),
+                    title: String(draft.title || '').trim(),
+                    rule_type: String(draft.rule_type || 'screening').trim().toLowerCase(),
+                    priority: String(draft.priority || '0').trim(),
+                    confidence: String(draft.confidence || '').trim(),
+                    is_active: !!draft.is_active,
+                };
+
+                if (draft.disease_id !== '' && draft.disease_id !== null && draft.disease_id !== undefined) {
+                    payload.disease_id = Number(draft.disease_id);
+                }
+
+                if (!payload.rule_code || !payload.title) {
+                    showAlert(rulesAlert, `Row ${id}: rule code and title are required.`);
+                    return false;
+                }
+
+                if (payload.confidence && Number.isNaN(Number(payload.confidence))) {
+                    showAlert(rulesAlert, `Row ${id}: confidence must be a number.`);
+                    return false;
+                }
+                if (payload.priority !== '' && (Number.isNaN(Number(payload.priority)) || Number(payload.priority) < 0)) {
+                    showAlert(rulesAlert, `Row ${id}: priority must be a non-negative number.`);
+                    return false;
+                }
+
+                try {
+                    const { response, data, isJson } = await requestJson(`/knowledge/rules/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'fetch',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+                    if (response.redirected && !isJson) {
+                        window.location.href = response.url;
+                        return false;
+                    }
+                    if (!response.ok) {
+                        showAlert(rulesAlert, data.message || `Failed to save inline draft for rule ID ${id}.`);
+                        return false;
+                    }
+                } catch (error) {
+                    showAlert(rulesAlert, `Failed to save inline draft for rule ID ${id}.`);
+                    return false;
+                }
+            }
+
+            try {
+                await fetchRules();
+            } catch (refreshError) {
+                window.location.reload();
+                return false;
+            }
+            showAlert(rulesAlert, 'Inline drafts saved.', 'success');
+            setTimeout(() => hideAlert(rulesAlert), 1800);
+            return true;
+        };
+
+        const discardAllInlineDrafts = () => {
+            ruleState.inlineDrafts.clear();
+            ruleState.inlineDirtyIds.clear();
+        };
+
+        const tryExitInlineEditMode = async () => {
+            if (!hasInlineDraftChanges()) {
+                setInlineEditEnabled(false);
+                return;
+            }
+
+            const decision = await promptInlineDraftDecision();
+            if (decision === 'cancel') {
+                return;
+            }
+            if (decision === 'discard') {
+                discardAllInlineDrafts();
+                setInlineEditEnabled(false);
+                showAlert(rulesAlert, 'Inline drafts discarded.', 'warning');
+                setTimeout(() => hideAlert(rulesAlert), 1500);
+                return;
+            }
+            if (decision === 'save') {
+                const saved = await saveAllInlineDrafts();
+                if (saved) {
+                    setInlineEditEnabled(false);
+                }
+            }
+        };
+
+        const getSelectedDisease = () => {
+            const selectedId = Number(formFields.diseaseId.value || 0);
+            if (!selectedId) {
+                return null;
+            }
+            return diseases.find((disease) => Number(disease.id) === selectedId) || null;
+        };
+
+        const riskFromDisease = (disease) => {
+            const severityLevel = (disease?.severity_level || 'LOW').toUpperCase();
+            if (severityLevel === 'URGENT' || severityLevel === 'HIGH') {
+                return 'HIGH';
+            }
+            if (severityLevel === 'MEDIUM') {
+                return 'MEDIUM';
+            }
+            return 'LOW';
+        };
+
+        const syncDiseaseHints = () => {
+            const selected = getSelectedDisease();
+            diseaseCodeHint.textContent = selected?.code || '-';
+            diseaseSeverityHint.textContent = (selected?.severity_level || '-').toUpperCase();
+        };
+
+        const populateDiseaseOptions = (selectedId = null) => {
+            formFields.diseaseId.innerHTML = '<option value="">Select disease...</option>';
+            const sorted = diseases
+                .slice()
+                .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            sorted.forEach((disease) => {
+                const option = document.createElement('option');
+                option.value = String(disease.id);
+                option.textContent = `${disease.name || disease.code} (${disease.code})`;
+                if (selectedId !== null && Number(selectedId) === Number(disease.id)) {
+                    option.selected = true;
+                }
+                formFields.diseaseId.appendChild(option);
+            });
+            syncDiseaseHints();
+        };
+
         const getExplanationHtml = () => {
             const text = explanationEditor.getText().trim();
             if (!text) {
@@ -519,6 +1055,85 @@
             return date.toLocaleString();
         };
 
+        const escapeHtml = (text) => String(text || '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+
+        const normalizeRuleType = (value) => (
+            (() => {
+                const raw = (value || '').toString().trim().toLowerCase();
+                if (raw === 'diagnostic') return 'diagnostic';
+                if (raw === 'red_flag') return 'red_flag';
+                return 'screening';
+            })()
+        );
+
+        const ruleTypeOptionsHtml = (selected) => {
+            const options = [
+                { value: 'screening', label: 'Screening' },
+                { value: 'diagnostic', label: 'Diagnostic' },
+                { value: 'red_flag', label: 'Red Flag' },
+            ];
+            return options.map((option) => (
+                `<option value="${option.value}" ${option.value === selected ? 'selected' : ''}>${option.label}</option>`
+            )).join('');
+        };
+
+        const inlineDiseaseOptionsHtml = (selectedId) => {
+            const normalizedSelected = selectedId === '' || selectedId === null || selectedId === undefined
+                ? ''
+                : String(selectedId);
+            const options = diseases
+                .slice()
+                .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
+                .map((disease) => {
+                    const value = String(disease.id);
+                    const label = `${disease.name || disease.code} (${disease.code})`;
+                    return `<option value="${value}" ${value === normalizedSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+                });
+            return `<option value="">Select disease...</option>${options.join('')}`;
+        };
+
+        const ruleCodePrefix = (ruleType) => {
+            const normalized = normalizeRuleType(ruleType);
+            if (normalized === 'diagnostic') return 'R_DGN';
+            if (normalized === 'red_flag') return 'R_RED';
+            return 'R_SCR';
+        };
+
+        const computeNextAutoRuleCode = (ruleType) => {
+            const prefix = ruleCodePrefix(ruleType);
+            let maxSuffix = 0;
+            ruleState.items.forEach((item) => {
+                const code = String(item.rule_code || '').trim().toUpperCase();
+                if (!code.startsWith(`${prefix}_`)) {
+                    return;
+                }
+                const suffix = code.split('_').pop();
+                if (/^\d+$/.test(suffix || '')) {
+                    maxSuffix = Math.max(maxSuffix, Number(suffix));
+                }
+            });
+            return `${prefix}_${String(maxSuffix + 1).padStart(3, '0')}`;
+        };
+
+        const maybeAutoFillRuleCode = (force = false) => {
+            if (formFields.id.value) {
+                return;
+            }
+            const current = (formFields.code.value || '').trim().toUpperCase();
+            const replace = force || !current || current === autoCodeState.lastGenerated;
+            if (!replace) {
+                return;
+            }
+            const generated = computeNextAutoRuleCode(formFields.ruleType.value);
+            formFields.code.value = generated;
+            autoCodeState.lastGenerated = generated;
+        };
+
         const refreshDiagnosisFilter = () => {
             const existing = new Set(['ALL']);
             ruleState.items.forEach((item) => {
@@ -531,7 +1146,7 @@
             Array.from(existing).forEach((value) => {
                 const option = document.createElement('option');
                 option.value = value;
-                option.textContent = value === 'ALL' ? 'All Diagnoses' : value;
+                option.textContent = value === 'ALL' ? 'All Diseases' : value;
                 diagnosisFilter.appendChild(option);
             });
         };
@@ -550,12 +1165,120 @@
             statConfidence.textContent = avgConfidence !== null ? `${avgConfidence}%` : '-';
         };
 
+        const defaultSortDirectionFor = (key) => (key === 'updated_at' ? 'desc' : 'asc');
+
+        const parseTimestamp = (value) => {
+            const ts = Date.parse(value || '');
+            return Number.isNaN(ts) ? 0 : ts;
+        };
+
+        const getSortValue = (rule, key) => {
+            const diagnosisLabel = rule.diagnosis || rule.diagnosis_code || '';
+            switch (key) {
+                case 'id':
+                    return Number(rule.id) || 0;
+                case 'rule_code':
+                    return rule.rule_code || '';
+                case 'title':
+                    return rule.title || '';
+                case 'diagnosis':
+                    return diagnosisLabel;
+                case 'rule_type':
+                    return normalizeRuleType(rule.rule_type);
+                case 'priority':
+                    return Number(rule.priority) || 0;
+                case 'confidence':
+                    return Number.isFinite(rule.confidence) ? Number(rule.confidence) : -1;
+                case 'conditions_count':
+                    return Number(rule.conditions_count) || 0;
+                case 'status':
+                    return rule.is_active ? 'active' : 'inactive';
+                case 'updated_at':
+                    return parseTimestamp(rule.updated_at || rule.created_at);
+                default:
+                    return '';
+            }
+        };
+
+        const compareSortValues = (a, b) => {
+            const aBlank = a === null || a === undefined || a === '';
+            const bBlank = b === null || b === undefined || b === '';
+            if (aBlank && bBlank) {
+                return 0;
+            }
+            if (aBlank) {
+                return 1;
+            }
+            if (bBlank) {
+                return -1;
+            }
+            if (typeof a === 'number' && typeof b === 'number') {
+                return a - b;
+            }
+            return String(a).localeCompare(String(b), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+            });
+        };
+
+        const sortItems = (items) => {
+            const key = ruleState.sortKey;
+            const direction = ruleState.sortDirection;
+            const sorted = [...items];
+            sorted.sort((a, b) => {
+                const valueA = getSortValue(a, key);
+                const valueB = getSortValue(b, key);
+                let result = compareSortValues(valueA, valueB);
+                if (result === 0) {
+                    result = compareSortValues(Number(a.id) || 0, Number(b.id) || 0);
+                }
+                return direction === 'desc' ? -result : result;
+            });
+            return sorted;
+        };
+
+        const renderSortIndicators = () => {
+            sortIndicators.forEach((indicatorEl) => {
+                const key = indicatorEl.dataset.sortIndicator;
+                if (ruleState.sortKey !== key) {
+                    indicatorEl.innerHTML = '<i class="bi bi-arrow-down-up"></i>';
+                    return;
+                }
+                indicatorEl.innerHTML = ruleState.sortDirection === 'asc'
+                    ? '<i class="bi bi-sort-up"></i>'
+                    : '<i class="bi bi-sort-down"></i>';
+            });
+
+            sortButtons.forEach((button) => {
+                button.classList.toggle('is-active', button.dataset.sortKey === ruleState.sortKey);
+            });
+
+            sortHeaders.forEach((th) => {
+                const key = th.dataset.sortTh;
+                if (key !== ruleState.sortKey) {
+                    th.setAttribute('aria-sort', 'none');
+                    return;
+                }
+                th.setAttribute('aria-sort', ruleState.sortDirection === 'asc' ? 'ascending' : 'descending');
+            });
+        };
+
+        const toggleSort = (key) => {
+            if (ruleState.sortKey === key) {
+                ruleState.sortDirection = ruleState.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                ruleState.sortKey = key;
+                ruleState.sortDirection = defaultSortDirectionFor(key);
+            }
+            applyFilters();
+        };
+
         const applyFilters = () => {
             const query = (searchInput.value || '').toLowerCase();
             const diagnosis = diagnosisFilter.value;
             const status = statusFilter.value;
 
-            ruleState.filtered = ruleState.items.filter((rule) => {
+            const filtered = ruleState.items.filter((rule) => {
                 const diagnosisLabel = rule.diagnosis || rule.diagnosis_code || '';
                 const matchesQuery =
                     (rule.rule_code || '').toLowerCase().includes(query) ||
@@ -565,16 +1288,18 @@
                 const matchesStatus = status === 'ALL' || (status === 'ACTIVE' ? rule.is_active : !rule.is_active);
                 return matchesQuery && matchesDiagnosis && matchesStatus;
             });
+            ruleState.filtered = sortItems(filtered);
 
             renderTable();
         };
 
         const renderTable = () => {
+            renderSortIndicators();
             rulesTable.innerHTML = '';
             if (!ruleState.filtered.length) {
                 rulesTable.innerHTML = `
                     <tr>
-                        <td colspan="9">
+                        <td colspan="11">
                             <div class="kb-empty">
                                 <i class="bi bi-journal-x" style="font-size: 2rem;"></i>
                                 <p class="mt-2 mb-0">No rules match your filters.</p>
@@ -586,17 +1311,81 @@
                 return;
             }
 
-            ruleState.filtered.forEach((rule) => {
+            ruleState.filtered.forEach((rule, index) => {
                 const diagnosisLabel = rule.diagnosis || rule.diagnosis_code || '-';
+                const type = (rule.rule_type || 'screening').toLowerCase();
+                const typeLabel = type === 'diagnostic'
+                    ? 'Diagnostic'
+                    : (type === 'red_flag' ? 'Red Flag' : 'Screening');
+                const typeBadge = type === 'diagnostic'
+                    ? 'bg-warning bg-opacity-10 text-warning'
+                    : (type === 'red_flag' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-info bg-opacity-10 text-info');
+                const inlineEditing = ruleState.inlineEditEnabled;
+                const draft = ruleState.inlineDrafts.get(rule.id) || buildInlineDraft(rule);
+                if (inlineEditing && !ruleState.inlineDrafts.has(rule.id)) {
+                    ruleState.inlineDrafts.set(rule.id, draft);
+                }
                 const row = document.createElement('tr');
-                row.innerHTML = `
+                if (inlineEditing) {
+                    row.classList.add('inline-edit-row');
+                    row.innerHTML = `
                     <td>
-                        <div class="fw-semibold">${rule.rule_code || '-'}</div>
+                        <span class="fw-semibold">${index + 1}</span>
+                    </td>
+                    <td>
+                        <div class="kb-meta mb-1">ID: ${rule.id}</div>
+                        <input class="form-control form-control-sm inline-input" data-inline-field="rule_code" data-id="${rule.id}" value="${escapeHtml(draft.rule_code)}">
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm inline-input" data-inline-field="title" data-id="${rule.id}" value="${escapeHtml(draft.title)}">
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm inline-input" data-inline-field="disease_id" data-id="${rule.id}">
+                            ${inlineDiseaseOptionsHtml(draft.disease_id)}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm inline-input" data-inline-field="rule_type" data-id="${rule.id}">
+                            ${ruleTypeOptionsHtml(normalizeRuleType(draft.rule_type))}
+                        </select>
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm inline-input" data-inline-field="priority" data-id="${rule.id}" type="number" min="0" value="${escapeHtml(draft.priority)}">
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm inline-input" data-inline-field="confidence" data-id="${rule.id}" type="number" min="0" max="100" step="0.1" value="${escapeHtml(draft.confidence)}">
+                    </td>
+                    <td>
+                        <span class="badge kb-badge bg-light text-dark">${rule.conditions_count ?? 0}</span>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm inline-input" data-inline-field="is_active" data-id="${rule.id}">
+                            <option value="true" ${draft.is_active ? 'selected' : ''}>Active</option>
+                            <option value="false" ${!draft.is_active ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </td>
+                    <td class="kb-meta">${formatDate(rule.updated_at || rule.created_at)}</td>
+                    <td class="text-end">
+                        <span class="kb-meta">${ruleState.inlineDirtyIds.has(rule.id) ? 'Draft changed' : 'Draft'}</span>
+                    </td>
+                `;
+                } else {
+                    row.innerHTML = `
+                    <td>
+                        <span class="fw-semibold">${index + 1}</span>
+                    </td>
+                    <td>
+                        <div class="fw-semibold">${escapeHtml(rule.rule_code || '-')}</div>
                         <div class="kb-meta">ID: ${rule.id}</div>
                     </td>
-                    <td>${rule.title || '-'}</td>
+                    <td>${escapeHtml(rule.title || '-')}</td>
                     <td>
-                        <span class="badge kb-badge bg-primary bg-opacity-10 text-primary">${diagnosisLabel}</span>
+                        <span class="badge kb-badge bg-primary bg-opacity-10 text-primary">${escapeHtml(diagnosisLabel)}</span>
+                    </td>
+                    <td>
+                        <span class="badge kb-badge ${typeBadge}">
+                            ${typeLabel}
+                        </span>
                     </td>
                     <td>${rule.priority ?? 0}</td>
                     <td>${Number.isFinite(rule.confidence) ? `${rule.confidence}%` : '-'}</td>
@@ -608,14 +1397,20 @@
                     </td>
                     <td class="kb-meta">${formatDate(rule.updated_at || rule.created_at)}</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary" data-action="edit" data-id="${rule.id}">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${rule.id}">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        <div class="inline-actions">
+                            <button class="btn btn-sm btn-outline-info" type="button" data-action="preview" data-id="${rule.id}" title="Preview result">
+                                <i class="bi bi-clipboard2-pulse"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-action="edit" data-id="${rule.id}" title="Edit rule">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" type="button" data-action="delete" data-id="${rule.id}" title="Delete rule">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
+                }
                 rulesTable.appendChild(row);
             });
 
@@ -625,18 +1420,23 @@
         const fetchRules = async () => {
             hideAlert(rulesAlert);
             try {
-                const response = await fetch('/knowledge/rules/data', {
+                const { response, data, isJson } = await requestJson('/knowledge/rules/data', {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'fetch',
                     },
                 });
-                const data = await response.json();
+                if (response.redirected && !isJson) {
+                    window.location.href = response.url;
+                    return;
+                }
                 if (!response.ok) {
                     showAlert(rulesAlert, data.message || 'Failed to load rules.');
                     return;
                 }
                 ruleState.items = data.items || [];
+                ruleState.inlineDrafts.clear();
+                ruleState.inlineDirtyIds.clear();
                 refreshDiagnosisFilter();
                 updateStats();
                 applyFilters();
@@ -649,14 +1449,27 @@
             formFields.id.value = '';
             formFields.code.value = '';
             formFields.title.value = '';
-            formFields.diagnosis.value = '';
+            formFields.diseaseId.value = '';
             formFields.priority.value = '0';
             formFields.confidence.value = '';
+            formFields.ruleType.value = 'screening';
+            formFields.version.value = '1';
             formFields.active.checked = true;
-            formFields.diagnosisCode.value = '';
-            formFields.riskLevel.value = '';
+            formFields.riskLevel.value = 'LOW';
+            formFields.capUnconfirmed.value = '';
+            formFields.bonusMax.value = '';
+            formFields.minRequiredMatches.value = '';
+            formFields.patientSummaryTemplate.value = '';
+            formFields.adviceTemplate.value = '';
+            formFields.stopOnMatch.checked = false;
+            populateDiseaseOptions(null);
+            if (conditionSearchField) {
+                conditionSearchField.value = '';
+            }
             conditionsTable.innerHTML = '';
             setExplanationHtml('');
+            autoCodeState.lastGenerated = '';
+            maybeAutoFillRuleCode(true);
         };
 
         const operatorOptions = {
@@ -665,6 +1478,72 @@
             TEXT: ['==', '!='],
             SINGLE: ['==', '!='],
             DEFAULT: ['==', '!='],
+        };
+
+        const symptomLabel = (symptom) => {
+            const code = String(symptom?.code || '').trim();
+            const name = String(symptom?.name || symptom?.question_text || '').trim();
+            return name ? `${code} - ${name}` : code;
+        };
+
+        const normalizeToken = (value) => String(value || '').trim().toLowerCase();
+
+        const findSymptomById = (idValue) => {
+            const idNumber = Number(idValue || 0);
+            if (!idNumber) {
+                return null;
+            }
+            return symptoms.find((symptom) => Number(symptom.id) === idNumber) || null;
+        };
+
+        const populateConditionSymptomSelect = (row, { query = '', selectedId = null, autoSelectFirst = false } = {}) => {
+            const symptomSelect = row.querySelector('.condition-symptom');
+            if (!symptomSelect) {
+                return null;
+            }
+
+            const currentValue = selectedId != null ? String(selectedId) : String(symptomSelect.value || '');
+            const token = normalizeToken(query);
+            const filteredSymptoms = symptoms
+                .filter((symptom) => {
+                    if (!token) {
+                        return true;
+                    }
+                    const code = normalizeToken(symptom.code);
+                    const name = normalizeToken(symptom.name || symptom.question_text);
+                    return code.includes(token) || name.includes(token) || symptomLabel(symptom).toLowerCase().includes(token);
+                })
+                .sort((a, b) => symptomLabel(a).localeCompare(symptomLabel(b)));
+
+            if (currentValue) {
+                const hasSelected = filteredSymptoms.some((symptom) => String(symptom.id) === currentValue);
+                if (!hasSelected) {
+                    const selectedSymptom = findSymptomById(currentValue);
+                    if (selectedSymptom) {
+                        filteredSymptoms.unshift(selectedSymptom);
+                    }
+                }
+            }
+
+            symptomSelect.innerHTML = '<option value="">Select symptom...</option>';
+            filteredSymptoms.forEach((symptom) => {
+                const option = document.createElement('option');
+                option.value = String(symptom.id);
+                option.textContent = symptomLabel(symptom);
+                option.dataset.inputType = String(symptom.input_type || 'BOOLEAN').toUpperCase();
+                option.dataset.symptomCode = (symptom.code || '').toLowerCase();
+                symptomSelect.appendChild(option);
+            });
+
+            if (currentValue && symptomSelect.querySelector(`option[value="${currentValue}"]`)) {
+                symptomSelect.value = currentValue;
+            } else if (autoSelectFirst && filteredSymptoms.length) {
+                symptomSelect.value = String(filteredSymptoms[0].id);
+            } else {
+                symptomSelect.value = '';
+            }
+
+            return findSymptomById(symptomSelect.value);
         };
 
         const buildValueField = (row, inputType, value, operator) => {
@@ -708,6 +1587,25 @@
             cell.appendChild(input);
         };
 
+        const isScreeningRule = () => (formFields.ruleType.value || 'screening') === 'screening';
+
+        const applyConditionRuleTypePolicy = (row) => {
+            const symptomIdField = row.querySelector('.condition-symptom');
+            const requiredField = row.querySelector('.condition-required');
+            const selectedSymptom = findSymptomById(symptomIdField?.value);
+            const symptomCode = (selectedSymptom?.code || '').toLowerCase();
+            const lockHasLabs = isScreeningRule() && symptomCode === hasLabsSymptomCode;
+
+            if (lockHasLabs) {
+                requiredField.checked = false;
+                requiredField.disabled = true;
+                requiredField.title = 'For screening rules, has_labs is always optional.';
+            } else {
+                requiredField.disabled = false;
+                requiredField.title = '';
+            }
+        };
+
         const createConditionRow = (condition = {}) => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -731,21 +1629,13 @@
                 </td>
             `;
 
-            const symptomSelect = row.querySelector('.condition-symptom');
-            symptoms.forEach((symptom) => {
-                const option = document.createElement('option');
-                option.value = symptom.id;
-                option.textContent = `${symptom.code} - ${symptom.name || symptom.question_text}`;
-                option.dataset.inputType = symptom.input_type || 'BOOLEAN';
-                symptomSelect.appendChild(option);
+            const selectedSymptom = populateConditionSymptomSelect(row, {
+                query: conditionSearchField ? conditionSearchField.value : '',
+                selectedId: condition.symptom_id ?? null,
+                autoSelectFirst: true,
             });
 
-            if (condition.symptom_id) {
-                symptomSelect.value = condition.symptom_id;
-            }
-
-            const selectedOption = symptomSelect.options[symptomSelect.selectedIndex];
-            const inputType = selectedOption ? selectedOption.dataset.inputType : 'BOOLEAN';
+            const inputType = String(selectedSymptom?.input_type || 'BOOLEAN').toUpperCase();
             const operatorSelect = row.querySelector('.condition-operator');
             const availableOperators = operatorOptions[inputType] || operatorOptions.DEFAULT;
             operatorSelect.innerHTML = '';
@@ -761,6 +1651,7 @@
             const requiredField = row.querySelector('.condition-required');
             requiredField.checked = condition.is_required !== undefined ? Boolean(condition.is_required) : true;
             row.querySelector('.condition-weight').value = condition.weight ?? 1;
+            applyConditionRuleTypePolicy(row);
             return row;
         };
 
@@ -770,6 +1661,7 @@
 
             if (!ruleId) {
                 modalTitle.textContent = 'New Rule';
+                maybeAutoFillRuleCode(true);
                 conditionsTable.appendChild(createConditionRow());
                 modal.show();
                 return;
@@ -793,13 +1685,25 @@
                 formFields.id.value = data.id;
                 formFields.code.value = data.rule_code || '';
                 formFields.title.value = data.title || '';
-                formFields.diagnosis.value = data.diagnosis || '';
+                populateDiseaseOptions(data.disease_id || null);
                 formFields.priority.value = data.priority ?? 0;
                 formFields.confidence.value = data.confidence ?? '';
+                formFields.ruleType.value = (data.rule_type || 'screening').toLowerCase();
+                formFields.version.value = data.version ?? 1;
                 formFields.active.checked = !!data.is_active;
-                formFields.diagnosisCode.value = data.diagnosis_code || '';
-                formFields.riskLevel.value = data.risk_level || '';
-                setExplanationHtml(data.explanation_text || '');
+                formFields.riskLevel.value = data.risk_level || 'LOW';
+                formFields.capUnconfirmed.value = data.confidence_cap_if_unconfirmed != null
+                    ? Number(data.confidence_cap_if_unconfirmed) * 100
+                    : '';
+                formFields.bonusMax.value = data.confidence_bonus_max != null
+                    ? Number(data.confidence_bonus_max) * 100
+                    : '';
+                formFields.minRequiredMatches.value = data.min_required_matches ?? '';
+                formFields.patientSummaryTemplate.value = data.patient_summary_template || '';
+                formFields.adviceTemplate.value = data.advice_template || '';
+                formFields.stopOnMatch.checked = !!data.stop_on_match;
+                setExplanationHtml(data.doctor_response_template || data.explanation_text || '');
+                autoCodeState.lastGenerated = '';
 
                 conditionsTable.innerHTML = '';
                 if (Array.isArray(data.conditions) && data.conditions.length) {
@@ -831,20 +1735,22 @@
             const conditions = [];
             for (const row of rows) {
                 const symptomId = row.querySelector('.condition-symptom').value;
+                const selectedSymptom = findSymptomById(symptomId);
                 const operator = row.querySelector('.condition-operator').value;
                 const valueField = row.querySelector('.condition-value');
                 const required = row.querySelector('.condition-required').checked;
                 const weightRaw = row.querySelector('.condition-weight').value;
-                const symptomOption = row.querySelector('.condition-symptom').selectedOptions[0];
-                const inputType = symptomOption ? symptomOption.dataset.inputType : 'BOOLEAN';
+                const inputType = String(selectedSymptom?.input_type || 'BOOLEAN').toUpperCase();
+                const symptomCode = (selectedSymptom?.code || '').toLowerCase();
                 const op = (operator || '==').toUpperCase();
                 const value = (op === 'PRESENT' || op === 'ABSENT')
                     ? null
                     : parseConditionValue(inputType, valueField.value);
                 const weight = weightRaw === '' ? 1 : Number(weightRaw);
 
-                if (!symptomId) {
-                    continue;
+                if (!symptomId || !selectedSymptom) {
+                    showAlert(modalAlert, 'Select a valid symptom for each condition.');
+                    return null;
                 }
 
                 if (Number.isNaN(weight) || weight < 0) {
@@ -861,7 +1767,7 @@
                     symptom_id: Number(symptomId),
                     operator,
                     value,
-                    is_required: required,
+                    is_required: isScreeningRule() && symptomCode === hasLabsSymptomCode ? false : required,
                     weight,
                 });
             }
@@ -874,42 +1780,60 @@
 
         const saveRule = async () => {
             hideAlert(modalAlert);
+            const isEdit = Boolean(formFields.id.value);
+            const ruleCode = (formFields.code.value || '').trim().toUpperCase();
+            const selectedDisease = getSelectedDisease();
             const payload = {
-                rule_code: formFields.code.value.trim(),
                 title: formFields.title.value.trim(),
-                diagnosis: formFields.diagnosis.value.trim(),
-                diagnosis_code: formFields.diagnosisCode.value.trim(),
+                disease_id: formFields.diseaseId.value ? Number(formFields.diseaseId.value) : null,
                 risk_level: formFields.riskLevel.value.trim(),
                 priority: formFields.priority.value,
                 confidence: formFields.confidence.value,
+                rule_type: (formFields.ruleType.value || 'screening').trim().toLowerCase(),
+                version: formFields.version.value,
                 is_active: formFields.active.checked,
-                explanation_text: getExplanationHtml(),
+                patient_summary_template: (formFields.patientSummaryTemplate.value || '').trim(),
+                doctor_response_template: getExplanationHtml(),
+                advice_template: (formFields.adviceTemplate.value || '').trim(),
+                confidence_cap_if_unconfirmed: formFields.capUnconfirmed.value,
+                confidence_bonus_max: formFields.bonusMax.value,
+                min_required_matches: formFields.minRequiredMatches.value,
+                stop_on_match: formFields.stopOnMatch.checked,
             };
+            if (ruleCode) {
+                payload.rule_code = ruleCode;
+            }
 
-            if (payload.diagnosis && !payload.diagnosis_code) {
-                showAlert(modalAlert, 'Provide a disease code when using a disease name.');
+            if (!payload.disease_id) {
+                showAlert(modalAlert, 'Select a target disease.');
                 return;
-            }
-            if (payload.risk_level && !payload.diagnosis_code) {
-                showAlert(modalAlert, 'Risk level requires a disease code.');
-                return;
-            }
-            if (payload.diagnosis_code && !payload.risk_level) {
-                payload.risk_level = 'LOW';
-            }
-            if (!payload.diagnosis) {
-                delete payload.diagnosis;
-            }
-            if (!payload.diagnosis_code) {
-                delete payload.diagnosis_code;
             }
             if (!payload.risk_level) {
-                delete payload.risk_level;
+                payload.risk_level = riskFromDisease(selectedDisease);
             }
-
-            if (!payload.rule_code) {
-                showAlert(modalAlert, 'Rule code is required.');
-                return;
+            if (!payload.confidence) {
+                delete payload.confidence;
+            }
+            if (!payload.version) {
+                delete payload.version;
+            }
+            if (!payload.patient_summary_template) {
+                delete payload.patient_summary_template;
+            }
+            if (!payload.doctor_response_template) {
+                delete payload.doctor_response_template;
+            }
+            if (!payload.advice_template) {
+                delete payload.advice_template;
+            }
+            if (!payload.confidence_cap_if_unconfirmed) {
+                delete payload.confidence_cap_if_unconfirmed;
+            }
+            if (!payload.confidence_bonus_max) {
+                delete payload.confidence_bonus_max;
+            }
+            if (!payload.min_required_matches) {
+                delete payload.min_required_matches;
             }
 
             const conditions = collectConditions();
@@ -917,12 +1841,11 @@
                 return;
             }
 
-            const isEdit = Boolean(formFields.id.value);
             const url = isEdit ? `/knowledge/rules/${formFields.id.value}` : '/knowledge/rules';
             const method = isEdit ? 'PUT' : 'POST';
 
             try {
-                const response = await fetch(url, {
+                const { response, data, isJson } = await requestJson(url, {
                     method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -931,7 +1854,10 @@
                     },
                     body: JSON.stringify(payload),
                 });
-                const data = await response.json();
+                if (response.redirected && !isJson) {
+                    window.location.href = response.url;
+                    return;
+                }
                 if (!response.ok) {
                     showAlert(modalAlert, data.message || 'Failed to save rule.');
                     return;
@@ -943,7 +1869,7 @@
                     return;
                 }
 
-                const conditionResponse = await fetch(`/knowledge/rules/${ruleId}/conditions`, {
+                const { response: conditionResponse, data: conditionData, isJson: conditionsAreJson } = await requestJson(`/knowledge/rules/${ruleId}/conditions`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -952,7 +1878,10 @@
                     },
                     body: JSON.stringify({ conditions }),
                 });
-                const conditionData = await conditionResponse.json();
+                if (conditionResponse.redirected && !conditionsAreJson) {
+                    window.location.href = conditionResponse.url;
+                    return;
+                }
                 if (!conditionResponse.ok) {
                     showAlert(modalAlert, conditionData.message || 'Failed to save conditions.');
                     return;
@@ -960,6 +1889,8 @@
 
                 await fetchRules();
                 modal.hide();
+                showAlert(rulesAlert, isEdit ? 'Rule updated.' : 'Rule created.', 'success');
+                setTimeout(() => hideAlert(rulesAlert), 1500);
             } catch (error) {
                 showAlert(modalAlert, 'Failed to save rule.');
             }
@@ -982,7 +1913,12 @@
                         'X-Requested-With': 'fetch',
                     },
                 });
-                const data = await response.json();
+                const contentType = response.headers.get('content-type') || '';
+                if (response.redirected && !contentType.includes('application/json')) {
+                    window.location.href = response.url;
+                    return;
+                }
+                const data = contentType.includes('application/json') ? await response.json() : {};
                 if (!response.ok) {
                     showAlert(rulesAlert, data.message || 'Failed to delete rule.');
                     return;
@@ -990,6 +1926,8 @@
                 ruleState.items = ruleState.items.filter((rule) => rule.id !== ruleId);
                 updateStats();
                 applyFilters();
+                showAlert(rulesAlert, 'Rule deleted.', 'success');
+                setTimeout(() => hideAlert(rulesAlert), 1500);
             } catch (error) {
                 showAlert(rulesAlert, 'Failed to delete rule.');
             }
@@ -998,6 +1936,13 @@
         document.getElementById('create-rule').addEventListener('click', () => openModal());
         document.getElementById('refresh-rules').addEventListener('click', fetchRules);
         document.getElementById('save-rule').addEventListener('click', saveRule);
+        inlineToggleBtn.addEventListener('click', async () => {
+            if (!ruleState.inlineEditEnabled) {
+                setInlineEditEnabled(true);
+                return;
+            }
+            await tryExitInlineEditMode();
+        });
         document.getElementById('add-condition').addEventListener('click', () => {
             conditionsTable.appendChild(createConditionRow());
         });
@@ -1006,20 +1951,54 @@
             el.addEventListener('input', applyFilters);
             el.addEventListener('change', applyFilters);
         });
+        sortButtons.forEach((button) => {
+            button.addEventListener('click', () => toggleSort(button.dataset.sortKey));
+        });
 
         rulesTable.addEventListener('click', (event) => {
-            const button = event.target.closest('button');
-            if (!button) {
+            const actionTarget = event.target.closest('[data-action]');
+            if (!actionTarget) {
                 return;
             }
-            const action = button.dataset.action;
-            const id = Number(button.dataset.id);
+            const action = actionTarget.dataset.action;
+            const id = Number(actionTarget.dataset.id);
+            if (action === 'preview') {
+                window.location.href = `/knowledge/rules/${id}/preview`;
+                return;
+            }
             if (action === 'edit') {
                 openModal(id);
             }
             if (action === 'delete') {
                 deleteRule(id);
             }
+        });
+
+        rulesTable.addEventListener('input', (event) => {
+            const fieldTarget = event.target.closest('[data-inline-field]');
+            if (!fieldTarget) {
+                return;
+            }
+            const id = Number(fieldTarget.dataset.id);
+            const field = fieldTarget.dataset.inlineField;
+            let value = fieldTarget.value;
+            if (field === 'is_active') {
+                value = value === 'true';
+            }
+            updateInlineDraftField(id, field, value);
+        });
+        rulesTable.addEventListener('change', (event) => {
+            const fieldTarget = event.target.closest('[data-inline-field]');
+            if (!fieldTarget) {
+                return;
+            }
+            const id = Number(fieldTarget.dataset.id);
+            const field = fieldTarget.dataset.inlineField;
+            let value = fieldTarget.value;
+            if (field === 'is_active') {
+                value = value === 'true';
+            }
+            updateInlineDraftField(id, field, value);
         });
 
         conditionsTable.addEventListener('click', (event) => {
@@ -1040,10 +2019,14 @@
                 return;
             }
             const row = event.target.closest('tr');
-            const selectedOption = row.querySelector('.condition-symptom').selectedOptions[0];
-            const inputType = selectedOption ? selectedOption.dataset.inputType : 'BOOLEAN';
+            const selectedSymptom = findSymptomById(row.querySelector('.condition-symptom').value);
             if (symptomSelect) {
+                if (!selectedSymptom) {
+                    showAlert(modalAlert, 'Select a valid symptom.');
+                    return;
+                }
                 const operatorField = row.querySelector('.condition-operator');
+                const inputType = String(selectedSymptom.input_type || 'BOOLEAN').toUpperCase();
                 const available = operatorOptions[inputType] || operatorOptions.DEFAULT;
                 operatorField.innerHTML = '';
                 available.forEach((op) => {
@@ -1053,11 +2036,52 @@
                     operatorField.appendChild(option);
                 });
             }
+            const inputType = String((selectedSymptom || findSymptomById(row.querySelector('.condition-symptom').value))?.input_type || 'BOOLEAN').toUpperCase();
             buildValueField(row, inputType, null, row.querySelector('.condition-operator').value);
+            applyConditionRuleTypePolicy(row);
         });
 
+        if (conditionSearchField) {
+            conditionSearchField.addEventListener('input', () => {
+                const query = conditionSearchField.value;
+                conditionsTable.querySelectorAll('tr').forEach((row) => {
+                    const currentId = row.querySelector('.condition-symptom')?.value || '';
+                    populateConditionSymptomSelect(row, {
+                        query,
+                        selectedId: currentId,
+                        autoSelectFirst: false,
+                    });
+                });
+            });
+        }
+
+        formFields.ruleType.addEventListener('change', () => {
+            maybeAutoFillRuleCode();
+            conditionsTable.querySelectorAll('tr').forEach((row) => {
+                applyConditionRuleTypePolicy(row);
+            });
+        });
+
+        formFields.diseaseId.addEventListener('change', () => {
+            const selected = getSelectedDisease();
+            if (selected && (!formFields.riskLevel.value || formFields.riskLevel.value === 'LOW')) {
+                formFields.riskLevel.value = riskFromDisease(selected);
+            }
+            syncDiseaseHints();
+        });
+
+        window.addEventListener('beforeunload', (event) => {
+            if (!ruleState.inlineEditEnabled || !hasInlineDraftChanges()) {
+                return;
+            }
+            event.preventDefault();
+            event.returnValue = '';
+        });
+
+        populateDiseaseOptions(null);
         refreshDiagnosisFilter();
         updateStats();
+        setInlineEditEnabled(false);
         applyFilters();
         if (!ruleState.items.length) {
             fetchRules();

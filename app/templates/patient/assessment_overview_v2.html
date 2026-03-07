@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Overview V2 - Diabetes Expert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #eff4fb;
+            --panel: #ffffff;
+            --line: #d7e2f0;
+            --text: #0f172a;
+            --muted: #60718d;
+            --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+            --radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: "Manrope", system-ui, -apple-system, Segoe UI, sans-serif;
+            background:
+                radial-gradient(900px 420px at 8% -2%, #dbeafe 0%, transparent 60%),
+                radial-gradient(760px 380px at 96% 0%, #cffafe 0%, transparent 56%),
+                var(--bg);
+        }
+
+        .app {
+            width: 100%;
+            margin: 0;
+            padding: 16px 20px 20px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 8px;
+            border: 1px solid rgba(215, 226, 240, 0.9);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .left-actions,
+        .right-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            border-radius: 999px;
+            height: 36px;
+            padding: 0 13px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            border-color: #b7c9ea;
+            transform: translateY(-1px);
+        }
+
+        .btn.primary {
+            border-color: #c7d8ff;
+            background: linear-gradient(120deg, #edf4ff, #ffffff);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 390px minmax(0, 1fr);
+            gap: 16px;
+            min-height: calc(100vh - 94px);
+        }
+
+        .left-col,
+        .right-col {
+            min-height: 0;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .patient-card {
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+
+        .patient-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .patient-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #38bdf8, #2563eb);
+            color: #fff;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.28);
+        }
+
+        .name {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .contact {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 0.84rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .meta-grid {
+            margin-top: 16px;
+            border-top: 1px solid #e7eef8;
+            padding-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .meta-item {
+            border-right: 1px solid #edf3fb;
+            padding-right: 6px;
+        }
+
+        .meta-item:last-child {
+            border-right: 0;
+        }
+
+        .meta-label {
+            font-size: 0.76rem;
+            color: #7988a2;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .meta-value {
+            margin-top: 2px;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .metric-card {
+            padding: 15px;
+            min-height: 134px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        }
+
+        .metric-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #5f6d82;
+            font-weight: 700;
+        }
+
+        .metric-value {
+            font-size: 1.9rem;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .metric-sub {
+            color: #64748b;
+            font-size: 0.84rem;
+        }
+
+        .strip {
+            margin-top: 10px;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #fb7185, #f43f5e, #ec4899);
+            opacity: 0.82;
+        }
+
+        .gauge-card {
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .gauge-wrap {
+            margin-top: 10px;
+            display: grid;
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .step-gauge {
+            width: min(100%, 340px);
+            position: relative;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .step-gauge-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .confidence-meta {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        .notes-card {
+            padding: 16px;
+        }
+
+        .notes-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+        }
+
+        .note-item {
+            border-top: 1px solid #ebf1f8;
+            padding: 10px 0;
+        }
+
+        .note-item:first-child {
+            border-top: 0;
+        }
+
+        .note-title {
+            font-weight: 800;
+            font-size: 0.93rem;
+            margin-bottom: 3px;
+        }
+
+        .note-text {
+            color: #5f6d82;
+            font-size: 0.87rem;
+            line-height: 1.4;
+        }
+
+        .hero-panel {
+            padding: 16px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .eyebrow {
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .hero-title {
+            font-family: "Sora", "Manrope", system-ui, sans-serif;
+            margin: 6px 0 0;
+            font-size: clamp(2rem, 3vw, 3.7rem);
+            line-height: 1.04;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-sub {
+            margin-top: 8px;
+            max-width: 640px;
+            color: #5f6d82;
+            font-size: 0.93rem;
+        }
+
+        .view-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .view-toggle-indicator {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 6px);
+            height: 34px;
+            border-radius: 999px;
+            background: #0f172a;
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+            transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 0;
+        }
+
+        .view-toggle[data-active-view="data"] .view-toggle-indicator {
+            transform: translateX(calc(100% + 4px));
+        }
+
+        .view-pill {
+            min-width: 104px;
+            height: 34px;
+            border-radius: 999px;
+            border: 0;
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #5f6d82;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: color 180ms ease;
+        }
+
+        .view-pill.active {
+            color: #fff;
+        }
+
+        .view-pill:not(.active):hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .view-panel {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .view-panel.is-active {
+            display: block;
+        }
+
+        .data-view {
+            border: 1px solid #dbe5f3;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            padding: 16px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .data-card {
+            border: 1px solid #dbe5f3;
+            border-radius: 14px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .data-card h4 {
+            margin: 0 0 10px;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .data-kv {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .data-kv .k {
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .data-kv .v {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .data-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #334155;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .data-item {
+            border-top: 1px solid #edf2f8;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .data-item:first-child {
+            border-top: 0;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .data-item-title {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .data-item-meta {
+            margin-top: 2px;
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .data-item-desc {
+            margin-top: 6px;
+            color: #475569;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .body-stage {
+            position: relative;
+            flex: 1;
+            min-height: 680px;
+            border: 1px solid #d8e3f2;
+            border-radius: 22px;
+            background:
+                radial-gradient(720px 420px at 50% 48%, rgba(14, 165, 233, 0.12) 0%, transparent 70%),
+                radial-gradient(440px 240px at 52% 80%, rgba(14, 116, 144, 0.08) 0%, transparent 78%),
+                linear-gradient(180deg, #fafdff 0%, #f2f7ff 100%);
+            overflow: hidden;
+            margin-top: 8px;
+            isolation: isolate;
+        }
+
+        .body-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(transparent 0, transparent calc(100% - 1px), rgba(186, 204, 230, 0.28) calc(100% - 1px)),
+                linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(186, 204, 230, 0.28) calc(100% - 1px));
+            background-size: 68px 68px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .body-stage::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 24px;
+            width: min(58vw, 560px);
+            height: 56px;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.24) 0%, rgba(15, 23, 42, 0.02) 70%, transparent 100%);
+            filter: blur(6px);
+            z-index: 1;
+        }
+
+        .model-shell {
+            position: absolute;
+            inset: 0;
+            pointer-events: auto;
+            z-index: 2;
+        }
+
+        .model-glow {
+            position: absolute;
+            left: 50%;
+            top: 48%;
+            width: min(56vw, 640px);
+            height: min(62vh, 600px);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 48% 30%, rgba(34, 211, 238, 0.4), transparent 58%),
+                radial-gradient(circle at 52% 70%, rgba(96, 165, 250, 0.22), transparent 66%);
+            filter: blur(12px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .model-card {
+            position: absolute;
+            inset: 0;
+            border-radius: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            overflow: hidden;
+        }
+
+        .body-model {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+            background: transparent;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .body-model:active {
+            cursor: grabbing;
+        }
+
+        .model-credit {
+            position: absolute;
+            left: 16px;
+            bottom: 14px;
+            z-index: 3;
+            font-size: 0.68rem;
+            color: #5f6d82;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            padding: 5px 9px;
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        .callout {
+            position: absolute;
+            width: clamp(230px, 20vw, 316px);
+            border: 1px solid rgba(148, 163, 184, 0.34);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 13px 13px 11px;
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.12);
+            backdrop-filter: blur(8px);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .callout::before {
+            content: "";
+            position: absolute;
+            top: var(--line-top, 50%);
+            width: var(--line-len, 82px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #fb7185, #e11d48);
+            transform: translateY(-50%);
+            opacity: 0.9;
+        }
+
+        .callout::after {
+            content: "";
+            position: absolute;
+            top: var(--line-top, 50%);
+            width: 16px;
+            height: 16px;
+            transform: translateY(-50%);
+            border: 4px solid #e11d48;
+            border-radius: 999px;
+            background: #fff;
+            box-shadow: 0 0 0 10px rgba(225, 29, 72, 0.1);
+        }
+
+        .callout-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin: 0 0 6px;
+            color: #1e293b;
+        }
+
+        .callout-body {
+            margin: 0;
+            color: #52607a;
+            font-size: 0.86rem;
+            line-height: 1.4;
+        }
+
+        .anchor-head-right {
+            top: 8%;
+            right: 2%;
+            --line-top: 44%;
+        }
+
+        .anchor-chest-left {
+            top: 31%;
+            left: 2%;
+            --line-top: 48%;
+        }
+
+        .anchor-chest-right {
+            top: 42%;
+            right: 2%;
+            --line-top: 50%;
+        }
+
+        .anchor-abdomen-right {
+            top: 64%;
+            right: 6%;
+            --line-top: 50%;
+        }
+
+        .anchor-abdomen-left {
+            top: 70%;
+            left: 14%;
+            --line-top: 52%;
+        }
+
+        .anchor-head-right::before,
+        .anchor-chest-right::before,
+        .anchor-abdomen-right::before {
+            left: calc(-1 * var(--line-len, 82px));
+        }
+
+        .anchor-head-right::after,
+        .anchor-chest-right::after,
+        .anchor-abdomen-right::after {
+            left: calc(-1 * var(--line-len, 82px) - 14px);
+        }
+
+        .anchor-chest-left::before,
+        .anchor-abdomen-left::before {
+            right: calc(-1 * var(--line-len, 82px));
+        }
+
+        .anchor-chest-left::after,
+        .anchor-abdomen-left::after {
+            right: calc(-1 * var(--line-len, 82px) - 14px);
+        }
+
+        .candidate-strip {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .candidate-box {
+            border: 1px solid #dce6f3;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            padding: 10px 12px;
+        }
+
+        .candidate-box h4 {
+            margin: 0 0 6px;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #60718d;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin: 0 6px 6px 0;
+            background: #eef3ff;
+            border: 1px solid #d8e3ff;
+            color: #1e3a8a;
+        }
+
+        .chip.warn {
+            background: #fff8eb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        .empty-line {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 1380px) {
+            .layout {
+                grid-template-columns: 350px minmax(0, 1fr);
+            }
+
+            .callout {
+                width: clamp(215px, 22vw, 278px);
+            }
+        }
+
+        @media (max-width: 1120px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .body-stage {
+                min-height: 780px;
+            }
+
+            .anchor-head-right,
+            .anchor-chest-right,
+            .anchor-abdomen-right {
+                right: 1.8%;
+            }
+
+            .anchor-chest-left {
+                left: 1.8%;
+            }
+
+            .anchor-abdomen-left {
+                left: 8%;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                padding: 12px;
+            }
+
+            .topbar {
+                position: static;
+                border-radius: 16px;
+            }
+
+            .left-actions {
+                width: 100%;
+            }
+
+            .metrics-grid,
+            .candidate-strip,
+            .meta-grid,
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .body-stage {
+                min-height: 980px;
+            }
+
+            .callout {
+                position: static;
+                width: auto;
+                margin: 10px;
+            }
+
+            .callout::before,
+            .callout::after {
+                display: none;
+            }
+
+            .model-shell {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                height: 380px;
+                margin: 14px auto 0;
+            }
+
+            .model-card {
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% set patient_name = assessment.user.name if assessment and assessment.user and assessment.user.name else ('Patient #' ~ (assessment.user_id if assessment else '')) %}
+    {% set patient_initials = (patient_name[:2] | upper) if patient_name else 'PT' %}
+    {% set gauge_value = 70 %}
+
+    <div class="app">
+        <header class="topbar">
+            <div class="left-actions">
+                <a class="btn" href="{{ dashboard_url }}">
+                    <i class="bi bi-arrow-left"></i>
+                    Dashboard
+                </a>
+                <a class="btn primary" href="{{ legacy_url }}">
+                    <i class="bi bi-layout-text-window-reverse"></i>
+                    Open Classic Result
+                </a>
+            </div>
+            <div class="right-actions">
+                {% if download_url %}
+                <a class="btn" href="{{ download_url }}">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    PDF
+                </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside class="left-col">
+                <section class="panel patient-card">
+                    <div class="patient-row">
+                        <div class="patient-main">
+                            <div class="avatar">{{ patient_initials }}</div>
+                            <div>
+                                <h2 class="name">{{ patient_name }}</h2>
+                                <div class="contact">
+                                    <i class="bi bi-envelope"></i> {{ patient_contact_text }}
+                                    <span>•</span>
+                                    <i class="bi bi-telephone"></i> {{ patient_phone_text }}
+                                </div>
+                            </div>
+                        </div>
+                        <i class="bi bi-three-dots"></i>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Age</div>
+                            <div class="meta-value">{{ patient_age_text }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Sex</div>
+                            <div class="meta-value">{{ patient_sex_text }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Blood Type</div>
+                            <div class="meta-value">{{ patient_blood_text }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="metrics-grid">
+                    <article class="panel metric-card">
+                        <div class="metric-head">
+                            <span>Heart Rate</span>
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div class="metric-value">{{ heart_rate_text }}</div>
+                        <div class="metric-sub">Live screening metric</div>
+                        <div class="strip"></div>
+                    </article>
+
+                    <article class="panel metric-card">
+                        <div class="metric-head">
+                            <span>Blood Pressure</span>
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <div class="metric-value">{{ blood_pressure_text }}</div>
+                        <div class="metric-sub">Most recent captured value</div>
+                        <div class="strip"></div>
+                    </article>
+                </section>
+
+                <section class="panel gauge-card" style="--gauge-value: {{ gauge_value }};">
+                    <div class="metric-head">
+                        <span>Primary Diagnosis</span>
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </div>
+                    <div class="metric-value" style="font-size: 1.45rem;">{{ primary_label }}</div>
+                    <div class="metric-sub">Risk level: {{ risk_level }}</div>
+
+                    <div class="gauge-wrap">
+                        <div class="step-gauge" data-step-gauge data-value="{{ '%.0f'|format(gauge_value) }}">
+                            <canvas class="step-gauge-canvas" aria-label="Confidence stepped gauge"></canvas>
+                        </div>
+                        <div class="confidence-meta">Confidence indicator</div>
+                    </div>
+
+                    <div class="metric-sub">
+                        Glucose: {{ glucose_text }}{% if glucose_unit %} {{ glucose_unit }}{% endif %}
+                    </div>
+                </section>
+
+                <section class="panel notes-card">
+                    <div class="notes-head">
+                        <h3 class="section-title">Diagnosis Notes</h3>
+                        <i class="bi bi-three-dots"></i>
+                    </div>
+                    {% for note in diagnosis_notes %}
+                    <div class="note-item">
+                        <div class="note-title">{{ note.title }}</div>
+                        <div class="note-text">{{ note.text }}</div>
+                    </div>
+                    {% endfor %}
+                </section>
+            </aside>
+
+            <main class="right-col">
+                <section class="panel hero-panel">
+                    <div class="hero-top">
+                        <div>
+                            <div class="eyebrow">Data Info</div>
+                            <h1 class="hero-title">Patient's<br>Overview</h1>
+                            <p class="hero-sub">
+                                Visual summary of detected conditions, symptom evidence, and follow-up signals from assessment #{{ assessment.id }}.
+                            </p>
+                        </div>
+
+                        <div class="view-toggle" aria-label="view-toggle" role="tablist" data-active-view="body">
+                            <span class="view-toggle-indicator" aria-hidden="true"></span>
+                            <button class="view-pill active" type="button" role="tab" aria-selected="true" data-view-tab="body">
+                                <i class="bi bi-person-bounding-box"></i> Body View
+                            </button>
+                            <button class="view-pill" type="button" role="tab" aria-selected="false" data-view-tab="data">
+                                Data View
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="view-panel is-active" data-view-panel="body">
+                        <div class="body-stage">
+                            <div class="model-shell">
+                                <div class="model-glow"></div>
+                                <div class="model-card">
+                                    <model-viewer
+                                        class="body-model"
+                                        src="{{ url_for('static', filename='assets/3d/virus_3d_model.glb') }}"
+                                        alt="3D model overview"
+                                        camera-controls
+                                        auto-rotate
+                                        interaction-prompt="none"
+                                        shadow-intensity="1"
+                                        exposure="1.05"
+                                        camera-orbit="0deg 78deg 108%"
+                                        min-camera-orbit="auto 58deg 82%"
+                                        max-camera-orbit="auto 88deg 130%"
+                                    ></model-viewer>
+                                </div>
+                                <div class="model-credit">3D model loaded from local assets</div>
+                            </div>
+
+                            {% for item in overview_callouts %}
+                            <article class="callout anchor-{{ item.anchor }}">
+                                <h3 class="callout-title">{{ item.title }}</h3>
+                                <p class="callout-body">{{ item.body }}</p>
+                            </article>
+                            {% endfor %}
+                        </div>
+
+                        <div class="candidate-strip">
+                            <article class="candidate-box">
+                                <h4>Likely Conditions</h4>
+                                {% if report and report.likely_conditions %}
+                                    {% for row in report.likely_conditions[:4] %}
+                                    <span class="chip">
+                                        {{ row.diagnosis_name or row.diagnosis_code }}
+                                        <small>{{ row.est_confidence }}%</small>
+                                    </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-line">No high-evidence candidates.</div>
+                                {% endif %}
+                            </article>
+
+                            <article class="candidate-box">
+                                <h4>Possible Conditions</h4>
+                                {% if report and report.possible_conditions %}
+                                    {% for row in report.possible_conditions[:4] %}
+                                    <span class="chip warn">
+                                        {{ row.diagnosis_name or row.diagnosis_code }}
+                                        <small>{{ row.est_confidence }}%</small>
+                                    </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-line">No moderate/low-evidence candidates.</div>
+                                {% endif %}
+                            </article>
+                        </div>
+                    </div>
+
+                    <div class="view-panel data-view" data-view-panel="data">
+                        {% set key_yes = report.get('key_symptoms', {}).get('yes', []) if report else [] %}
+                        {% set key_no = report.get('key_symptoms', {}).get('no', []) if report else [] %}
+                        {% set reasoning_items = report.get('reasoning', []) if report else [] %}
+                        <div class="data-grid">
+                            <article class="data-card">
+                                <h4>Result Summary</h4>
+                                <div class="data-kv"><span class="k">Primary</span><span class="v">{{ primary_label }}</span></div>
+                                <div class="data-kv"><span class="k">Risk level</span><span class="v">{{ risk_level }}</span></div>
+                                <div class="data-kv"><span class="k">Confidence</span><span class="v">{{ "%.1f"|format(gauge_value) }}%</span></div>
+                                <div class="data-kv"><span class="k">Assessment</span><span class="v">#{{ assessment.id }}</span></div>
+                            </article>
+
+                            <article class="data-card">
+                                <h4>Likely Conditions</h4>
+                                {% if report and report.likely_conditions %}
+                                    {% for row in report.likely_conditions[:5] %}
+                                    <div class="data-item">
+                                        <div class="data-item-title">{{ row.diagnosis_name or row.diagnosis_code }}</div>
+                                        <div class="data-item-meta">{{ row.evidence_level or 'HIGH' }} • {{ row.est_confidence }}%</div>
+                                        <div class="data-item-desc">{{ row.summary or 'High-evidence candidate based on current rule matches.' }}</div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-line">No high-evidence candidates.</div>
+                                {% endif %}
+                            </article>
+
+                            <article class="data-card">
+                                <h4>Possible Conditions</h4>
+                                {% if report and report.possible_conditions %}
+                                    {% for row in report.possible_conditions[:5] %}
+                                    <div class="data-item">
+                                        <div class="data-item-title">{{ row.diagnosis_name or row.diagnosis_code }}</div>
+                                        <div class="data-item-meta">{{ row.evidence_level or 'MODERATE/LOW' }} • {{ row.est_confidence }}%</div>
+                                        <div class="data-item-desc">{{ row.summary or 'Candidate retained with moderate/low evidence.' }}</div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-line">No moderate/low-evidence candidates.</div>
+                                {% endif %}
+                            </article>
+
+                            <article class="data-card">
+                                <h4>Key Symptoms</h4>
+                                {% if key_yes %}
+                                    <div class="data-item">
+                                        <div class="data-item-title">Reported (Yes)</div>
+                                        <ul class="data-list">
+                                            {% for item in key_yes[:6] %}
+                                            <li>{{ item }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                {% if key_no %}
+                                    <div class="data-item">
+                                        <div class="data-item-title">Not Reported</div>
+                                        <ul class="data-list">
+                                            {% for item in key_no[:6] %}
+                                            <li>{{ item }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                {% if not key_yes and not key_no %}
+                                    <div class="empty-line">No symptom breakdown available.</div>
+                                {% endif %}
+                            </article>
+
+                            <article class="data-card">
+                                <h4>Recommended Tests</h4>
+                                {% if recommended_tests %}
+                                    <ul class="data-list">
+                                        {% for test in recommended_tests %}
+                                        <li>{{ test }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% elif missing_data %}
+                                    <ul class="data-list">
+                                        {% for missing in missing_data %}
+                                        <li>{{ missing }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="empty-line">No immediate additional tests suggested.</div>
+                                {% endif %}
+                            </article>
+
+                            <article class="data-card">
+                                <h4>Clinical Notes</h4>
+                                {% if reasoning_items %}
+                                    <ul class="data-list">
+                                        {% for note in reasoning_items[:5] %}
+                                        <li>{{ note }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="empty-line">No additional reasoning notes.</div>
+                                {% endif %}
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script>
+        (function () {
+            function clamp(value, min, max) {
+                return Math.max(min, Math.min(max, value));
+            }
+
+            function drawSteppedGauge(canvas, value) {
+                var cssWidth = canvas.clientWidth || 320;
+                var cssHeight = Math.round(cssWidth * 0.58);
+                var dpr = window.devicePixelRatio || 1;
+
+                canvas.width = Math.round(cssWidth * dpr);
+                canvas.height = Math.round(cssHeight * dpr);
+                canvas.style.width = cssWidth + "px";
+                canvas.style.height = cssHeight + "px";
+
+                var ctx = canvas.getContext("2d");
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+                var cx = cssWidth / 2;
+                var cy = cssHeight * 0.95;
+                var radius = Math.min(cssWidth * 0.37, cssHeight * 0.70);
+                var lineWidth = Math.max(16, Math.round(cssWidth * 0.075));
+
+                var startAngle = Math.PI;
+                var endAngle = Math.PI * 2;
+                var totalAngle = endAngle - startAngle;
+                var steps = 10;
+                var gap = 0.026;
+                var segmentAngle = (totalAngle - gap * (steps - 1)) / steps;
+
+                var palette = [
+                    "#00a86b", "#2fb35f", "#64bd4f", "#94c141", "#c1be2f",
+                    "#e4bb1e", "#f6aa0f", "#fb900b", "#ff6d12", "#f65219"
+                ];
+                var inactive = "#d9dde4";
+                var normalized = clamp(value, 0, 100);
+                var activeSteps = Math.floor((normalized / 100) * steps);
+                if (normalized > 0 && activeSteps === 0) {
+                    activeSteps = 1;
+                }
+
+                ctx.lineCap = "butt";
+                ctx.lineWidth = lineWidth;
+
+                for (var i = 0; i < steps; i += 1) {
+                    var segmentStart = startAngle + i * (segmentAngle + gap);
+                    var segmentEnd = segmentStart + segmentAngle;
+                    ctx.beginPath();
+                    ctx.strokeStyle = i < activeSteps ? palette[i] : inactive;
+                    ctx.arc(cx, cy, radius, segmentStart, segmentEnd, false);
+                    ctx.stroke();
+                }
+
+                function drawCurvedLabel(text, centerAngle, labelRadius) {
+                    var chars = String(text || "").toUpperCase().split("");
+                    if (!chars.length) return;
+
+                    var charSpacing = (Math.PI / 180) * 4.8;
+                    var totalArc = charSpacing * (chars.length - 1);
+                    var start = centerAngle - totalArc / 2;
+
+                    ctx.save();
+                    ctx.fillStyle = "#111827";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "900 " + Math.round(cssWidth * 0.048) + "px Manrope, sans-serif";
+
+                    for (var c = 0; c < chars.length; c += 1) {
+                        var a = start + c * charSpacing;
+                        var x = cx + Math.cos(a) * labelRadius;
+                        var y = cy + Math.sin(a) * labelRadius;
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate(a + Math.PI / 2);
+                        ctx.fillText(chars[c], 0, 0);
+                        ctx.restore();
+                    }
+                    ctx.restore();
+                }
+
+                var labelRadius = radius + lineWidth * 1.02;
+                drawCurvedLabel("LOW", Math.PI + 0.39, labelRadius);
+                drawCurvedLabel("MEDIUM", Math.PI * 1.5, labelRadius + 2);
+                drawCurvedLabel("HIGH", Math.PI * 2 - 0.39, labelRadius);
+
+                var valueText = String(Math.round(normalized));
+                var valueY = cy - radius * 0.30;
+                var fontSize = Math.round(cssWidth * 0.24);
+
+                ctx.fillStyle = "#1f2940";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = "700 " + fontSize + "px Manrope, sans-serif";
+                ctx.fillText(valueText, cx, valueY);
+            }
+
+            function renderAllStepGauges() {
+                var nodes = document.querySelectorAll("[data-step-gauge]");
+                nodes.forEach(function (node) {
+                    var canvas = node.querySelector(".step-gauge-canvas");
+                    if (!canvas) return;
+                    var value = Number(node.getAttribute("data-value") || 0);
+                    drawSteppedGauge(canvas, value);
+                });
+            }
+
+            function initViewTabs() {
+                var tabs = document.querySelectorAll("[data-view-tab]");
+                var panels = document.querySelectorAll("[data-view-panel]");
+                if (!tabs.length || !panels.length) return;
+
+                function setView(view) {
+                    tabs.forEach(function (tab) {
+                        var toggle = tab.closest(".view-toggle");
+                        if (toggle) {
+                            toggle.setAttribute("data-active-view", view);
+                        }
+                    });
+
+                    tabs.forEach(function (tab) {
+                        var isActive = tab.getAttribute("data-view-tab") === view;
+                        tab.classList.toggle("active", isActive);
+                        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+                    });
+
+                    panels.forEach(function (panel) {
+                        var panelView = panel.getAttribute("data-view-panel");
+                        panel.classList.toggle("is-active", panelView === view);
+                    });
+
+                    if (view === "body") {
+                        renderAllStepGauges();
+                    }
+                }
+
+                tabs.forEach(function (tab) {
+                    tab.addEventListener("click", function () {
+                        var view = tab.getAttribute("data-view-tab");
+                        setView(view || "body");
+                    });
+                });
+
+                setView("body");
+            }
+
+            window.addEventListener("resize", renderAllStepGauges);
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", function () {
+                    renderAllStepGauges();
+                    initViewTabs();
+                });
+            } else {
+                renderAllStepGauges();
+                initViewTabs();
+            }
+        })();
+    </script>
+</body>
+</html>

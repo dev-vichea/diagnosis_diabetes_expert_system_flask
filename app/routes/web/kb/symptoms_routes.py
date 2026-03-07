@@ -5,6 +5,7 @@ from app.routes.web.utils import require_login, require_permissions, wants_json
 from app.models import Symptom
 from app.services.admin_symptom_service import (
     create_symptom_from_payload,
+    delete_symptom,
     list_symptoms_payloads,
     update_symptom_from_payload,
 )
@@ -94,10 +95,10 @@ def kb_symptoms_delete_submit(symptom_id: int):
         return guard
 
     symptom = Symptom.query.get_or_404(symptom_id)
-    from app.extensions import db
-    db.session.delete(symptom)
-    db.session.commit()
-    return jsonify({"message": "deleted"})
+    deleted, error, status = delete_symptom(symptom)
+    if not deleted:
+        return jsonify({"message": error or "Failed to delete symptom."}), status
+    return jsonify({"message": "deleted"}), 200
 
 
 @web_bp.get("/knowledge/symptoms/create")

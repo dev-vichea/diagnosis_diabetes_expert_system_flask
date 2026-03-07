@@ -2,10 +2,26 @@ import json
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.extensions import db
-from app.models import Symptom
+from sqlalchemy.exc import IntegrityError
 
-VALID_INPUT_TYPES = {"BOOLEAN", "NUMBER", "TEXT", "SINGLE"}
+from app.models import CaseFact, Rule, RuleCondition, Symptom
+
+VALID_INPUT_TYPES = {"BOOLEAN", "NUMBER", "TEXT", "SINGLE", "MULTI"}
 VALID_SHOW_IF_OPERATORS = {"==", "!=", ">=", "<=", ">", "<", "PRESENT", "ABSENT"}
+
+
+def _symptom_style(symptom: Symptom) -> str:
+    category = (symptom.category or "").strip().lower().replace("-", "_")
+    code = (symptom.code or "").strip().lower().replace("-", "_")
+    if category in {"lab", "labs", "laboratory", "has_lab", "hab_lab", "gate"}:
+        return "LAB"
+    if code in {"has_labs", "has_lab"}:
+        return "LAB"
+    if symptom.parent_symptom_id:
+        return "DETAIL"
+    if category == "classic":
+        return "CHECKLIST"
+    return "CHECKLIST"
 
 
 def symptom_payload(symptom: Symptom) -> Dict[str, Any]:
@@ -17,13 +33,19 @@ def symptom_payload(symptom: Symptom) -> Dict[str, Any]:
         "input_type": symptom.input_type,
         "unit": symptom.unit,
         "options_json": symptom.options_json,
+        "min": float(symptom.min_value) if symptom.min_value is not None else None,
+        "max": float(symptom.max_value) if symptom.max_value is not None else None,
+        "allow_unknown": bool(symptom.allow_unknown),
+        "importance_weight": float(symptom.importance_weight) if symptom.importance_weight is not None else 1.0,
+        "reference_ranges_json": symptom.reference_ranges_json,
+        "active": bool(symptom.active),
         "is_active": bool(symptom.is_active),
         "category": symptom.category,
-        "ui_section": symptom.ui_section,
         "parent_symptom_id": symptom.parent_symptom_id,
         "show_if_operator": symptom.show_if_operator,
         "show_if_value": symptom.show_if_value,
         "priority_order": symptom.priority_order,
+        "question_style": _symptom_style(symptom),
         "created_at": symptom.created_at.isoformat() if symptom.created_at else None,
         "updated_at": symptom.updated_at.isoformat() if symptom.updated_at else None,
     }
@@ -55,7 +77,7 @@ def _normalize_input_type(raw: Any) -> Tuple[str, Optional[str]]:
     if isinstance(value, str):
         value = value.strip().upper()
     if value not in VALID_INPUT_TYPES:
-        return "", "input_type must be BOOLEAN, NUMBER, TEXT, or SINGLE"
+        return "", "input_type must be BOOLEAN, NUMBER, TEXT, SINGLE, or MULTI"
     return value, None
 
 
@@ -71,9 +93,15 @@ def create_symptom_from_payload(
 
     unit = (data.get("unit") or "").strip() or None
     category = (data.get("category") or "").strip() or None
-    ui_section = (data.get("ui_section") or "").strip() or None
+    min_value = data.get("min", data.get("min_value"))
+    max_value = data.get("max", data.get("max_value"))
+    allow_unknown = bool(data.get("allow_unknown", False))
+    importance_weight = float(data.get("importance_weight") or 1.0)
+    reference_ranges_json, ref_error = _parse_options_json(data.get("reference_ranges_json"))
+    if ref_error:
+        return None, "reference_ranges_json must be valid JSON", 400
     priority_order = int(data.get("priority_order") or 0)
-    is_active = bool(data.get("is_active", True))
+    is_active = bool(data.get("active", data.get("is_active", True)))
     parent_symptom_id = data.get("parent_symptom_id")
     show_if_operator = (data.get("show_if_operator") or "").strip().upper() or None
     show_if_value = data.get("show_if_value")
@@ -87,10 +115,19 @@ def create_symptom_from_payload(
     options_json, error = _parse_options_json(data.get("options_json"))
     if error:
         return None, error, 400
-    if input_type == "SINGLE" and not options_json:
-        return None, "options_json is required for SINGLE input_type", 400
-    if input_type != "SINGLE":
+    if input_type in {"SINGLE", "MULTI"} and not options_json:
+        return None, "options_json is required for SINGLE or MULTI input_type", 400
+    if input_type not in {"SINGLE", "MULTI"}:
         options_json = None
+
+    try:
+        min_value = float(min_value) if min_value not in (None, "") else None
+    except (TypeError, ValueError):
+        return None, "min must be numeric", 400
+    try:
+        max_value = float(max_value) if max_value not in (None, "") else None
+    except (TypeError, ValueError):
+        return None, "max must be numeric", 400
 
     if Symptom.query.filter_by(code=code).first():
         return None, "symptom code already exists", 409
@@ -116,12 +153,16 @@ def create_symptom_from_payload(
         unit=unit,
         options_json=options_json,
         category=category,
-        ui_section=ui_section,
+        min_value=min_value,
+        max_value=max_value,
+        allow_unknown=allow_unknown,
+        importance_weight=importance_weight,
+        reference_ranges_json=reference_ranges_json,
         parent_symptom_id=parent_symptom_id,
         show_if_operator=show_if_operator,
         show_if_value=show_if_value,
         priority_order=priority_order,
-        is_active=is_active,
+        active=is_active,
     )
     db.session.add(symptom)
     db.session.commit()
@@ -168,14 +209,40 @@ def update_symptom_from_payload(
     if "category" in data:
         symptom.category = (data.get("category") or "").strip() or None
 
-    if "ui_section" in data:
-        symptom.ui_section = (data.get("ui_section") or "").strip() or None
+    if "min" in data or "min_value" in data:
+        raw = data.get("min", data.get("min_value"))
+        try:
+            symptom.min_value = float(raw) if raw not in (None, "") else None
+        except (TypeError, ValueError):
+            return None, "min must be numeric", 400
+
+    if "max" in data or "max_value" in data:
+        raw = data.get("max", data.get("max_value"))
+        try:
+            symptom.max_value = float(raw) if raw not in (None, "") else None
+        except (TypeError, ValueError):
+            return None, "max must be numeric", 400
+
+    if "allow_unknown" in data:
+        symptom.allow_unknown = bool(data.get("allow_unknown"))
+
+    if "importance_weight" in data:
+        try:
+            symptom.importance_weight = float(data.get("importance_weight") or 1.0)
+        except (TypeError, ValueError):
+            return None, "importance_weight must be numeric", 400
+
+    if "reference_ranges_json" in data:
+        parsed_ref, error = _parse_options_json(data.get("reference_ranges_json"))
+        if error:
+            return None, "reference_ranges_json must be valid JSON", 400
+        symptom.reference_ranges_json = parsed_ref
 
     if "priority_order" in data:
         symptom.priority_order = int(data.get("priority_order") or 0)
 
-    if "is_active" in data:
-        symptom.is_active = bool(data.get("is_active"))
+    if "active" in data or "is_active" in data:
+        symptom.active = bool(data.get("active", data.get("is_active")))
 
     if "parent_symptom_id" in data:
         parent_symptom_id = data.get("parent_symptom_id")
@@ -206,16 +273,51 @@ def update_symptom_from_payload(
         else:
             symptom.show_if_value = str(show_if_value)
 
-    if input_type == "SINGLE" or "options_json" in data:
+    if input_type in {"SINGLE", "MULTI"} or "options_json" in data:
         raw_options = data.get("options_json", symptom.options_json)
         options_json, error = _parse_options_json(raw_options)
         if error:
             return None, error, 400
-        if input_type == "SINGLE" and not options_json:
-            return None, "options_json is required for SINGLE input_type", 400
+        if input_type in {"SINGLE", "MULTI"} and not options_json:
+            return None, "options_json is required for SINGLE or MULTI input_type", 400
         symptom.options_json = options_json
-    elif input_type != "SINGLE":
+    elif input_type not in {"SINGLE", "MULTI"}:
         symptom.options_json = None
 
     db.session.commit()
     return symptom_payload(symptom), None, 200
+
+
+def delete_symptom(symptom: Symptom) -> Tuple[bool, Optional[str], int]:
+    rule_count = db.session.query(RuleCondition.id).filter(RuleCondition.symptom_id == symptom.id).count()
+    fact_count = db.session.query(CaseFact.id).filter(CaseFact.symptom_id == symptom.id).count()
+
+    try:
+        if rule_count > 0:
+            RuleCondition.query.filter_by(symptom_id=symptom.id).delete(synchronize_session=False)
+        if fact_count > 0:
+            CaseFact.query.filter_by(symptom_id=symptom.id).delete(synchronize_session=False)
+        db.session.delete(symptom)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        sample_rules = (
+            db.session.query(Rule.rule_code)
+            .join(RuleCondition, RuleCondition.rule_id == Rule.id)
+            .filter(RuleCondition.symptom_id == symptom.id)
+            .order_by(Rule.rule_code.asc())
+            .limit(3)
+            .all()
+        )
+        sample_codes = [str(row[0]) for row in sample_rules if row and row[0]]
+        sample_suffix = f" (e.g. {', '.join(sample_codes)})" if sample_codes else ""
+        return (
+            False,
+            (
+                "Cannot delete symptom because it is still referenced by related data"
+                f"{sample_suffix}."
+            ),
+            409,
+        )
+
+    return True, None, 200
